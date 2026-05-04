@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, Mail, Lock } from 'lucide-react';
 import api from '../api/axios';
@@ -9,12 +9,15 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const navigate = useNavigate();
+  const passwordInputRef = useRef(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Ngăn chặn load lại trang
     setLoading(true);
     setError('');
+    setIsShaking(false);
 
     try {
       const response = await api.post('/auth/login', {
@@ -22,14 +25,25 @@ export default function Login() {
         password
       });
 
-      // Save token and user info
+      // Lưu token và thông tin người dùng
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
 
-      // Redirect to dashboard
+      // Chuyển hướng đến dashboard
       navigate('/');
     } catch (err) {
+      // Khi lỗi, giữ nguyên username và password để người dùng sửa
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
+      setIsShaking(true);
+      
+      // Tự động focus vào ô mật khẩu để người dùng nhập lại nhanh hơn
+      if (passwordInputRef.current) {
+        passwordInputRef.current.focus();
+        passwordInputRef.current.select(); // Bôi đen mật khẩu cũ để xóa nhanh
+      }
+      
+      // Tắt hiệu ứng rung sau 500ms
+      setTimeout(() => setIsShaking(false), 500);
     } finally {
       setLoading(false);
     }
@@ -43,13 +57,13 @@ export default function Login() {
       </div>
 
       <div className="auth-content">
-        <div className="auth-card">
+        <div className={`auth-card ${isShaking ? 'shake' : ''}`}>
           <div className="auth-title">
             <h3>Chào mừng trở lại</h3>
             <p>Quản lý tài chính với độ chính xác và rõ ràng.</p>
           </div>
 
-          {error && <div style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' }}>{error}</div>}
+          {error && <div className="error-alert">{error}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -69,11 +83,12 @@ export default function Login() {
             <div className="form-group">
               <label>
                 Mật khẩu
-                <a href="#" className="forgot-link">Quên mật khẩu?</a>
+                <a href="#" className="forgot-link" onClick={(e) => e.preventDefault()}>Quên mật khẩu?</a>
               </label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
                 <input 
+                  ref={passwordInputRef}
                   type="password" 
                   placeholder="••••••••" 
                   value={password}
@@ -96,11 +111,11 @@ export default function Login() {
           <div className="auth-divider">HOẶC TIẾP TỤC VỚI</div>
 
           <div className="social-buttons">
-            <button type="button" className="social-btn">
+            <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google" />
               Google
             </button>
-            <button type="button" className="social-btn">
+            <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
               <img src="https://www.svgrepo.com/show/512317/github-142.svg" width="18" alt="GitHub" />
               GitHub
             </button>
@@ -110,18 +125,10 @@ export default function Login() {
             Chưa có tài khoản? <Link to="/register">Tạo tài khoản</Link>
           </div>
 
-          <div style={{
-            marginTop: '20px',
-            padding: '12px',
-            borderRadius: '8px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px dashed rgba(255, 255, 255, 0.2)',
-            fontSize: '13px',
-            color: 'var(--text-muted)'
-          }}>
-            <p style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--text-primary)' }}>Tài khoản mẫu (Test):</p>
-            <p>User: <span style={{ color: '#60a5fa' }}>admin</span></p>
-            <p>Pass: <span style={{ color: '#60a5fa' }}>password123</span></p>
+          <div className="test-account-box">
+            <p className="test-account-title">Tài khoản mẫu (Test):</p>
+            <p>User: <span className="highlight">admin</span></p>
+            <p>Pass: <span className="highlight">password123</span></p>
           </div>
         </div>
       </div>
