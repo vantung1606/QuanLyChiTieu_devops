@@ -10,24 +10,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping
+    @GetMapping("/categories")
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
-    @PostMapping
+    @PostMapping("/categories")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO dto) {
         return ResponseEntity.ok(categoryService.createCategory(dto));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
