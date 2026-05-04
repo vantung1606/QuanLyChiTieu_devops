@@ -3,11 +3,20 @@ import axios from 'axios';
 import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import TransactionModal from '../components/TransactionModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    amount: '',
+    type: 'expense',
+    category: '',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   useEffect(() => {
     fetchData();
@@ -19,6 +28,34 @@ export default function Transactions() {
       setTransactions(transRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'amount' && value < 0) return;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/transactions`, {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        date: `${formData.date}T00:00:00`
+      });
+      setFormData({
+        title: '',
+        amount: '',
+        type: 'expense',
+        category: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+      setIsModalOpen(false);
+      fetchData();
+    } catch (error) {
+      console.error("Error saving transaction:", error);
     }
   };
 
@@ -79,7 +116,7 @@ export default function Transactions() {
               <button className="btn-outline">
                 <Download size={16} /> Tải CSV
               </button>
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
                 <Plus size={16} /> Thêm giao dịch mới
               </button>
             </div>
@@ -155,6 +192,14 @@ export default function Transactions() {
 
         </div>
       </div>
+      
+      <TransactionModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 }
