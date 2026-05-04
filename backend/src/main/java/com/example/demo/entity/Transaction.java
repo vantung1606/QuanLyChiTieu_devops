@@ -40,6 +40,10 @@ public class Transaction {
     @NotNull(message = "Date is required")
     private LocalDateTime date;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

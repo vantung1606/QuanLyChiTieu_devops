@@ -2,8 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.entity.Transaction;
+import com.example.demo.entity.User;
 import com.example.demo.repository.TransactionRepository;
+import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,27 +20,50 @@ import java.util.stream.Collectors;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     public List<TransactionDTO> getAllTransactions() {
-        return transactionRepository.findAllByOrderByDateDesc().stream()
+        User user = getCurrentUser();
+        return transactionRepository.findByUserOrderByDateDesc(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<TransactionDTO> searchTransactions(String query) {
-        return transactionRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(query, query).stream()
+        User user = getCurrentUser();
+        return transactionRepository.findByUserAndTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(user, query, query).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public TransactionDTO createTransaction(TransactionDTO dto) {
+        User user = getCurrentUser();
         Transaction transaction = convertToEntity(dto);
+        transaction.setUser(user);
         return convertToDTO(transactionRepository.save(transaction));
     }
 
     public TransactionDTO updateTransaction(Long id, TransactionDTO dto) {
+        User user = getCurrentUser();
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found for id: " + id));
+
+        // Security check
+        if (!transaction.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied: You do not own this transaction");
+        }
 
         transaction.setTitle(dto.getTitle());
         transaction.setAmount(dto.getAmount());
@@ -48,13 +75,21 @@ public class TransactionService {
     }
 
     public void deleteTransaction(Long id) {
+        User user = getCurrentUser();
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found for id: " + id));
+
+        // Security check
+        if (!transaction.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied: You do not own this transaction");
+        }
+
         transactionRepository.delete(transaction);
     }
 
     public Map<String, Double> getSummary() {
-        List<Transaction> transactions = transactionRepository.findAll();
+        User user = getCurrentUser();
+        List<Transaction> transactions = transactionRepository.findByUser(user);
         
         double totalIncome = transactions.stream()
                 .filter(t -> "income".equalsIgnoreCase(t.getType()))
@@ -96,4 +131,3 @@ public class TransactionService {
                 .build();
     }
 }
-
