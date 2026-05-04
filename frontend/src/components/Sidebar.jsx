@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings } from 'lucide-react';
 
 export default function Sidebar() {
   const location = useLocation();
