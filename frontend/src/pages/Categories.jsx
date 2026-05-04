@@ -1,31 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
   Plus, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
-  TrendingUp, TrendingDown, MoreVertical, LayoutGrid 
+  TrendingUp, TrendingDown, MoreVertical, LayoutGrid, Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell 
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import CategoryModal from '../components/CategoryModal';
 
-const CATEGORIES_MOCK = [
-  { id: 1, name: 'Ăn uống', icon: Utensils, spent: 1240000, budget: 2000000, color: '#f59e0b', trend: -4.2 },
-  { id: 2, name: 'Học tập', icon: GraduationCap, spent: 3500000, budget: 3800000, color: '#3b82f6', trend: 12.8 },
-  { id: 3, name: 'Giải trí', icon: Film, spent: 450000, budget: 600000, color: '#8b5cf6', trend: -1.5 },
-  { id: 4, name: 'Di chuyển', icon: Train, spent: 820000, budget: 1000000, color: '#10b981', trend: 2.1 },
-  { id: 5, name: 'Nhà cửa', icon: Home, spent: 2100000, budget: 2500000, color: '#ef4444', trend: 0 },
-  { id: 6, name: 'Y tế', icon: HeartPulse, spent: 150000, budget: 1000000, color: '#ec4899', trend: -10.5 },
-  { id: 7, name: 'Tiện ích', icon: Zap, spent: 320000, budget: 500000, color: '#f59e0b', trend: 5.4 },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+const ICON_MAP = {
+  Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
+  Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell, LayoutGrid
+};
 
 export default function Categories() {
+  const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/categories`);
+      setCategories(res.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setLoading(false);
+    }
+  };
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
   };
 
   const calculateProgress = (spent, budget) => {
+    if (!budget) return 0;
     return Math.min(Math.round((spent / budget) * 100), 100);
+  };
+
+  const getTopSpending = () => {
+    if (categories.length === 0) return "N/A";
+    return [...categories].sort((a, b) => b.spent - a.spent)[0].name;
+  };
+
+  const getBudgetStatus = () => {
+    const overBudget = categories.some(c => c.spent > c.budget);
+    return overBudget ? "Cần điều chỉnh" : "Đúng lộ trình";
   };
 
   return (
@@ -50,7 +76,7 @@ export default function Categories() {
             <div className="stat-card">
               <div className="stat-info">
                 <span>Chi tiêu nhiều nhất tháng</span>
-                <h3>Học tập</h3>
+                <h3>{loading ? "..." : getTopSpending()}</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
                 <TrendingUp size={24} />
@@ -59,7 +85,7 @@ export default function Categories() {
             <div className="stat-card">
               <div className="stat-info">
                 <span>Tổng danh mục</span>
-                <h3>12 đang hoạt động</h3>
+                <h3>{categories.length} đang hoạt động</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
                 <LayoutGrid size={24} />
@@ -68,7 +94,7 @@ export default function Categories() {
             <div className="stat-card">
               <div className="stat-info">
                 <span>Trạng thái ngân sách</span>
-                <h3>Đúng lộ trình</h3>
+                <h3>{loading ? "..." : getBudgetStatus()}</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
                 <TrendingDown size={24} />
@@ -78,8 +104,8 @@ export default function Categories() {
 
           {/* Category Cards */}
           <div className="category-grid">
-            {CATEGORIES_MOCK.map((cat) => {
-              const IconComp = cat.icon;
+            {categories.map((cat) => {
+              const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
               const progress = calculateProgress(cat.spent, cat.budget);
               return (
                 <div key={cat.id} className="category-card">
@@ -129,36 +155,48 @@ export default function Categories() {
                 </tr>
               </thead>
               <tbody>
-                {CATEGORIES_MOCK.map(cat => (
-                  <tr key={cat.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ color: cat.color }}><cat.icon size={18} /></div>
-                        <strong>{cat.name}</strong>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`status-badge ${cat.spent > cat.budget ? 'warning' : 'on-track'}`}>
-                        {cat.spent > cat.budget ? 'Vượt hạn mức' : 'Đúng lộ trình'}
-                      </span>
-                    </td>
-                    <td>{formatCurrency(cat.budget)}</td>
-                    <td>{formatCurrency(cat.spent)}</td>
-                    <td>
-                      <div className={`type-cell ${cat.trend > 0 ? 'expense' : 'income'}`} style={{ border: 'none', background: 'none', padding: 0 }}>
-                        {cat.trend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                        {Math.abs(cat.trend)}%
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {categories.length === 0 ? (
+                  <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>Chưa có danh mục nào</td></tr>
+                ) : (
+                  categories.map(cat => {
+                    const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
+                    return (
+                      <tr key={cat.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ color: cat.color }}><IconComp size={18} /></div>
+                            <strong>{cat.name}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`status-badge ${cat.spent > cat.budget ? 'warning' : 'on-track'}`}>
+                            {cat.spent > cat.budget ? 'Vượt hạn mức' : 'Đúng lộ trình'}
+                          </span>
+                        </td>
+                        <td>{formatCurrency(cat.budget)}</td>
+                        <td>{formatCurrency(cat.spent)}</td>
+                        <td>
+                          <div className={`type-cell ${cat.spent > cat.budget ? 'expense' : 'income'}`} style={{ border: 'none', background: 'none', padding: 0 }}>
+                            {cat.spent > cat.budget ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                            {cat.spent > 0 ? Math.round((cat.spent/cat.budget)*100) : 0}%
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        <CategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <CategoryModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          refresh={fetchCategories}
+        />
       </div>
     </div>
   );
 }
+
