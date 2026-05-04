@@ -12,7 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "categories", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "user_id"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +25,6 @@ public class Category {
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Column(unique = true)
     private String name;
 
     @NotBlank(message = "Icon is required")
@@ -34,6 +35,10 @@ public class Category {
 
     @NotNull(message = "Budget is required")
     private Double budget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -3,9 +3,13 @@ package com.example.demo.service;
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Transaction;
+import com.example.demo.entity.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.TransactionRepository;
+import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,10 +21,24 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     public List<CategoryDTO> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
-        List<Transaction> transactions = transactionRepository.findAll();
+        User user = getCurrentUser();
+        List<Category> categories = categoryRepository.findByUser(user);
+        List<Transaction> transactions = transactionRepository.findByUser(user);
 
         return categories.stream().map(category -> {
             double spent = transactions.stream()
@@ -40,17 +58,34 @@ public class CategoryService {
     }
 
     public CategoryDTO createCategory(CategoryDTO dto) {
+        User user = getCurrentUser();
+        
+        // Check if category name already exists for this user
+        if (categoryRepository.findByNameAndUser(dto.getName(), user).isPresent()) {
+            throw new RuntimeException("Category with name '" + dto.getName() + "' already exists for this user");
+        }
+
         Category category = Category.builder()
                 .name(dto.getName())
                 .icon(dto.getIcon())
                 .color(dto.getColor())
                 .budget(dto.getBudget())
+                .user(user)
                 .build();
         return convertToDTO(categoryRepository.save(category), 0.0);
     }
 
     public void deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
+        User user = getCurrentUser();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // Security check
+        if (!category.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied: You do not own this category");
+        }
+        
+        categoryRepository.delete(category);
     }
 
     private CategoryDTO convertToDTO(Category entity, Double spent) {
