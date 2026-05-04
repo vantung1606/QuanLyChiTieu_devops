@@ -140,12 +140,6 @@ export default function Login() {
           <div className="auth-footer">
             Chưa có tài khoản? <Link to="/register">Tạo tài khoản</Link>
           </div>
-
-          <div className="test-account-box">
-            <p className="test-account-title">Tài khoản mẫu (Test):</p>
-            <p>User: <span className="highlight">admin</span></p>
-            <p>Pass: <span className="highlight">password123</span></p>
-          </div>
         </div>
       </div>
 
