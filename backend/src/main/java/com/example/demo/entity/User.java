@@ -28,4 +28,22 @@ public class User {
     private String email;
 
     private String fullName;
+    
+    @Builder.Default
+    private String currency = "VND";
+    
+    @Builder.Default
+    private String language = "VI";
+    
+    @Builder.Default
+    private boolean darkMode = false;
+    
+    @Builder.Default
+    private boolean twoFactor = false;
+    
+    @Builder.Default
+    private boolean emailUpdates = true;
+    
+    @Builder.Default
+    private boolean pushNotifs = false;
 }
