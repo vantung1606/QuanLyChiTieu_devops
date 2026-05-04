@@ -36,12 +36,9 @@ export default function Register() {
         password
       });
 
-      // Save token and user info
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
-
-      // Redirect to dashboard
-      navigate('/');
+      // Redirect to login with success state
+      alert('Đăng ký thành công! Chào mừng ' + fullName + '. Vui lòng đăng nhập để bắt đầu.');
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!');
     } finally {
