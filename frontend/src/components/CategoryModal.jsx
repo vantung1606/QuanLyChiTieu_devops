@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { X, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, Briefcase, ShoppingBag, Plane, Car, Dog, LayoutGrid, Dumbbell } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+import api from '../api/axios';
 
 const ICONS = [
   { id: 'Utensils', icon: Utensils },
@@ -45,7 +43,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${API_URL}/categories`, {
+      await api.post('/categories', {
         name,
         icon: selectedIcon,
         color: selectedColor,
@@ -57,6 +55,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
       onClose();
     } catch (error) {
       console.error("Error creating category:", error);
+      alert(error.response?.data?.message || "Error creating category. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -141,5 +140,3 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
     </div>
   );
 }
-
-

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Settings, Search, Banknote, AlertTriangle, Cpu } from 'lucide-react';
+import axios from 'axios';
 
 const NOTIFICATIONS = [
   {
@@ -33,7 +34,26 @@ const NOTIFICATIONS = [
 
 export default function Header() {
   const [showNotifs, setShowNotifs] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
+  const api = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user header:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -125,9 +145,12 @@ export default function Header() {
           <Settings size={20} />
         </button>
         <div className="header-user">
-          <span className="user-name">Johnathan Doe</span>
+          <span className="user-name">{user?.fullName || user?.username || 'Người dùng'}</span>
           <div className="avatar">
-            <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar" />
+            <img 
+              src={`https://ui-avatars.com/api/?name=${user?.fullName || user?.username || 'User'}&background=006d5b&color=fff`} 
+              alt="User Avatar" 
+            />
           </div>
         </div>
       </div>
