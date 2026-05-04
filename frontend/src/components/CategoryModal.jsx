@@ -64,7 +64,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '500px' }}>
+      <div className="modal-card" style={{ maxWidth: '480px' }}>
         <div className="modal-header">
           <h3>Thêm danh mục mới</h3>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
@@ -116,8 +116,8 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
 
           <div className="form-group">
             <label>Hạn mức chi tiêu hàng tháng</label>
-            <div className="amount-input-wrapper">
-              <span className="currency-prefix">₫</span>
+            <div className="input-prefix">
+              <span className="prefix">₫</span>
               <input 
                 type="number" 
                 placeholder="0.00" 
@@ -128,10 +128,12 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
             </div>
           </div>
 
-          <div className="modal-actions" style={{ marginTop: '2rem' }}>
-            <button type="button" className="btn-outline" style={{ flex: 1 }} onClick={onClose}>Hủy bỏ</button>
-            <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={loading}>
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button type="submit" className="btn-primary w-full" style={{ padding: '0.875rem' }} disabled={loading}>
               {loading ? "Đang tạo..." : "Tạo danh mục"}
+            </button>
+            <button type="button" className="btn-cancel" onClick={onClose}>
+              Hủy bỏ
             </button>
           </div>
         </form>
@@ -139,4 +141,5 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
     </div>
   );
 }
+
 
