@@ -69,7 +69,7 @@ export default function Transactions() {
   };
 
   const formatCurrency = (val) => {
-    return new Intl.NumberFormat('vi-VN').format(Math.abs(val)) + ' đ';
+    return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
   };
 
   const getCategoryBadgeClass = (category) => {

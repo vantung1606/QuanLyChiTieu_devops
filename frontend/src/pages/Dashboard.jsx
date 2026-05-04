@@ -77,7 +77,8 @@ function Dashboard() {
   };
 
   const formatCurrency = (val) => {
-    return new Intl.NumberFormat('vi-VN').format(Math.abs(val)) + ' đ';
+    const formatted = new Intl.NumberFormat('vi-VN').format(val);
+    return (val < 0 ? formatted : formatted) + ' đ';
   };
 
   return (
