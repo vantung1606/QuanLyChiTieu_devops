@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.TransactionDTO;
 import com.example.demo.entity.Transaction;
 import com.example.demo.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,25 +17,34 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
 
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAllByOrderByDateDesc();
+    public List<TransactionDTO> getAllTransactions() {
+        return transactionRepository.findAllByOrderByDateDesc().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Transaction createTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
+    public List<TransactionDTO> searchTransactions(String query) {
+        return transactionRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(query, query).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Transaction updateTransaction(Long id, Transaction transactionDetails) {
+    public TransactionDTO createTransaction(TransactionDTO dto) {
+        Transaction transaction = convertToEntity(dto);
+        return convertToDTO(transactionRepository.save(transaction));
+    }
+
+    public TransactionDTO updateTransaction(Long id, TransactionDTO dto) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found for id: " + id));
 
-        transaction.setTitle(transactionDetails.getTitle());
-        transaction.setAmount(transactionDetails.getAmount());
-        transaction.setType(transactionDetails.getType());
-        transaction.setCategory(transactionDetails.getCategory());
-        transaction.setDate(transactionDetails.getDate());
+        transaction.setTitle(dto.getTitle());
+        transaction.setAmount(dto.getAmount());
+        transaction.setType(dto.getType());
+        transaction.setCategory(dto.getCategory());
+        transaction.setDate(dto.getDate());
 
-        return transactionRepository.save(transaction);
+        return convertToDTO(transactionRepository.save(transaction));
     }
 
     public void deleteTransaction(Long id) {
@@ -62,4 +73,27 @@ public class TransactionService {
         
         return summary;
     }
+
+    private TransactionDTO convertToDTO(Transaction entity) {
+        return TransactionDTO.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .amount(entity.getAmount())
+                .type(entity.getType())
+                .category(entity.getCategory())
+                .date(entity.getDate())
+                .build();
+    }
+
+    private Transaction convertToEntity(TransactionDTO dto) {
+        return Transaction.builder()
+                .id(dto.getId())
+                .title(dto.getTitle())
+                .amount(dto.getAmount())
+                .type(dto.getType())
+                .category(dto.getCategory())
+                .date(dto.getDate())
+                .build();
+    }
 }
+
