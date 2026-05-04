@@ -191,15 +191,15 @@ export default function Transactions() {
           </div>
 
         </div>
+
+        <TransactionModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+        />
       </div>
-      
-      <TransactionModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
-      />
     </div>
   );
 }
