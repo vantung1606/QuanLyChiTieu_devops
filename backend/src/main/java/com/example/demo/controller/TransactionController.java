@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Transaction;
+import com.example.demo.dto.TransactionDTO;
 import com.example.demo.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +23,21 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public List<Transaction> getAllTransactions() {
+    public List<TransactionDTO> getAllTransactions(@RequestParam(required = false) String q) {
+        if (q != null && !q.isEmpty()) {
+            return transactionService.searchTransactions(q);
+        }
         return transactionService.getAllTransactions();
     }
 
     @PostMapping("/transactions")
-    public Transaction createTransaction(@Valid @RequestBody Transaction transaction) {
-        return transactionService.createTransaction(transaction);
+    public TransactionDTO createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
+        return transactionService.createTransaction(transactionDTO);
     }
 
     @PutMapping("/transactions/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @Valid @RequestBody Transaction transaction) {
-        return ResponseEntity.ok(transactionService.updateTransaction(id, transaction));
+    public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id, @Valid @RequestBody TransactionDTO transactionDTO) {
+        return ResponseEntity.ok(transactionService.updateTransaction(id, transactionDTO));
     }
 
     @DeleteMapping("/transactions/{id}")
@@ -48,3 +51,4 @@ public class TransactionController {
         return transactionService.getSummary();
     }
 }
+
