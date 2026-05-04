@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings } from 'lucide-react';
 
 export default function Sidebar() {
   const location = useLocation();
@@ -11,8 +11,8 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>Finance Pro</h2>
-        <p>Tài khoản Doanh nghiệp</p>
+        <h2>Equinox Finance</h2>
+        <p>Cổng quản lý tài chính</p>
       </div>
       <div className="sidebar-nav">
         <Link to="/" className={isActive('/')}>
@@ -23,13 +23,17 @@ export default function Sidebar() {
           <Receipt size={20} />
           Giao dịch
         </Link>
-        <Link to="/categories" className={isActive('/categories')}>
+        <Link to="/budgets" className={isActive('/budgets')}>
           <Tags size={20} />
-          Danh mục
+          Ngân sách
         </Link>
         <Link to="/reports" className={isActive('/reports')}>
           <BarChart2 size={20} />
           Báo cáo
+        </Link>
+        <Link to="/settings" className={isActive('/settings')}>
+          <Settings size={20} />
+          Cài đặt
         </Link>
       </div>
       
