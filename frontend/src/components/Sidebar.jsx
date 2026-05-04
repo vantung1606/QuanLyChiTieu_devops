@@ -12,7 +12,7 @@ export default function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-header">
         <h2>Equinox Finance</h2>
-        <p>Management Portal</p>
+        <p>Cổng quản lý tài chính</p>
       </div>
       <div className="sidebar-nav">
         <Link to="/" className={isActive('/')}>
@@ -40,11 +40,11 @@ export default function Sidebar() {
       <div className="sidebar-bottom">
         <Link to="/help" className="nav-item">
           <HelpCircle size={20} />
-          Help Center
+          Trung tâm trợ giúp
         </Link>
         <Link to="/logout" className="nav-item">
           <LogOut size={20} />
-          Logout
+          Đăng xuất
         </Link>
       </div>
     </div>
