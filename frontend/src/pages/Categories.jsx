@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { 
   Plus, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
   TrendingUp, TrendingDown, MoreVertical, LayoutGrid, Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell 
 } from 'lucide-react';
+import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import CategoryModal from '../components/CategoryModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const ICON_MAP = {
   Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
@@ -26,7 +24,7 @@ export default function Categories() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${API_URL}/categories`);
+      const res = await api.get('/categories');
       setCategories(res.data);
       setLoading(false);
     } catch (error) {
@@ -199,4 +197,3 @@ export default function Categories() {
     </div>
   );
 }
-

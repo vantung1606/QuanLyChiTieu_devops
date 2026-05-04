@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2 } from 'lucide-react';
+import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import TransactionModal from '../components/TransactionModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -24,7 +22,7 @@ export default function Transactions() {
 
   const fetchData = async () => {
     try {
-      const transRes = await axios.get(`${API_URL}/transactions`);
+      const transRes = await api.get('/transactions');
       setTransactions(transRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -40,7 +38,7 @@ export default function Transactions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/transactions`, {
+      await api.post('/transactions', {
         ...formData,
         amount: parseFloat(formData.amount),
         date: `${formData.date}T00:00:00`
@@ -62,7 +60,7 @@ export default function Transactions() {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) {
       try {
-        await axios.delete(`${API_URL}/transactions/${id}`);
+        await api.delete(`/transactions/${id}`);
         fetchData();
       } catch (error) {
         console.error("Error deleting transaction:", error);
@@ -85,7 +83,6 @@ export default function Transactions() {
     return 'badge-default';
   };
 
-  // Mock sub-titles for demo based on image
   const getSubTitle = (title) => {
     if (title.toLowerCase().includes('aws')) return "Đăng ký hàng tháng";
     if (title.toLowerCase().includes('thưởng')) return "Thưởng hiệu suất";

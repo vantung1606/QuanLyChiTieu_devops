@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { TrendingUp, TrendingDown, Landmark, Plus } from 'lucide-react';
+import api from '../api/axios';
 
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -8,8 +8,6 @@ import StatCard from '../components/StatCard';
 import TransactionForm from '../components/TransactionForm';
 import FinancialTip from '../components/FinancialTip';
 import TransactionList from '../components/TransactionList';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 function Dashboard() {
   const [transactions, setTransactions] = useState([]);
@@ -29,8 +27,8 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const [transRes, summaryRes] = await Promise.all([
-        axios.get(`${API_URL}/transactions`),
-        axios.get(`${API_URL}/summary`)
+        api.get('/transactions'),
+        api.get('/summary')
       ]);
       setTransactions(transRes.data);
       setSummary(summaryRes.data);
@@ -48,7 +46,7 @@ function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/transactions`, {
+      await api.post('/transactions', {
         ...formData,
         amount: parseFloat(formData.amount),
         date: `${formData.date}T00:00:00`
@@ -70,7 +68,7 @@ function Dashboard() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
-        await axios.delete(`${API_URL}/transactions/${id}`);
+        await api.delete(`/transactions/${id}`);
         fetchData();
       } catch (error) {
         console.error("Error deleting transaction:", error);
