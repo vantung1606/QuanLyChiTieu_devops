@@ -11,8 +11,8 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>Finance Pro</h2>
-        <p>Tài khoản Doanh nghiệp</p>
+        <h2>Equinox Finance</h2>
+        <p>Management Portal</p>
       </div>
       <div className="sidebar-nav">
         <Link to="/" className={isActive('/')}>
@@ -23,24 +23,28 @@ export default function Sidebar() {
           <Receipt size={20} />
           Giao dịch
         </Link>
-        <Link to="/categories" className={isActive('/categories')}>
+        <Link to="/budgets" className={isActive('/budgets')}>
           <Tags size={20} />
-          Danh mục
+          Ngân sách
         </Link>
         <Link to="/reports" className={isActive('/reports')}>
           <BarChart2 size={20} />
           Báo cáo
+        </Link>
+        <Link to="/settings" className={isActive('/settings')}>
+          <Settings size={20} />
+          Cài đặt
         </Link>
       </div>
       
       <div className="sidebar-bottom">
         <Link to="/help" className="nav-item">
           <HelpCircle size={20} />
-          Trung tâm trợ giúp
+          Help Center
         </Link>
         <Link to="/logout" className="nav-item">
           <LogOut size={20} />
-          Đăng xuất
+          Logout
         </Link>
       </div>
     </div>
