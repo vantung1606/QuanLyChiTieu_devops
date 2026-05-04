@@ -1,18 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, Shield, Sliders, Bell, Camera, ChevronRight, 
   Globe, Moon, DollarSign, Trash2, 
-  ShieldCheck
+  ShieldCheck, Lock, AlertCircle, CheckCircle2
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import api from '../api/axios';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
-  const [darkMode, setDarkMode] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(true);
-  const [emailUpdates, setEmailUpdates] = useState(true);
-  const [pushNotifs, setPushNotifs] = useState(false);
+  const [profile, setProfile] = useState({
+    fullName: '',
+    email: '',
+    username: '',
+    currency: 'VND',
+    language: 'VI',
+    darkMode: false,
+    twoFactor: false,
+    emailUpdates: true,
+    pushNotifs: false
+  });
+  const [passwords, setPasswords] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await api.get('/users/profile');
+      setProfile(response.data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+    try {
+      const response = await api.put('/users/profile', profile);
+      setProfile(response.data);
+      setMessage({ type: 'success', text: 'Cập nhật hồ sơ thành công!' });
+    } catch (error) {
+      setMessage({ type: 'error', text: error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwords.new !== passwords.confirm) {
+      setMessage({ type: 'error', text: 'Mật khẩu mới không khớp' });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await api.post('/users/change-password', {
+        currentPassword: passwords.current,
+        newPassword: passwords.new
+      });
+      setMessage({ type: 'success', text: 'Đổi mật khẩu thành công!' });
+      setPasswords({ current: '', new: '', confirm: '' });
+      setIsChangingPassword(false);
+    } catch (error) {
+      setMessage({ type: 'error', text: error.response?.data || 'Mật khẩu hiện tại không chính xác' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="app-wrapper">
@@ -33,17 +102,17 @@ export default function Settings() {
             <div className="settings-header-cards">
               <div className="profile-main-card">
                 <div className="profile-avatar-wrapper">
-                  <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" />
+                  <img src={`https://ui-avatars.com/api/?name=${profile.fullName || profile.username}&background=006d5b&color=fff`} alt="Avatar" />
                   <div className="avatar-edit-overlay">
                     <Camera size={14} />
                   </div>
                 </div>
                 <div className="profile-summary">
-                  <h2>Johnathan Doe</h2>
-                  <p>john.doe@example.com</p>
+                  <h2>{String(profile.fullName || profile.username || 'Người dùng')}</h2>
+                  <p>{String(profile.email || 'Chưa cập nhật email')}</p>
                   <div className="profile-badges">
                     <span className="badge-outline premium">Premium Member</span>
-                    <span className="badge-outline">Pro Workspace</span>
+                    <span className="badge-outline">@{String(profile.username || 'username')}</span>
                   </div>
                 </div>
               </div>
@@ -96,35 +165,49 @@ export default function Settings() {
 
               {/* Content Area */}
               <div className="settings-content">
+                {message.text && (
+                  <div className={`alert-box ${message.type === 'success' ? 'success' : 'error'}`} style={{
+                    padding: '1rem',
+                    borderRadius: '0.5rem',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    backgroundColor: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
+                    color: message.type === 'success' ? '#065f46' : '#991b1b',
+                    border: `1px solid ${message.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                  }}>
+                    {message.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                    {typeof message.text === 'string' ? message.text : JSON.stringify(message.text)}
+                  </div>
+                )}
+
                 {/* Profile Information Section */}
                 <div className="settings-section-card">
                   <h3>Thông tin hồ sơ</h3>
                   <div className="form-row">
                     <div className="form-group">
                       <label>HỌ VÀ TÊN</label>
-                      <input type="text" defaultValue="Johnathan Doe" />
+                      <input 
+                        type="text" 
+                        value={profile.fullName || ''} 
+                        onChange={(e) => setProfile({...profile, fullName: e.target.value})}
+                      />
                     </div>
                     <div className="form-group">
                       <label>ĐỊA CHỈ EMAIL</label>
-                      <input type="email" defaultValue="john.doe@example.com" />
+                      <input 
+                        type="email" 
+                        value={profile.email || ''} 
+                        onChange={(e) => setProfile({...profile, email: e.target.value})}
+                      />
                     </div>
                   </div>
                   <div className="form-group" style={{ marginTop: '1rem' }}>
-                    <label>GIỚI THIỆU BẢN THÂN</label>
-                    <textarea 
-                      className="w-full"
-                      rows="4" 
-                      placeholder="Nói gì đó về bạn..."
-                      defaultValue="Quản lý tài chính cá nhân chuyên nghiệp, tập trung vào thị trường công nghệ mới nổi và tăng trưởng tài sản bền vững."
-                      style={{ 
-                        width: '100%', 
-                        padding: '0.75rem', 
-                        borderRadius: '0.5rem', 
-                        border: '1px solid var(--border)',
-                        fontSize: '0.875rem',
-                        resize: 'none'
-                      }}
-                    />
+                    <label>TÊN ĐĂNG NHẬP (KHÔNG THỂ THAY ĐỔI)</label>
+                    <input type="text" value={profile.username || ''} disabled style={{ backgroundColor: '#f1f5f9' }} />
                   </div>
                 </div>
 
@@ -137,7 +220,10 @@ export default function Settings() {
                         <DollarSign size={16} className="text-muted" />
                         <span className="pref-label">TIỀN TỆ</span>
                       </div>
-                      <select defaultValue="VND">
+                      <select 
+                        value={profile.currency || 'VND'} 
+                        onChange={(e) => setProfile({...profile, currency: e.target.value})}
+                      >
                         <option value="VND">VND - Đồng Việt Nam</option>
                         <option value="USD">USD - Dollars</option>
                         <option value="EUR">EUR - Euro</option>
@@ -149,7 +235,10 @@ export default function Settings() {
                         <Globe size={16} className="text-muted" />
                         <span className="pref-label">NGÔN NGỮ</span>
                       </div>
-                      <select defaultValue="VI">
+                      <select 
+                        value={profile.language || 'VI'} 
+                        onChange={(e) => setProfile({...profile, language: e.target.value})}
+                      >
                         <option value="VI">Tiếng Việt (VN)</option>
                         <option value="EN">English (US)</option>
                       </select>
@@ -163,7 +252,11 @@ export default function Settings() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chế độ tối</span>
                         <label className="switch">
-                          <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+                          <input 
+                            type="checkbox" 
+                            checked={profile.darkMode || false} 
+                            onChange={() => setProfile({...profile, darkMode: !profile.darkMode})} 
+                          />
                           <span className="slider"></span>
                         </label>
                       </div>
@@ -176,14 +269,60 @@ export default function Settings() {
                   <div className="settings-section-card" style={{ flex: 1 }}>
                     <h3>Bảo mật</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div className="security-item">
-                        <span className="sec-label">Đổi mật khẩu</span>
-                        <ChevronRight size={18} className="text-muted" />
+                      <div className="security-item" onClick={() => setIsChangingPassword(!isChangingPassword)} style={{ cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <Lock size={16} className="text-muted" />
+                          <span className="sec-label">Đổi mật khẩu</span>
+                        </div>
+                        <ChevronRight size={18} className={`text-muted transition-all ${isChangingPassword ? 'rotate-90' : ''}`} />
                       </div>
+
+                      {isChangingPassword && (
+                        <form onSubmit={handleChangePassword} style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem' }}>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.7rem' }}>MẬT KHẨU HIỆN TẠI</label>
+                            <input 
+                              type="password" 
+                              required
+                              value={passwords.current}
+                              onChange={(e) => setPasswords({...passwords, current: e.target.value})}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.7rem' }}>MẬT KHẨU MỚI</label>
+                            <input 
+                              type="password" 
+                              required
+                              value={passwords.new}
+                              onChange={(e) => setPasswords({...passwords, new: e.target.value})}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.7rem' }}>XÁC NHẬN MẬT KHẨU MỚI</label>
+                            <input 
+                              type="password" 
+                              required
+                              value={passwords.confirm}
+                              onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
+                            />
+                          </div>
+                          <button type="submit" className="btn-primary" disabled={saving} style={{ marginTop: '0.5rem' }}>
+                            {saving ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                          </button>
+                        </form>
+                      )}
+
                       <div className="security-item">
-                        <span className="sec-label">Xác thực 2 lớp</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <ShieldCheck size={16} className="text-muted" />
+                          <span className="sec-label">Xác thực 2 lớp</span>
+                        </div>
                         <label className="switch">
-                          <input type="checkbox" checked={twoFactor} onChange={() => setTwoFactor(!twoFactor)} />
+                          <input 
+                            type="checkbox" 
+                            checked={profile.twoFactor || false} 
+                            onChange={() => setProfile({...profile, twoFactor: !profile.twoFactor})} 
+                          />
                           <span className="slider"></span>
                         </label>
                       </div>
@@ -196,14 +335,22 @@ export default function Settings() {
                       <div className="security-item">
                         <span className="sec-label">Cập nhật qua Email</span>
                         <label className="switch">
-                          <input type="checkbox" checked={emailUpdates} onChange={() => setEmailUpdates(!emailUpdates)} />
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailUpdates !== false} 
+                            onChange={() => setProfile({...profile, emailUpdates: !profile.emailUpdates})} 
+                          />
                           <span className="slider"></span>
                         </label>
                       </div>
                       <div className="security-item">
                         <span className="sec-label">Thông báo Push</span>
                         <label className="switch">
-                          <input type="checkbox" checked={pushNotifs} onChange={() => setPushNotifs(!pushNotifs)} />
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushNotifs || false} 
+                            onChange={() => setProfile({...profile, pushNotifs: !profile.pushNotifs})} 
+                          />
                           <span className="slider"></span>
                         </label>
                       </div>
@@ -213,8 +360,10 @@ export default function Settings() {
 
                 {/* Footer Buttons */}
                 <div className="settings-footer">
-                  <button className="btn-outline">Hủy thay đổi</button>
-                  <button className="btn-primary">Lưu tất cả</button>
+                  <button className="btn-outline" onClick={fetchProfile} disabled={saving}>Hủy thay đổi</button>
+                  <button className="btn-primary" onClick={handleSaveProfile} disabled={saving}>
+                    {saving ? 'Đang lưu...' : 'Lưu tất cả'}
+                  </button>
                 </div>
 
                 {/* Danger Zone */}
