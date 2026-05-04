@@ -13,8 +13,12 @@ export default function Login() {
   const navigate = useNavigate();
   const passwordInputRef = useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn chặn load lại trang
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setError('Vui lòng nhập đầy đủ thông tin!');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setIsShaking(false);
@@ -36,21 +40,28 @@ export default function Login() {
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
       setIsShaking(true);
       
-      // Tự động focus vào ô mật khẩu để người dùng nhập lại nhanh hơn
+      // Tự động focus và bôi đen mật khẩu cũ
       if (passwordInputRef.current) {
         passwordInputRef.current.focus();
-        passwordInputRef.current.select(); // Bôi đen mật khẩu cũ để xóa nhanh
+        passwordInputRef.current.select();
       }
       
-      // Tắt hiệu ứng rung sau 500ms
+      // Tắt hiệu ứng rung
       setTimeout(() => setIsShaking(false), 500);
     } finally {
       setLoading(false);
     }
   };
 
+  // Hỗ trợ nhấn Enter để đăng nhập
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
-    <div className="auth-layout">
+    <div className="auth-layout" onKeyDown={handleKeyDown}>
       <div className="auth-header">
         <h2>ExpenseTracker</h2>
         <HelpCircle size={20} color="var(--text-muted)" />
@@ -65,7 +76,7 @@ export default function Login() {
 
           {error && <div className="error-alert">{error}</div>}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="auth-form">
             <div className="form-group">
               <label>Username hoặc Email</label>
               <div className="input-with-icon">
@@ -75,7 +86,7 @@ export default function Login() {
                   placeholder="admin hoặc email@company.com" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  required 
+                  autoComplete="username"
                 />
               </div>
             </div>
@@ -93,7 +104,7 @@ export default function Login() {
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required 
+                  autoComplete="current-password"
                 />
               </div>
             </div>
@@ -103,10 +114,15 @@ export default function Login() {
               <label htmlFor="remember">Ghi nhớ trong 30 ngày</label>
             </div>
 
-            <button type="submit" className="auth-btn" disabled={loading}>
+            <button 
+              type="button" 
+              className="auth-btn" 
+              disabled={loading}
+              onClick={handleLogin}
+            >
               {loading ? 'Đang xử lý...' : 'Đăng nhập'}
             </button>
-          </form>
+          </div>
 
           <div className="auth-divider">HOẶC TIẾP TỤC VỚI</div>
 

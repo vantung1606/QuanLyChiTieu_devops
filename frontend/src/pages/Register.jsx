@@ -14,10 +14,15 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleRegister = async () => {
+    if (!fullName || !username || !email || !password || !confirmPassword) {
+      setError('Vui lòng nhập đầy đủ thông tin!');
+      return;
+    }
+
     if (password !== confirmPassword) {
-      return setError('Mật khẩu xác nhận không khớp!');
+      setError('Mật khẩu xác nhận không khớp!');
+      return;
     }
     
     setLoading(true);
@@ -44,8 +49,14 @@ export default function Register() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleRegister();
+    }
+  };
+
   return (
-    <div className="auth-layout">
+    <div className="auth-layout" onKeyDown={handleKeyDown}>
       <div className="auth-header">
         <h2>ExpenseTracker</h2>
         <HelpCircle size={20} color="var(--text-muted)" />
@@ -58,9 +69,9 @@ export default function Register() {
             <p>Công cụ tối ưu cho hành trình tài chính của bạn.</p>
           </div>
 
-          {error && <div style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' }}>{error}</div>}
+          {error && <div className="error-alert">{error}</div>}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="auth-form">
             <div className="form-group">
               <label>Họ và tên</label>
               <div className="input-with-icon">
@@ -70,7 +81,6 @@ export default function Register() {
                   placeholder="Van Tung" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  required 
                 />
               </div>
             </div>
@@ -84,7 +94,6 @@ export default function Register() {
                   placeholder="tung123" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  required 
                 />
               </div>
             </div>
@@ -98,7 +107,6 @@ export default function Register() {
                   placeholder="tung@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required 
                 />
               </div>
             </div>
@@ -112,7 +120,6 @@ export default function Register() {
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required 
                 />
               </div>
             </div>
@@ -126,31 +133,28 @@ export default function Register() {
                   placeholder="••••••••" 
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required 
                 />
               </div>
             </div>
 
-            <div className="checkbox-group">
-              <input type="checkbox" id="terms" required />
-              <label htmlFor="terms">
-                Tôi đồng ý với <a href="#" style={{color: 'var(--text-main)', fontWeight: 600}}>Điều khoản dịch vụ</a> và <a href="#" style={{color: 'var(--text-main)', fontWeight: 600}}>Chính sách bảo mật</a>.
-              </label>
-            </div>
-
-            <button type="submit" className="auth-btn" disabled={loading}>
+            <button 
+              type="button" 
+              className="auth-btn" 
+              disabled={loading}
+              onClick={handleRegister}
+            >
               {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
             </button>
-          </form>
+          </div>
 
           <div className="auth-divider">HOẶC ĐĂNG KÝ VỚI</div>
 
           <div className="social-buttons">
-            <button type="button" className="social-btn">
+            <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google" />
               Google
             </button>
-            <button type="button" className="social-btn">
+            <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
               <img src="https://www.svgrepo.com/show/512317/github-142.svg" width="18" alt="GitHub" />
               GitHub
             </button>
