@@ -25,4 +25,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // In a stateless JWT system, client-side token deletion is enough.
+        // We can add server-side logic here if we implement token blacklisting.
+        return ResponseEntity.ok("Đăng xuất thành công");
+    }
 }

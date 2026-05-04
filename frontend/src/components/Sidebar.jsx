@@ -1,13 +1,26 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings } from 'lucide-react';
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => {
     return location.pathname === path ? "nav-item active" : "nav-item";
   };
+
+  const handleLogout = () => {
+    if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      
+      // Redirect to login
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -42,10 +55,23 @@ export default function Sidebar() {
           <HelpCircle size={20} />
           Trung tâm trợ giúp
         </Link>
-        <Link to="/logout" className="nav-item">
+        <button 
+          onClick={handleLogout} 
+          className="nav-item logout-btn" 
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            width: '100%', 
+            textAlign: 'left',
+            cursor: 'pointer',
+            padding: '12px 16px',
+            color: 'inherit',
+            font: 'inherit'
+          }}
+        >
           <LogOut size={20} />
           Đăng xuất
-        </Link>
+        </button>
       </div>
     </div>
   );
