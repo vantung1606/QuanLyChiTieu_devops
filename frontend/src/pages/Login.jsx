@@ -62,6 +62,20 @@ export default function Login() {
           <div className="auth-footer">
             Chưa có tài khoản? <Link to="/register">Tạo tài khoản</Link>
           </div>
+
+          <div style={{
+            marginTop: '20px',
+            padding: '12px',
+            borderRadius: '8px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px dashed rgba(255, 255, 255, 0.2)',
+            fontSize: '13px',
+            color: 'var(--text-muted)'
+          }}>
+            <p style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--text-primary)' }}>Tài khoản mẫu (Test):</p>
+            <p>User: <span style={{ color: '#60a5fa' }}>admin</span></p>
+            <p>Pass: <span style={{ color: '#60a5fa' }}>password123</span></p>
+          </div>
         </div>
       </div>
 
