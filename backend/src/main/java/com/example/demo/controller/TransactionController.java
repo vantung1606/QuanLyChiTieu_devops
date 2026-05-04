@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.service.TransactionService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -23,32 +23,12 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public List<TransactionDTO> getAllTransactions(@RequestParam(required = false) String q) {
-        if (q != null && !q.isEmpty()) {
-            return transactionService.searchTransactions(q);
-        }
-        return transactionService.getAllTransactions();
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
+        return ResponseEntity.ok(transactionService.getAllTransactions());
     }
 
     @PostMapping("/transactions")
-    public TransactionDTO createTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
-        return transactionService.createTransaction(transactionDTO);
-    }
-
-    @PutMapping("/transactions/{id}")
-    public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id, @Valid @RequestBody TransactionDTO transactionDTO) {
-        return ResponseEntity.ok(transactionService.updateTransaction(id, transactionDTO));
-    }
-
-    @DeleteMapping("/transactions/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/summary")
-    public Map<String, Double> getSummary() {
-        return transactionService.getSummary();
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
+        return ResponseEntity.ok(transactionService.createTransaction(transactionDTO));
     }
 }
-
