@@ -1,9 +1,49 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, User, Mail, Lock, ShieldCheck } from 'lucide-react';
+import api from '../api/axios';
 import '../auth.css';
 
 export default function Register() {
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      return setError('Mật khẩu xác nhận không khớp!');
+    }
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await api.post('/auth/register', {
+        fullName,
+        username,
+        email,
+        password
+      });
+
+      // Save token and user info
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username);
+
+      // Redirect to dashboard
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-layout">
       <div className="auth-header">
@@ -18,12 +58,34 @@ export default function Register() {
             <p>Công cụ tối ưu cho hành trình tài chính của bạn.</p>
           </div>
 
-          <form className="auth-form">
+          {error && <div style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' }}>{error}</div>}
+
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Họ và tên</label>
               <div className="input-with-icon">
                 <User size={18} className="icon" />
-                <input type="text" placeholder="John Doe" required />
+                <input 
+                  type="text" 
+                  placeholder="Van Tung" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required 
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Username</label>
+              <div className="input-with-icon">
+                <User size={18} className="icon" style={{ opacity: 0.5 }} />
+                <input 
+                  type="text" 
+                  placeholder="tung123" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -31,7 +93,13 @@ export default function Register() {
               <label>Địa chỉ Email</label>
               <div className="input-with-icon">
                 <Mail size={18} className="icon" />
-                <input type="email" placeholder="john@company.com" required />
+                <input 
+                  type="email" 
+                  placeholder="tung@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -39,7 +107,13 @@ export default function Register() {
               <label>Mật khẩu</label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
-                <input type="password" placeholder="••••••••" required />
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -47,7 +121,13 @@ export default function Register() {
               <label>Xác nhận mật khẩu</label>
               <div className="input-with-icon">
                 <ShieldCheck size={18} className="icon" />
-                <input type="password" placeholder="••••••••" required />
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -58,7 +138,9 @@ export default function Register() {
               </label>
             </div>
 
-            <button type="submit" className="auth-btn">Tạo tài khoản</button>
+            <button type="submit" className="auth-btn" disabled={loading}>
+              {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
+            </button>
           </form>
 
           <div className="auth-divider">HOẶC ĐĂNG KÝ VỚI</div>
