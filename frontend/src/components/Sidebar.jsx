@@ -25,7 +25,7 @@ export default function Sidebar() {
         </Link>
         <Link to="/budgets" className={isActive('/budgets')}>
           <Tags size={20} />
-          Ngân sách
+          Danh mục
         </Link>
         <Link to="/reports" className={isActive('/reports')}>
           <BarChart2 size={20} />

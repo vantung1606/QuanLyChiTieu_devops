@@ -46,7 +46,7 @@ export default function Categories() {
           </div>
 
           {/* Quick Stats */}
-          <div className="stats-grid" style={{ marginBottom: '2rem' }}>
+          <div className="metrics-row" style={{ marginBottom: '2rem' }}>
             <div className="stat-card">
               <div className="stat-info">
                 <span>Chi tiêu nhiều nhất tháng</span>
