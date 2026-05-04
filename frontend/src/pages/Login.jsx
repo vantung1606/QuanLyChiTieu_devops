@@ -1,9 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, Mail, Lock } from 'lucide-react';
+import axios from 'axios';
 import '../auth.css';
 
 export default function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        username,
+        password
+      });
+
+      // Save token and user info
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username);
+
+      // Redirect to dashboard
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-layout">
       <div className="auth-header">
@@ -18,12 +49,20 @@ export default function Login() {
             <p>Quản lý tài chính với độ chính xác và rõ ràng.</p>
           </div>
 
-          <form className="auth-form">
+          {error && <div style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' }}>{error}</div>}
+
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Địa chỉ Email</label>
+              <label>Username hoặc Email</label>
               <div className="input-with-icon">
                 <Mail size={18} className="icon" />
-                <input type="email" placeholder="name@company.com" required />
+                <input 
+                  type="text" 
+                  placeholder="admin hoặc email@company.com" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -34,7 +73,13 @@ export default function Login() {
               </label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
-                <input type="password" placeholder="••••••••" required />
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -43,7 +88,9 @@ export default function Login() {
               <label htmlFor="remember">Ghi nhớ trong 30 ngày</label>
             </div>
 
-            <button type="submit" className="auth-btn">Đăng nhập</button>
+            <button type="submit" className="auth-btn" disabled={loading}>
+              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
+            </button>
           </form>
 
           <div className="auth-divider">HOẶC TIẾP TỤC VỚI</div>
