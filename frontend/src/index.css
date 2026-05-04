@@ -1163,7 +1163,6 @@ tr:last-child td {
 /* Settings Page */
 .settings-container {
   max-width: 1600px;
-  margin: 0 auto;
 }
 
 .settings-header-cards {
