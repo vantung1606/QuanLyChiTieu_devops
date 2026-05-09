@@ -31,15 +31,15 @@ public class TransactionController {
     public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
         return ResponseEntity.ok(transactionService.createTransaction(transactionDTO));
     }
-
-    @DeleteMapping("/transactions/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/summary")
-    public ResponseEntity<Map<String, Double>> getSummary() {
-        return ResponseEntity.ok(transactionService.getSummary());
+ 
+     @DeleteMapping("/transactions/{id}")
+     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+         transactionService.deleteTransaction(id);
+         return ResponseEntity.ok().build();
+     }
+ 
+     @GetMapping("/summary")
+     public ResponseEntity<Map<String, Double>> getSummary() {
+         return ResponseEntity.ok(transactionService.getSummary());
     }
 }

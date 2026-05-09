@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { HelpCircle, Mail, Lock } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, HelpCircle } from 'lucide-react';
 import api from '../api/axios';
 import '../auth.css';
 
@@ -125,7 +125,7 @@ export default function Login() {
               disabled={loading}
               onClick={handleLogin}
             >
-              {loading ? t('Processing...') : t('Logout')}
+              {loading ? t('Processing...') : t('Login')}
             </button>
           </div>
 
