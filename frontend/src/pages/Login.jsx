@@ -33,6 +33,8 @@ export default function Login() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
       localStorage.setItem('darkMode', response.data.darkMode);
+      localStorage.setItem('currency', response.data.currency || 'VND');
+      localStorage.setItem('language', response.data.language || 'VI');
 
       // Chuyển hướng đến dashboard
       navigate('/');

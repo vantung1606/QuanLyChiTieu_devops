@@ -49,6 +49,8 @@ public class AuthService {
                 .token(jwtToken)
                 .username(user.getUsername())
                 .darkMode(user.isDarkMode())
+                .currency(user.getCurrency())
+                .language(user.getLanguage())
                 .build();
     }
 
@@ -67,6 +69,8 @@ public class AuthService {
                 .token(jwtToken)
                 .username(userDetails.getUsername())
                 .darkMode(user.isDarkMode())
+                .currency(user.getCurrency())
+                .language(user.getLanguage())
                 .build();
     }
 

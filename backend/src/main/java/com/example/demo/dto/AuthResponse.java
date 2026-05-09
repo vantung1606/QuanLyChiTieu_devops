@@ -13,4 +13,6 @@ public class AuthResponse {
     private String token;
     private String username;
     private boolean darkMode;
+    private String currency;
+    private String language;
 }

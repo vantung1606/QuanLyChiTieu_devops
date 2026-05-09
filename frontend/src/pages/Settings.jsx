@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   User, Shield, Sliders, Bell, Camera, ChevronRight, 
   Globe, Moon, DollarSign, Trash2, 
@@ -9,6 +10,7 @@ import Header from '../components/Header';
 import api from '../api/axios';
 
 export default function Settings() {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState({
     fullName: '',
@@ -223,12 +225,12 @@ export default function Settings() {
 
                 {/* Preferences Section */}
                 <div className="settings-section-card">
-                  <h3>Tùy chọn</h3>
+                  <h3>{t('Preferences')}</h3>
                   <div className="preferences-grid">
                     <div className="pref-item">
                       <div className="pref-header">
                         <DollarSign size={16} className="text-muted" />
-                        <span className="pref-label">TIỀN TỆ</span>
+                        <span className="pref-label">{t('Currency')}</span>
                       </div>
                       <select 
                         value={profile.currency || 'VND'} 
@@ -243,11 +245,16 @@ export default function Settings() {
                     <div className="pref-item">
                       <div className="pref-header">
                         <Globe size={16} className="text-muted" />
-                        <span className="pref-label">NGÔN NGỮ</span>
+                        <span className="pref-label">{t('Language')}</span>
                       </div>
                       <select 
                         value={profile.language || 'VI'} 
-                        onChange={(e) => setProfile({...profile, language: e.target.value})}
+                        onChange={(e) => {
+                          const newLang = e.target.value;
+                          setProfile({...profile, language: newLang});
+                          i18n.changeLanguage(newLang);
+                          localStorage.setItem('language', newLang);
+                        }}
                       >
                         <option value="VI">Tiếng Việt (VN)</option>
                         <option value="EN">English (US)</option>

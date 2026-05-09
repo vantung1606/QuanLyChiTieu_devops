@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import LogoutModal from './LogoutModal';
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -28,35 +30,35 @@ export default function Sidebar() {
       <div className="sidebar">
         <div className="sidebar-header">
           <h2>Equinox Finance</h2>
-          <p>Cổng quản lý tài chính</p>
+          <p>{t('Finance Portal') || 'Cổng quản lý tài chính'}</p>
         </div>
         <div className="sidebar-nav">
           <Link to="/" className={isActive('/')}>
             <LayoutDashboard size={20} />
-            Tổng quan
+            {t('Dashboard')}
           </Link>
           <Link to="/transactions" className={isActive('/transactions')}>
             <Receipt size={20} />
-            Giao dịch
+            {t('Transactions')}
           </Link>
           <Link to="/budgets" className={isActive('/budgets')}>
             <Tags size={20} />
-            Danh mục
+            {t('Categories')}
           </Link>
           <Link to="/reports" className={isActive('/reports')}>
             <BarChart2 size={20} />
-            Báo cáo
+            {t('Reports')}
           </Link>
           <Link to="/settings" className={isActive('/settings')}>
             <Settings size={20} />
-            Cài đặt
+            {t('Settings')}
           </Link>
         </div>
         
         <div className="sidebar-bottom">
           <Link to="/help" className="nav-item">
             <HelpCircle size={20} />
-            Trung tâm trợ giúp
+            {t('Help Center')}
           </Link>
           <button 
             onClick={handleLogoutClick} 
@@ -73,7 +75,7 @@ export default function Sidebar() {
             }}
           >
             <LogOut size={20} />
-            Đăng xuất
+            {t('Logout')}
           </button>
         </div>
       </div>
