@@ -33,6 +33,24 @@ export default function Reports() {
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const response = await api.get('/reports/export/pdf', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `financial_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert(t('Cannot download report data') || "Không thể tải báo cáo. Vui lòng thử lại sau.");
+    }
+  };
+
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
@@ -79,19 +97,23 @@ export default function Reports() {
             <Calendar size={18} />
             <span>01 Th10, 2023 - 31 Th10, 2023</span>
           </div>
-          <button className="btn-export" style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem', 
-            padding: '0.625rem 1.25rem', 
-            backgroundColor: '#0f172a', 
-            color: '#fff', 
-            border: 'none', 
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}>
+          <button 
+            className="btn-export" 
+            onClick={handleExportPDF}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.75rem', 
+              padding: '0.625rem 1.25rem', 
+              backgroundColor: '#0f172a', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
             <Download size={18} /> {t('Export PDF')}
           </button>
         </div>
@@ -124,7 +146,7 @@ export default function Reports() {
               </div>
             </div>
           </div>
-          <div style={{ height: '300px' }}>
+          <div style={{ height: '300px', minHeight: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.incomeVsExpenses} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -143,7 +165,7 @@ export default function Reports() {
 
         <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>{t('Spending by Category')}</h3>
-          <div style={{ height: '220px', position: 'relative' }}>
+          <div style={{ height: '220px', minHeight: '220px', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <RePieChart>
                 <Pie

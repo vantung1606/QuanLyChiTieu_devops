@@ -16,9 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
 
     private final ReportService reportService;
+    private final com.example.demo.service.TransactionService transactionService;
+    private final com.example.demo.service.PdfExportService pdfExportService;
 
     @GetMapping("/financial-performance")
     public ResponseEntity<ReportResponse> getFinancialPerformance() {
         return ResponseEntity.ok(reportService.getFinancialReport());
+    }
+
+    @GetMapping("/export/pdf")
+    public void exportToPDF(jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        response.setContentType("application/pdf");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=financial_report_" + java.time.LocalDate.now() + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        var transactions = transactionService.getAllTransactions();
+        pdfExportService.export(response, transactions);
     }
 }
