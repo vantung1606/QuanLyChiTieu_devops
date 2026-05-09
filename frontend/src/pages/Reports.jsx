@@ -9,6 +9,8 @@ import {
   PieChart as RePieChart, Pie, Cell, LineChart, Line, AreaChart, Area
 } from 'recharts';
 import api from '../api/axios';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 export default function Reports() {
   const [data, setData] = useState(null);
@@ -35,8 +37,12 @@ export default function Reports() {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
-    <div className="reports-container" style={{ padding: '2rem', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+    <div className="app-wrapper">
+      <Sidebar />
+      <div className="main-content">
+        <div className="content-inner" style={{ padding: '2rem' }}>
+          <Header />
+          <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Báo cáo tài chính</h1>
           <p style={{ color: '#64748b' }}>Phân tích chi tiết về dòng tiền và chi tiêu của bạn.</p>
@@ -237,6 +243,7 @@ export default function Reports() {
               cursor: 'pointer'
             }}>Chi tiết</button>
           </div>
+        </div>
         </div>
       </div>
     </div>
