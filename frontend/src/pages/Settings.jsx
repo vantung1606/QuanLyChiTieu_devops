@@ -46,6 +46,16 @@ export default function Settings() {
     }
   };
 
+  useEffect(() => {
+    if (profile.darkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('darkMode', 'false');
+    }
+  }, [profile.darkMode]);
+
   const handleSaveProfile = async () => {
     setSaving(true);
     setMessage({ type: '', text: '' });

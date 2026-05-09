@@ -32,6 +32,7 @@ export default function Login() {
       // Lưu token và thông tin người dùng
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
+      localStorage.setItem('darkMode', response.data.darkMode);
 
       // Chuyển hướng đến dashboard
       navigate('/');

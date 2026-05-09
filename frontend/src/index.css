@@ -1548,3 +1548,14 @@ tr:last-child td {
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+/* Dark Mode Theme */
+.dark-mode {
+  --bg-main: #0f172a;
+  --bg-sidebar: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #1e293b;
+  --input-bg: #0f172a;
+}

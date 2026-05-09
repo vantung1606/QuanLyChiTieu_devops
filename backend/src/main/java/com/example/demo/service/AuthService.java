@@ -48,6 +48,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
+                .darkMode(user.isDarkMode())
                 .build();
     }
 
@@ -58,11 +59,14 @@ public class AuthService {
                         request.getPassword()
                 )
         );
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         var jwtToken = jwtService.generateToken(userDetails);
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(userDetails.getUsername())
+                .darkMode(user.isDarkMode())
                 .build();
     }
 
