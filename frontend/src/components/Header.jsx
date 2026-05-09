@@ -1,47 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Settings, Search, Banknote, AlertTriangle, Cpu } from 'lucide-react';
-import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import api from '../api/axios';
 
 const NOTIFICATIONS = [
   {
     id: 1,
-    title: 'Lương đã về',
-    message: 'Lương tháng này của bạn đã được chuyển vào tài khoản ****4590 thành công.',
-    time: '2 giờ trước',
+    title: 'Salary received',
+    message: 'Your salary for this month has been credited successfully.',
+    time: '2h ago',
     type: 'success',
     icon: Banknote,
     unread: true
   },
   {
     id: 2,
-    title: 'Sắp chạm hạn mức Ăn uống',
-    message: 'Bạn đã chi tiêu vượt quá 95% hạn mức hàng tháng cho mục ăn uống.',
-    time: '5 giờ trước',
+    title: 'Budget Alert',
+    message: 'You have spent 95% of your dining budget.',
+    time: '5h ago',
     type: 'warning',
     icon: AlertTriangle,
     unread: true
-  },
-  {
-    id: 3,
-    title: 'Lịch bảo trì hệ thống',
-    message: 'Hệ thống sẽ bảo trì vào Chủ Nhật lúc 02:00 sáng. Dịch vụ có thể bị gián đoạn.',
-    time: 'Hôm qua',
-    type: 'info',
-    icon: Cpu,
-    unread: false
   }
 ];
 
 export default function Header() {
+  const { t } = useTranslation();
   const [showNotifs, setShowNotifs] = useState(false);
   const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
-  const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -55,7 +42,6 @@ export default function Header() {
     fetchUser();
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -84,7 +70,7 @@ export default function Header() {
       <div className="header-center">
         <div className="search-bar">
           <Search size={18} className="search-icon" />
-          <input type="text" placeholder="Tìm kiếm tài khoản, báo cáo..." />
+          <input type="text" placeholder={t('Search reports, accounts...')} />
         </div>
       </div>
 
@@ -110,8 +96,8 @@ export default function Header() {
           {showNotifs && (
             <div className="notifications-dropdown">
               <div className="notif-header">
-                <h3>Thông báo</h3>
-                <button className="mark-read">Đánh dấu đã đọc</button>
+                <h3>{t('Notifications')}</h3>
+                <button className="mark-read">{t('Mark as read')}</button>
               </div>
               <div className="notif-list">
                 {NOTIFICATIONS.map((notif) => {
@@ -124,18 +110,18 @@ export default function Header() {
                       </div>
                       <div className="notif-content">
                         <h4>
-                          {notif.title}
+                          {t(notif.title)}
                           {notif.unread && <div className="unread-dot"></div>}
                         </h4>
-                        <p>{notif.message}</p>
-                        <span className="notif-time">{notif.time}</span>
+                        <p>{t(notif.message)}</p>
+                        <span className="notif-time">{t(notif.time)}</span>
                       </div>
                     </div>
                   );
                 })}
               </div>
               <div className="notif-footer">
-                <button className="view-all-btn">Xem tất cả</button>
+                <button className="view-all-btn">{t('View All')}</button>
               </div>
             </div>
           )}
@@ -145,7 +131,7 @@ export default function Header() {
           <Settings size={20} />
         </button>
         <div className="header-user">
-          <span className="user-name">{user?.fullName || user?.username || 'Người dùng'}</span>
+          <span className="user-name">{user?.fullName || user?.username || t('User')}</span>
           <div className="avatar">
             <img 
               src={`https://ui-avatars.com/api/?name=${user?.fullName || user?.username || 'User'}&background=006d5b&color=fff`} 

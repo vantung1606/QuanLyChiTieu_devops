@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Landmark, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
 import Sidebar from '../components/Sidebar';
@@ -10,6 +11,7 @@ import FinancialTip from '../components/FinancialTip';
 import TransactionList from '../components/TransactionList';
 
 function Dashboard() {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [formData, setFormData] = useState({
@@ -90,19 +92,19 @@ function Dashboard() {
           
           <div className="metrics-row">
             <StatCard 
-              title="Tổng Thu" 
+              title={t('Total Income')} 
               amount={`+${formatCurrency(summary.totalIncome)}`} 
               type="income" 
               icon={TrendingUp} 
             />
             <StatCard 
-              title="Tổng Chi" 
+              title={t('Total Expense')} 
               amount={`-${formatCurrency(summary.totalExpense)}`} 
               type="expense" 
               icon={TrendingDown} 
             />
             <StatCard 
-              title="Số Dư" 
+              title={t('Balance')} 
               amount={formatCurrency(summary.balance)} 
               type="balance" 
               icon={Landmark} 
@@ -134,11 +136,11 @@ function Dashboard() {
 
         <div className="status-bar">
           <div className="sys-ops">
-            MÔI TRƯỜNG: PRODUCTION &nbsp;&nbsp; CONTAINER: ĐANG CHẠY &nbsp;&nbsp; PHIÊN BẢN: V2.4.12
+            {t('ENVIRONMENT')}: PRODUCTION &nbsp;&nbsp; {t('CONTAINER')}: {t('RUNNING')} &nbsp;&nbsp; {t('VERSION')}: V2.4.12
           </div>
           <div className="sys-ops">
             <div className="dot"></div>
-            HỆ THỐNG HOẠT ĐỘNG TỐT
+            {t('SYSTEM OPERATIONAL')}
           </div>
         </div>
       </div>

@@ -1,24 +1,26 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function TransactionForm({ formData, handleInputChange, handleSubmit }) {
+  const { t } = useTranslation();
   return (
     <div className="card">
-      <h3 style={{ marginBottom: '1.5rem', fontSize: '1.125rem' }}>Thêm giao dịch mới</h3>
+      <h3 style={{ marginBottom: '1.5rem', fontSize: '1.125rem' }}>{t('Add New Transaction')}</h3>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Tiêu đề</label>
+          <label>{t('Title')}</label>
           <input 
             type="text" 
             name="title" 
             value={formData.title} 
             onChange={handleInputChange} 
             required 
-            placeholder="Nhập tiêu đề..."
+            placeholder={t('Enter title')}
           />
         </div>
         <div className="form-row">
           <div className="form-group">
-            <label>Số tiền (Min 0)</label>
+            <label>{t('Amount')} (Min 0)</label>
             <input 
               type="number" 
               name="amount" 
@@ -31,27 +33,26 @@ export default function TransactionForm({ formData, handleInputChange, handleSub
             />
           </div>
           <div className="form-group">
-            <label>Loại</label>
+            <label>{t('Type')}</label>
             <select name="type" value={formData.type} onChange={handleInputChange}>
-              <option value="expense">Chi tiêu</option>
-              <option value="income">Thu nhập</option>
+              <option value="expense">{t('Expense')}</option>
+              <option value="income">{t('Income')}</option>
             </select>
           </div>
         </div>
         <div className="form-group">
-          <label>Danh mục</label>
-          {/* using select as in image or input? Image has a select looking dropdown for Ăn uống. Let's make it a select or input with datalist. For simplicity, we use the original input, or change to select for matching the image. The image shows "Ăn uống" with a dropdown chevron. Let's use a select for categories or just keep it simple text input to avoid breaking backend expectations. Actually, original code has input type text. Let's use select with options. */}
+          <label>{t('Category')}</label>
           <select name="category" value={formData.category} onChange={handleInputChange} required>
-            <option value="" disabled>Chọn danh mục</option>
-            <option value="Ăn uống">Ăn uống</option>
-            <option value="Lương">Lương</option>
-            <option value="Học tập">Học tập</option>
-            <option value="Di chuyển">Di chuyển</option>
-            <option value="Khác">Khác</option>
+            <option value="" disabled>{t('Select category')}</option>
+            <option value="Ăn uống">{t('Dining')}</option>
+            <option value="Lương">{t('Salary')}</option>
+            <option value="Học tập">{t('Education')}</option>
+            <option value="Di chuyển">{t('Transport')}</option>
+            <option value="Khác">{t('Others')}</option>
           </select>
         </div>
         <div className="form-group">
-          <label>Ngày thực hiện</label>
+          <label>{t('Date')}</label>
           <input 
             type="date" 
             name="date" 
@@ -60,7 +61,7 @@ export default function TransactionForm({ formData, handleInputChange, handleSub
             required
           />
         </div>
-        <button type="submit" className="primary">Thêm giao dịch</button>
+        <button type="submit" className="primary">{t('Add Transaction')}</button>
       </form>
     </div>
   );
