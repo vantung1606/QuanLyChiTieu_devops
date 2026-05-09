@@ -68,11 +68,11 @@ export default function Reports() {
             alignItems: 'center', 
             gap: '0.75rem', 
             padding: '0.625rem 1rem', 
-            backgroundColor: '#fff', 
-            border: '1px solid #e2e8f0', 
+            backgroundColor: 'var(--bg-card)', 
+            border: '1px solid var(--border)', 
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
-            color: '#475569'
+            color: 'var(--text-muted)'
           }}>
             <Calendar size={18} />
             <span>01 Th10, 2023 - 31 Th10, 2023</span>
@@ -105,11 +105,11 @@ export default function Reports() {
 
       {/* Main Charts Area */}
       <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-        <div className="card" style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+        <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a' }}>Thu nhập vs. Chi phí</h3>
-              <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Biến động dòng tiền 30 ngày qua</p>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>Thu nhập vs. Chi phí</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Biến động dòng tiền 30 ngày qua</p>
             </div>
             <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -139,8 +139,8 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="card" style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a', marginBottom: '1.5rem' }}>Chi tiêu theo hạng mục</h3>
+        <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>Chi tiêu theo hạng mục</h3>
           <div style={{ height: '220px', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <RePieChart>
@@ -167,8 +167,8 @@ export default function Reports() {
               transform: 'translate(-50%, -50%)',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>${(data.topSpendingAmount / 1000).toFixed(0)}k</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tổng cộng</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>${(data.topSpendingAmount / 1000).toFixed(0)}k</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tổng cộng</div>
             </div>
           </div>
           <div style={{ marginTop: '1.5rem' }}>
@@ -187,9 +187,9 @@ export default function Reports() {
 
       {/* Bottom Area */}
       <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-        <div className="card" style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+        <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a' }}>Chi tiêu lớn nhất</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>Chi tiêu lớn nhất</h3>
             <button style={{ fontSize: '0.875rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Xem tất cả</button>
           </div>
           <div className="outflows-list">
@@ -272,15 +272,15 @@ function StatCard({ label, value, subValue, change, badge, icon, color }) {
   return (
     <div className="stat-card" style={{ 
       padding: '1.5rem', 
-      backgroundColor: '#fff', 
+      backgroundColor: 'var(--bg-card)', 
       borderRadius: '1rem', 
-      border: '1px solid #e2e8f0',
+      border: '1px solid var(--border)',
       boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
     }}>
-      <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>{label}</div>
+      <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
         {icon && <div style={{ color: color }}>{icon}</div>}
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{value}</div>
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>{value}</div>
         {change && (
           <div style={{ 
             display: 'flex', 
