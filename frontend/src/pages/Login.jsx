@@ -94,7 +94,7 @@ export default function Login() {
             <div className="form-group">
               <label>
                 Mật khẩu
-                <a href="#" className="forgot-link" onClick={(e) => e.preventDefault()}>Quên mật khẩu?</a>
+                <Link to="/forgot-password" style={{ fontSize: '0.75rem', color: '#006d5b', textDecoration: 'none', fontWeight: 600 }}>Quên mật khẩu?</Link>
               </label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
