@@ -174,13 +174,16 @@ export default function Categories() {
                   </div>
                   <div className="category-card-amount" onClick={() => setActiveMenu(null)}>
                     <h4>{formatCurrency(cat.spent)}</h4>
-                    <div className="progress-container">
-                      <div 
-                        className="progress-bar" 
-                        style={{ width: `${progress}%`, backgroundColor: cat.color }}
-                      />
-                      <span className="progress-label" style={{ color: cat.color }}>{progress}%</span>
-                    </div>
+                      <div className="progress-container">
+                        <div 
+                          className="progress-bar" 
+                          style={{ 
+                            width: `${progress}%`, 
+                            backgroundColor: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color 
+                          }}
+                        />
+                        <span className="progress-label" style={{ color: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color }}>{progress}%</span>
+                      </div>
                   </div>
                 </div>
               );
@@ -263,7 +266,10 @@ export default function Categories() {
                               <div className="mini-progress-container">
                                 <div 
                                   className="mini-progress-bar" 
-                                  style={{ width: `${progress}%`, backgroundColor: cat.color }}
+                                  style={{ 
+                                    width: `${progress}%`, 
+                                    backgroundColor: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color 
+                                  }}
                                 />
                               </div>
                             </div>

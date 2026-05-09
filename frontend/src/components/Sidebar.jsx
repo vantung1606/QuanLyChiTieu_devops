@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LogoutModal from './LogoutModal';
 
@@ -48,6 +48,10 @@ export default function Sidebar() {
           <Link to="/reports" className={isActive('/reports')}>
             <BarChart2 size={20} />
             {t('Reports')}
+          </Link>
+          <Link to="/recurring" className={isActive('/recurring')}>
+            <Clock size={20} />
+            {t('Recurring') || 'Định kỳ'}
           </Link>
           <Link to="/settings" className={isActive('/settings')}>
             <Settings size={20} />

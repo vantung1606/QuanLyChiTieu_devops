@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,12 @@ public class CategoryService {
     public List<CategoryDTO> getAllCategories() {
         User user = getCurrentUser();
         List<Category> categories = categoryRepository.findByUser(user);
-        List<Transaction> transactions = transactionRepository.findByUser(user);
+        
+        // Calculate current month range
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime endOfMonth = LocalDateTime.now().withDayOfMonth(LocalDateTime.now().toLocalDate().lengthOfMonth()).with(LocalTime.MAX);
+        
+        List<Transaction> transactions = transactionRepository.findByUserAndDateBetweenOrderByDateAsc(user, startOfMonth, endOfMonth);
 
         return categories.stream().map(category -> {
             double spent = transactions.stream()

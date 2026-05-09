@@ -24,8 +24,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody AuthRequest request,
+            jakarta.servlet.http.HttpServletRequest httpRequest
+    ) {
+        String userAgent = httpRequest.getHeader("User-Agent");
+        String ipAddress = httpRequest.getRemoteAddr();
+        return ResponseEntity.ok(authService.login(request, userAgent, ipAddress));
     }
 
     @PostMapping("/logout")

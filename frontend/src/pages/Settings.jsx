@@ -32,9 +32,11 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
     fetchProfile();
+    fetchSessions();
   }, []);
 
   const fetchProfile = async () => {
@@ -45,6 +47,25 @@ export default function Settings() {
       console.error("Error fetching profile:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSessions = async () => {
+    try {
+      const response = await api.get('/sessions');
+      setSessions(response.data);
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    }
+  };
+
+  const handleRevokeSession = async (sessionId) => {
+    try {
+      await api.delete(`/sessions/${sessionId}`);
+      setSessions(sessions.filter(s => s.id !== sessionId));
+      setMessage({ type: 'success', text: 'Đã đăng xuất thiết bị thành công!' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Không thể đăng xuất thiết bị này.' });
     }
   };
 
@@ -196,95 +217,100 @@ export default function Settings() {
                   </div>
                 )}
 
-                {/* Profile Information Section */}
-                <div className="settings-section-card">
-                  <h3>Thông tin hồ sơ</h3>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>HỌ VÀ TÊN</label>
-                      <input 
-                        type="text" 
-                        value={profile.fullName || ''} 
-                        onChange={(e) => setProfile({...profile, fullName: e.target.value})}
-                      />
+                {/* Tab Content Rendering */}
+                {activeTab === 'profile' && (
+                  <div className="settings-section-card animate-in">
+                    <h3>Thông tin hồ sơ</h3>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>HỌ VÀ TÊN</label>
+                        <input 
+                          type="text" 
+                          value={profile.fullName || ''} 
+                          onChange={(e) => setProfile({...profile, fullName: e.target.value})}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>ĐỊA CHỈ EMAIL</label>
+                        <input 
+                          type="email" 
+                          value={profile.email || ''} 
+                          onChange={(e) => setProfile({...profile, email: e.target.value})}
+                        />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>ĐỊA CHỈ EMAIL</label>
-                      <input 
-                        type="email" 
-                        value={profile.email || ''} 
-                        onChange={(e) => setProfile({...profile, email: e.target.value})}
-                      />
+                    <div className="form-group" style={{ marginTop: '1rem' }}>
+                      <label>TÊN ĐĂNG NHẬP (KHÔNG THỂ THAY ĐỔI)</label>
+                      <input type="text" value={profile.username || ''} disabled style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-muted)' }} />
                     </div>
                   </div>
-                  <div className="form-group" style={{ marginTop: '1rem' }}>
-                    <label>TÊN ĐĂNG NHẬP (KHÔNG THỂ THAY ĐỔI)</label>
-                    <input type="text" value={profile.username || ''} disabled style={{ backgroundColor: '#f1f5f9' }} />
-                  </div>
-                </div>
+                )}
 
-                {/* Preferences Section */}
-                <div className="settings-section-card">
-                  <h3>{t('Preferences')}</h3>
-                  <div className="preferences-grid">
-                    <div className="pref-item">
-                      <div className="pref-header">
-                        <DollarSign size={16} className="text-muted" />
-                        <span className="pref-label">{t('Currency')}</span>
+                {activeTab === 'preferences' && (
+                  <div className="settings-section-card animate-in">
+                    <h3>{t('Preferences')}</h3>
+                    <div className="preferences-grid">
+                      <div className="pref-item">
+                        <div className="pref-header">
+                          <DollarSign size={16} className="text-muted" />
+                          <span className="pref-label">{t('Currency')}</span>
+                        </div>
+                        <select 
+                          value={profile.currency || 'VND'} 
+                          onChange={(e) => setProfile({...profile, currency: e.target.value})}
+                        >
+                          <option value="VND">VND - Đồng Việt Nam</option>
+                          <option value="USD">USD - Dollars</option>
+                          <option value="EUR">EUR - Euro</option>
+                        </select>
                       </div>
-                      <select 
-                        value={profile.currency || 'VND'} 
-                        onChange={(e) => setProfile({...profile, currency: e.target.value})}
-                      >
-                        <option value="VND">VND - Đồng Việt Nam</option>
-                        <option value="USD">USD - Dollars</option>
-                        <option value="EUR">EUR - Euro</option>
-                      </select>
-                    </div>
 
-                    <div className="pref-item">
-                      <div className="pref-header">
-                        <Globe size={16} className="text-muted" />
-                        <span className="pref-label">{t('Language')}</span>
+                      <div className="pref-item">
+                        <div className="pref-header">
+                          <Globe size={16} className="text-muted" />
+                          <span className="pref-label">{t('Language')}</span>
+                        </div>
+                        <select 
+                          value={profile.language || 'VI'} 
+                          onChange={(e) => {
+                            const newLang = e.target.value;
+                            setProfile({...profile, language: newLang});
+                            i18n.changeLanguage(newLang);
+                            localStorage.setItem('language', newLang);
+                          }}
+                        >
+                          <option value="VI">Tiếng Việt (VN)</option>
+                          <option value="EN">English (US)</option>
+                        </select>
                       </div>
-                      <select 
-                        value={profile.language || 'VI'} 
-                        onChange={(e) => {
-                          const newLang = e.target.value;
-                          setProfile({...profile, language: newLang});
-                          i18n.changeLanguage(newLang);
-                          localStorage.setItem('language', newLang);
-                        }}
-                      >
-                        <option value="VI">Tiếng Việt (VN)</option>
-                        <option value="EN">English (US)</option>
-                      </select>
-                    </div>
 
-                    <div className="pref-item">
-                      <div className="pref-header">
-                        <Moon size={16} className="text-muted" />
-                        <span className="pref-label">GIAO DIỆN</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chế độ tối</span>
-                        <label className="switch">
-                          <input 
-                            type="checkbox" 
-                            checked={profile.darkMode || false} 
-                            onChange={() => setProfile({...profile, darkMode: !profile.darkMode})} 
-                          />
-                          <span className="slider"></span>
-                        </label>
+                      <div className="pref-item">
+                        <div className="pref-header">
+                          <Moon size={16} className="text-muted" />
+                          <span className="pref-label">GIAO DIỆN</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chế độ tối</span>
+                          <label className="switch">
+                            <input 
+                              type="checkbox" 
+                              checked={profile.darkMode || false} 
+                              onChange={() => setProfile({...profile, darkMode: !profile.darkMode})} 
+                            />
+                            <span className="slider"></span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Security & Alerts row */}
-                <div className="form-row">
-                  <div className="settings-section-card" style={{ flex: 1 }}>
-                    <h3>Bảo mật</h3>
+                {activeTab === 'security' && (
+                  <div className="settings-section-card animate-in">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                      <h3 style={{ margin: 0 }}>Bảo mật</h3>
+                      <span className="badge-outline success" style={{ fontSize: '0.7rem' }}>Tài khoản an toàn</span>
+                    </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div className="security-item" onClick={() => setIsChangingPassword(!isChangingPassword)} style={{ cursor: 'pointer' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -295,7 +321,7 @@ export default function Settings() {
                       </div>
 
                       {isChangingPassword && (
-                        <form onSubmit={handleChangePassword} style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem' }}>
+                        <form onSubmit={handleChangePassword} style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
                           <div className="form-group">
                             <label style={{ fontSize: '0.7rem' }}>MẬT KHẨU HIỆN TẠI</label>
                             <input 
@@ -344,9 +370,48 @@ export default function Settings() {
                         </label>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="settings-section-card" style={{ flex: 1 }}>
+                    <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                        <Sliders size={16} className="text-muted" />
+                        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>Thiết bị đã đăng nhập</h4>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {sessions.map(session => (
+                          <div key={session.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '0.375rem', color: 'var(--text-main)' }}>
+                                <Globe size={16} />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  {session.userAgent.includes('Windows') ? 'Windows PC' : session.userAgent.includes('Mac') ? 'MacBook' : 'Thiết bị lạ'}
+                                  {session.isCurrent && <span className="badge-outline success" style={{ fontSize: '0.65rem', padding: '0 0.4rem' }}>Hiện tại</span>}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                  {session.ipAddress} • {new Date(session.lastActive).toLocaleString('vi-VN')}
+                                </div>
+                              </div>
+                            </div>
+                            {!session.isCurrent && (
+                              <button 
+                                className="btn-icon-text text-danger" 
+                                style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}
+                                onClick={() => handleRevokeSession(session.id)}
+                              >
+                                Đăng xuất
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'notifications' && (
+                  <div className="settings-section-card animate-in">
                     <h3>Thông báo</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div className="security-item">
@@ -373,7 +438,7 @@ export default function Settings() {
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Footer Buttons */}
                 <div className="settings-footer">
@@ -384,13 +449,15 @@ export default function Settings() {
                 </div>
 
                 {/* Danger Zone */}
-                <div className="danger-zone">
-                  <div className="danger-info">
-                    <h4>Vô hiệu hóa tài khoản</h4>
-                    <p>Xóa vĩnh viễn dữ liệu và quyền truy cập vào tất cả các bản ghi tài chính của bạn.</p>
+                {activeTab === 'profile' && (
+                  <div className="danger-zone animate-in">
+                    <div className="danger-info">
+                      <h4>Vô hiệu hóa tài khoản</h4>
+                      <p>Xóa vĩnh viễn dữ liệu và quyền truy cập vào tất cả các bản ghi tài chính của bạn.</p>
+                    </div>
+                    <button className="btn-danger">Xóa tài khoản</button>
                   </div>
-                  <button className="btn-danger">Xóa tài khoản</button>
-                </div>
+                )}
               </div>
             </div>
           </div>

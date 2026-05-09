@@ -4,6 +4,7 @@ import com.example.demo.dto.*;
 import com.example.demo.entity.User;
 import com.example.demo.entity.PasswordResetToken;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserSessionRepository;
 import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
 
+    private final UserSessionRepository sessionRepository;
+
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại.");
@@ -45,6 +48,10 @@ public class AuthService {
         userRepository.save(user);
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         var jwtToken = jwtService.generateToken(userDetails);
+        
+        // Record session for registration too
+        recordSession(user, jwtToken, "Initial Registration", "Unknown");
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
@@ -54,7 +61,7 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponse login(AuthRequest request, String userAgent, String ipAddress) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -65,6 +72,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         var jwtToken = jwtService.generateToken(userDetails);
+
+        // Record the session
+        recordSession(user, jwtToken, userAgent, ipAddress);
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(userDetails.getUsername())
@@ -72,6 +83,18 @@ public class AuthService {
                 .currency(user.getCurrency())
                 .language(user.getLanguage())
                 .build();
+    }
+
+    private void recordSession(User user, String token, String userAgent, String ipAddress) {
+        var session = com.example.demo.entity.UserSession.builder()
+                .user(user)
+                .tokenId(token.substring(token.length() - 20)) // Store last 20 chars as identifier
+                .userAgent(userAgent)
+                .ipAddress(ipAddress)
+                .lastActive(LocalDateTime.now())
+                .isRevoked(false)
+                .build();
+        sessionRepository.save(session);
     }
 
     @Transactional
