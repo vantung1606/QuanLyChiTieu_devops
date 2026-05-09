@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function FinancialTip() {
+  const { t } = useTranslation();
   return (
     <div className="tip-card">
-      <h4>Mẹo tài chính</h4>
-      <p>Phân bổ 50/30/20 cho chi tiêu thiết yếu, sở thích và tiết kiệm.</p>
+      <h4>{t('Financial Tip')}</h4>
+      <p>{t('50/30/20 rule tip')}</p>
     </div>
   );
 }

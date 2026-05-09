@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, Mail, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import '../auth.css';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,7 +17,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      setError('Vui lòng nhập đầy đủ thông tin!');
+      setError(t('Please enter full information'));
       return;
     }
 
@@ -40,7 +42,7 @@ export default function Login() {
       navigate('/');
     } catch (err) {
       // Khi lỗi, giữ nguyên username và password để người dùng sửa
-      setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!');
+      setError(err.response?.data?.message || t('Login failed'));
       setIsShaking(true);
       
       // Tự động focus và bôi đen mật khẩu cũ
@@ -73,20 +75,20 @@ export default function Login() {
       <div className="auth-content">
         <div className={`auth-card ${isShaking ? 'shake' : ''}`}>
           <div className="auth-title">
-            <h3>Chào mừng trở lại</h3>
-            <p>Quản lý tài chính với độ chính xác và rõ ràng.</p>
+            <h3>{t('Welcome Back')}</h3>
+            <p>{t('Manage finances with precision')}</p>
           </div>
 
           {error && <div className="error-alert">{error}</div>}
 
           <div className="auth-form">
             <div className="form-group">
-              <label>Username hoặc Email</label>
+              <label>{t('Username or Email')}</label>
               <div className="input-with-icon">
                 <Mail size={18} className="icon" />
                 <input 
                   type="text" 
-                  placeholder="admin hoặc email@company.com" 
+                  placeholder="admin" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
@@ -96,8 +98,8 @@ export default function Login() {
 
             <div className="form-group">
               <label>
-                Mật khẩu
-                <Link to="/forgot-password" style={{ fontSize: '0.75rem', color: '#006d5b', textDecoration: 'none', fontWeight: 600 }}>Quên mật khẩu?</Link>
+                {t('Password')}
+                <Link to="/forgot-password" style={{ fontSize: '0.75rem', color: '#006d5b', textDecoration: 'none', fontWeight: 600 }}>{t('Forgot password?')}</Link>
               </label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
@@ -114,7 +116,7 @@ export default function Login() {
 
             <div className="checkbox-group">
               <input type="checkbox" id="remember" />
-              <label htmlFor="remember">Ghi nhớ trong 30 ngày</label>
+              <label htmlFor="remember">{t('Remember for 30 days')}</label>
             </div>
 
             <button 
@@ -123,11 +125,11 @@ export default function Login() {
               disabled={loading}
               onClick={handleLogin}
             >
-              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
+              {loading ? t('Processing...') : t('Logout')}
             </button>
           </div>
 
-          <div className="auth-divider">HOẶC TIẾP TỤC VỚI</div>
+          <div className="auth-divider">{t('OR CONTINUE WITH')}</div>
 
           <div className="social-buttons">
             <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
@@ -141,7 +143,7 @@ export default function Login() {
           </div>
 
           <div className="auth-footer">
-            Chưa có tài khoản? <Link to="/register">Tạo tài khoản</Link>
+            {t("Don't have an account?")} <Link to="/register">{t('Create account')}</Link>
           </div>
         </div>
       </div>

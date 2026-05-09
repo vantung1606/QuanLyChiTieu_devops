@@ -1,8 +1,10 @@
 import React from 'react';
 import { LogOut, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './LogoutModal.css';
 
 const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -19,16 +21,16 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
         </div>
         
         <div className="modal-content">
-          <h3>Xác nhận đăng xuất</h3>
-          <p>Bạn có chắc chắn muốn rời khỏi phiên làm việc này không? Mọi thay đổi chưa lưu sẽ bị mất.</p>
+          <h3>{t('Confirm Logout')}</h3>
+          <p>{t('Are you sure leave session message')}</p>
         </div>
         
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onClose}>
-            Hủy bỏ
+            {t('Cancel')}
           </button>
           <button className="btn-confirm" onClick={onConfirm}>
-            Đăng xuất
+            {t('Logout')}
           </button>
         </div>
       </div>

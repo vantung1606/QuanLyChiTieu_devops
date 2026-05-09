@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import TransactionModal from '../components/TransactionModal';
 
 export default function Transactions() {
+  const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -58,7 +60,7 @@ export default function Transactions() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) {
+    if (window.confirm(t('Are you sure delete transaction') || "Bạn có chắc chắn muốn xóa giao dịch này?")) {
       try {
         await api.delete(`/transactions/${id}`);
         fetchData();
@@ -84,9 +86,9 @@ export default function Transactions() {
   };
 
   const getSubTitle = (title) => {
-    if (title.toLowerCase().includes('aws')) return "Đăng ký hàng tháng";
-    if (title.toLowerCase().includes('thưởng')) return "Thưởng hiệu suất";
-    if (title.toLowerCase().includes('cà phê')) return "Họp nhóm buổi sáng";
+    if (title.toLowerCase().includes('aws')) return t('Monthly subscription');
+    if (title.toLowerCase().includes('thưởng')) return t('Performance bonus');
+    if (title.toLowerCase().includes('cà phê')) return t('Morning meeting');
     return "";
   };
 
@@ -99,22 +101,22 @@ export default function Transactions() {
           
           <div className="page-header">
             <div>
-              <h2 className="page-title">Giao dịch</h2>
-              <p className="page-subtitle">Xem và quản lý tất cả các hoạt động tài chính của bạn tại một nơi.</p>
+              <h2 className="page-title">{t('Transactions')}</h2>
+              <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
             </div>
             <div className="page-actions">
               <button className="btn-outline">
-                <Calendar size={16} /> 30 Ngày qua
+                <Calendar size={16} /> {t('Last 30 Days')}
               </button>
               <button className="btn-outline">
-                <Filter size={16} /> Tất cả danh mục
+                <Filter size={16} /> {t('All Categories')}
               </button>
               <span style={{flex: 1}}></span>
               <button className="btn-outline">
-                <Download size={16} /> Tải CSV
+                <Download size={16} /> {t('Download CSV')}
               </button>
               <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-                <Plus size={16} /> Thêm giao dịch mới
+                <Plus size={16} /> {t('Add category')}
               </button>
             </div>
           </div>
@@ -123,51 +125,51 @@ export default function Transactions() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>NGÀY</th>
-                  <th>TIÊU ĐỀ</th>
-                  <th>DANH MỤC</th>
-                  <th>LOẠI</th>
-                  <th style={{ textAlign: 'right' }}>SỐ TIỀN</th>
-                  <th style={{ textAlign: 'center' }}>HÀNH ĐỘNG</th>
+                  <th>{t('DATE_CELL')}</th>
+                  <th>{t('TITLE_CELL')}</th>
+                  <th>{t('CATEGORY')}</th>
+                  <th>{t('Type')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('AMOUNT')}</th>
+                  <th style={{ textAlign: 'center' }}>{t('ACTION')}</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>Chưa có giao dịch nào</td>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions yet')}</td>
                   </tr>
                 ) : (
-                  transactions.map(t => (
-                    <tr key={t.id}>
+                  transactions.map(item => (
+                    <tr key={item.id}>
                       <td className="date-cell">
-                        {new Date(t.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {new Date(item.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
                       <td>
                         <div className="title-cell">
-                          <strong>{t.title}</strong>
-                          <span>{getSubTitle(t.title) || t.category}</span>
+                          <strong>{item.title}</strong>
+                          <span>{getSubTitle(item.title) || (t(item.category) || item.category)}</span>
                         </div>
                       </td>
                       <td>
-                        <span className={`category-badge ${getCategoryBadgeClass(t.category)}`}>
-                          {t.category}
+                        <span className={`category-badge ${getCategoryBadgeClass(item.category)}`}>
+                          {t(item.category) || item.category}
                         </span>
                       </td>
                       <td>
-                        <div className={`type-cell ${t.type}`}>
-                          {t.type === 'income' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                          {t.type === 'income' ? 'Thu nhập' : 'Chi tiêu'}
+                        <div className={`type-cell ${item.type}`}>
+                          {item.type === 'income' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                          {item.type === 'income' ? t('Income') : t('Expense')}
                         </div>
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <span className={`amount ${t.type}`}>
-                          {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                        <span className={`amount ${item.type}`}>
+                          {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
                         </span>
                       </td>
                       <td>
                         <div className="action-cells">
-                          <button className="action-icon" title="Sửa"><Edit2 size={16} /></button>
-                          <button className="action-icon danger" title="Xóa" onClick={() => handleDelete(t.id)}><Trash2 size={16} /></button>
+                          <button className="action-icon" title={t('Edit')}><Edit2 size={16} /></button>
+                          <button className="action-icon danger" title={t('Logout')} onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
                         </div>
                       </td>
                     </tr>
@@ -178,10 +180,10 @@ export default function Transactions() {
             
             {transactions.length > 0 && (
               <div className="pagination-footer">
-                <span>Đang xem 1 đến {transactions.length} trong {transactions.length} giao dịch</span>
+                <span>{t('Showing')} 1 {t('of')} {transactions.length} {t('transactions_count')}</span>
                 <div className="pagination-buttons">
-                  <button className="btn-page disabled">Trước</button>
-                  <button className="btn-page active">Tiếp</button>
+                  <button className="btn-page disabled">{t('Previous')}</button>
+                  <button className="btn-page active">{t('Next')}</button>
                 </div>
               </div>
             )}

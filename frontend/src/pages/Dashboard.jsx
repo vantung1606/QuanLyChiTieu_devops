@@ -11,7 +11,7 @@ import FinancialTip from '../components/FinancialTip';
 import TransactionList from '../components/TransactionList';
 
 function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [formData, setFormData] = useState({
@@ -63,12 +63,12 @@ function Dashboard() {
       fetchData();
     } catch (error) {
       console.error("Error saving transaction:", error);
-      alert("Error saving transaction. Please check your data.");
+      alert(t("Error saving transaction"));
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this transaction?")) {
+    if (window.confirm(t("Are you sure delete transaction"))) {
       try {
         await api.delete(`/transactions/${id}`);
         fetchData();
@@ -79,8 +79,11 @@ function Dashboard() {
   };
 
   const formatCurrency = (val) => {
-    const formatted = new Intl.NumberFormat('vi-VN').format(val);
-    return (val < 0 ? formatted : formatted) + ' đ';
+    const locale = i18n.language === 'EN' ? 'en-US' : 'vi-VN';
+    const currency = i18n.language === 'EN' ? 'USD' : 'VND';
+    // However, if we want to keep it as VND but format differently:
+    const formatted = new Intl.NumberFormat(locale).format(val);
+    return i18n.language === 'EN' ? `$${formatted}` : `${formatted} đ`;
   };
 
   return (

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, User, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import '../auth.css';
 
 export default function Register() {
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -16,12 +18,12 @@ export default function Register() {
 
   const handleRegister = async () => {
     if (!fullName || !username || !email || !password || !confirmPassword) {
-      setError('Vui lòng nhập đầy đủ thông tin!');
+      setError(t('Please enter full information'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp!');
+      setError(t('Password confirmation does not match'));
       return;
     }
     
@@ -29,7 +31,7 @@ export default function Register() {
     setError('');
 
     try {
-      const response = await api.post('/auth/register', {
+      await api.post('/auth/register', {
         fullName,
         username,
         email,
@@ -37,10 +39,10 @@ export default function Register() {
       });
 
       // Redirect to login with success state
-      alert('Đăng ký thành công! Chào mừng ' + fullName + '. Vui lòng đăng nhập để bắt đầu.');
+      alert(t('Registration successful', { name: fullName }));
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+      setError(err.response?.data?.message || t('Registration failed'));
     } finally {
       setLoading(false);
     }
@@ -62,15 +64,15 @@ export default function Register() {
       <div className="auth-content">
         <div className="auth-card">
           <div className="auth-title">
-            <h3>Tạo tài khoản</h3>
-            <p>Công cụ tối ưu cho hành trình tài chính của bạn.</p>
+            <h3>{t('Create account')}</h3>
+            <p>{t('Ultimate tool for your financial journey')}</p>
           </div>
 
           {error && <div className="error-alert">{error}</div>}
 
           <div className="auth-form">
             <div className="form-group">
-              <label>Họ và tên</label>
+              <label>{t('Full Name')}</label>
               <div className="input-with-icon">
                 <User size={18} className="icon" />
                 <input 
@@ -83,7 +85,7 @@ export default function Register() {
             </div>
 
             <div className="form-group">
-              <label>Username</label>
+              <label>{t('Username')}</label>
               <div className="input-with-icon">
                 <User size={18} className="icon" style={{ opacity: 0.5 }} />
                 <input 
@@ -96,7 +98,7 @@ export default function Register() {
             </div>
 
             <div className="form-group">
-              <label>Địa chỉ Email</label>
+              <label>{t('Email Address')}</label>
               <div className="input-with-icon">
                 <Mail size={18} className="icon" />
                 <input 
@@ -109,7 +111,7 @@ export default function Register() {
             </div>
 
             <div className="form-group">
-              <label>Mật khẩu</label>
+              <label>{t('Password')}</label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
                 <input 
@@ -122,7 +124,7 @@ export default function Register() {
             </div>
 
             <div className="form-group">
-              <label>Xác nhận mật khẩu</label>
+              <label>{t('Confirm Password')}</label>
               <div className="input-with-icon">
                 <ShieldCheck size={18} className="icon" />
                 <input 
@@ -140,11 +142,11 @@ export default function Register() {
               disabled={loading}
               onClick={handleRegister}
             >
-              {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
+              {loading ? t('Creating account...') : t('Create account')}
             </button>
           </div>
 
-          <div className="auth-divider">HOẶC ĐĂNG KÝ VỚI</div>
+          <div className="auth-divider">{t('OR REGISTER WITH')}</div>
 
           <div className="social-buttons">
             <button type="button" className="social-btn" onClick={(e) => e.preventDefault()}>
@@ -158,7 +160,7 @@ export default function Register() {
           </div>
 
           <div className="auth-footer">
-            Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+            {t('Already have an account?')} <Link to="/login">{t('Login')}</Link>
           </div>
         </div>
       </div>

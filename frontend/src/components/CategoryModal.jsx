@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, Briefcase, ShoppingBag, Plane, Car, Dog, LayoutGrid, Dumbbell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
 const ICONS = [
@@ -31,6 +32,7 @@ const COLORS = [
 ];
 
 export default function CategoryModal({ isOpen, onClose, refresh }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [budget, setBudget] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('Utensils');
@@ -55,7 +57,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
       onClose();
     } catch (error) {
       console.error("Error creating category:", error);
-      alert(error.response?.data?.message || "Error creating category. Please try again.");
+      alert(error.response?.data?.message || t('Error creating category'));
     } finally {
       setLoading(false);
     }
@@ -65,16 +67,16 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
     <div className="modal-overlay">
       <div className="modal-card" style={{ maxWidth: '480px' }}>
         <div className="modal-header">
-          <h3>Thêm danh mục mới</h3>
+          <h3>{t('Add category')}</h3>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Tên danh mục</label>
+            <label>{t('Category name')}</label>
             <input 
               type="text" 
-              placeholder="Ví dụ: Ăn uống, Du lịch..." 
+              placeholder={t('Example: Dining, Travel...')} 
               value={name}
               onChange={(e) => setName(e.target.value)}
               required 
@@ -82,7 +84,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
           </div>
 
           <div className="form-group">
-            <label>Chọn biểu tượng</label>
+            <label>{t('Select icon')}</label>
             <div className="picker-grid">
               {ICONS.map((item) => {
                 const IconComp = item.icon;
@@ -100,7 +102,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
           </div>
 
           <div className="form-group">
-            <label>Chọn màu chủ đạo</label>
+            <label>{t('Select main color')}</label>
             <div className="color-picker">
               {COLORS.map((color) => (
                 <div 
@@ -114,7 +116,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
           </div>
 
           <div className="form-group">
-            <label>Hạn mức chi tiêu hàng tháng</label>
+            <label>{t('Monthly spending limit')}</label>
             <div className="input-prefix">
               <span className="prefix">₫</span>
               <input 
@@ -129,10 +131,10 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
 
           <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button type="submit" className="btn-primary w-full" style={{ padding: '0.875rem' }} disabled={loading}>
-              {loading ? "Đang tạo..." : "Tạo danh mục"}
+              {loading ? t('Creating...') : t('Create Category')}
             </button>
             <button type="button" className="btn-cancel" onClick={onClose}>
-              Hủy bỏ
+              {t('Cancel')}
             </button>
           </div>
         </form>

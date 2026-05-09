@@ -8,11 +8,13 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart as RePieChart, Pie, Cell, LineChart, Line, AreaChart, Area
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function Reports() {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,14 +55,14 @@ export default function Reports() {
             </div>
           ) : !data ? (
             <div className="error-state" style={{ marginTop: '2rem', padding: '2rem', textAlign: 'center', backgroundColor: '#fef2f2', color: '#991b1b', borderRadius: '1rem' }}>
-              Không thể tải dữ liệu báo cáo. Vui lòng thử lại sau.
+              {t('Cannot load report data')}
             </div>
           ) : (
             <>
               <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Báo cáo tài chính</h1>
-          <p style={{ color: '#64748b' }}>Phân tích chi tiết về dòng tiền và chi tiêu của bạn.</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>{t('Financial Report')}</h1>
+          <p style={{ color: 'var(--text-muted)' }}>{t('Detailed analysis of flow')}</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div className="date-picker-mock" style={{ 
@@ -90,17 +92,17 @@ export default function Reports() {
             fontWeight: 600,
             cursor: 'pointer'
           }}>
-            <Download size={18} /> Xuất PDF
+            <Download size={18} /> {t('Export PDF')}
           </button>
         </div>
       </div>
 
       {/* Stats Overview */}
       <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-        <StatCard label="Tỷ lệ tiết kiệm" value={data.savingsRate + "%"} change="+2.1%" color="#10b981" />
-        <StatCard label="Hạng mục chi tiêu lớn nhất" value={data.topSpendingCategory} subValue={data.topSpendingAmount.toLocaleString() + " VNĐ"} icon={<ShoppingBag size={20} />} color="#ef4444" />
-        <StatCard label="Dòng tiền thuần" value={data.netCashFlow.toLocaleString() + " VNĐ"} change="+4.2k" color="#3b82f6" />
-        <StatCard label="Thuế ước tính" value={data.taxLiabilityEst.toLocaleString() + " VNĐ"} badge="Q4 PROJECTION" color="#64748b" />
+        <StatCard label={t('Savings Rate')} value={data.savingsRate + "%"} change="+2.1%" color="#10b981" />
+        <StatCard label={t('Top Spending Category')} value={t(data.topSpendingCategory) || data.topSpendingCategory} subValue={data.topSpendingAmount.toLocaleString() + " VNĐ"} icon={<ShoppingBag size={20} />} color="#ef4444" />
+        <StatCard label={t('Net Cash Flow')} value={data.netCashFlow.toLocaleString() + " VNĐ"} change="+4.2k" color="#3b82f6" />
+        <StatCard label={t('Estimated Tax')} value={data.taxLiabilityEst.toLocaleString() + " VNĐ"} badge="Q4 PROJECTION" color="#64748b" />
       </div>
 
       {/* Main Charts Area */}
@@ -108,29 +110,29 @@ export default function Reports() {
         <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>Thu nhập vs. Chi phí</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Biến động dòng tiền 30 ngày qua</p>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>{t('Income vs Expenses')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t('Cash flow fluctuation last 30 days')}</p>
             </div>
             <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0f172a' }}></div>
-                <span>Thu nhập</span>
+                <span style={{color: 'var(--text-main)'}}>{t('Income')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e2e8f0' }}></div>
-                <span>Chi phí</span>
+                <span style={{color: 'var(--text-main)'}}>{t('Expense')}</span>
               </div>
             </div>
           </div>
           <div style={{ height: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.incomeVsExpenses} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--bg-card)', color: 'var(--text-main)' }}
+                  cursor={{ fill: 'var(--bg-app)' }}
                 />
                 <Bar dataKey="income" fill="#0f172a" radius={[4, 4, 0, 0]} barSize={40} />
                 <Bar dataKey="expenses" fill="#e2e8f0" radius={[4, 4, 0, 0]} barSize={40} />
@@ -140,7 +142,7 @@ export default function Reports() {
         </div>
 
         <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>Chi tiêu theo hạng mục</h3>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>{t('Spending by Category')}</h3>
           <div style={{ height: '220px', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <RePieChart>
@@ -168,7 +170,7 @@ export default function Reports() {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>${(data.topSpendingAmount / 1000).toFixed(0)}k</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tổng cộng</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('Total')}</div>
             </div>
           </div>
           <div style={{ marginTop: '1.5rem' }}>
@@ -176,9 +178,9 @@ export default function Reports() {
               <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: cat.color || COLORS[idx % COLORS.length] }}></div>
-                  <span style={{ fontSize: '0.875rem', color: '#475569' }}>{cat.name}</span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t(cat.name) || cat.name}</span>
                 </div>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{cat.percentage.toFixed(0)}%</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>{cat.percentage.toFixed(0)}%</span>
               </div>
             ))}
           </div>
@@ -189,22 +191,22 @@ export default function Reports() {
       <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>Chi tiêu lớn nhất</h3>
-            <button style={{ fontSize: '0.875rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Xem tất cả</button>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>{t('Top Outflows')}</h3>
+            <button style={{ fontSize: '0.875rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>{t('View All')}</button>
           </div>
           <div className="outflows-list">
             {data.topOutflows.map((item, idx) => (
-              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: idx === data.topOutflows.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: idx === data.topOutflows.length - 1 ? 'none' : '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: '40px', height: '40px', backgroundColor: '#f8fafc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: '#64748b' }}>
+                  <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--bg-app)', backgroundColor: 'var(--bg-app)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                     <ShoppingBag size={20} style={{ margin: 'auto' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.category} • Hàng tháng</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>{item.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t(item.category) || item.category} • {t('Monthly')}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>
                   -{item.amount.toLocaleString()} VNĐ
                 </div>
               </div>
@@ -232,7 +234,7 @@ export default function Reports() {
           }}>
             <Lightbulb size={24} className="text-yellow-400" color="#f59e0b" />
           </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>AI Financial Insight</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>{t('AI Financial Insight')}</h3>
           <p style={{ color: '#94a3b8', lineHeight: 1.6, marginBottom: '2rem' }}>
             {data.aiInsight}
           </p>
@@ -246,7 +248,7 @@ export default function Reports() {
               fontSize: '0.875rem',
               fontWeight: 600,
               cursor: 'pointer'
-            }}>Xác nhận kế hoạch</button>
+            }}>{t('Confirm Plan')}</button>
             <button style={{ 
               padding: '0.625rem 1.25rem', 
               backgroundColor: 'rgba(255,255,255,0.1)', 
@@ -256,7 +258,7 @@ export default function Reports() {
               fontSize: '0.875rem',
               fontWeight: 600,
               cursor: 'pointer'
-            }}>Chi tiết</button>
+            }}>{t('Details')}</button>
           </div>
         </div>
               </div>
@@ -269,6 +271,7 @@ export default function Reports() {
 }
 
 function StatCard({ label, value, subValue, change, badge, icon, color }) {
+  const { t } = useTranslation();
   return (
     <div className="stat-card" style={{ 
       padding: '1.5rem', 
@@ -294,14 +297,14 @@ function StatCard({ label, value, subValue, change, badge, icon, color }) {
           </div>
         )}
       </div>
-      {subValue && <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{subValue} tháng này</div>}
+      {subValue && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{subValue} {t('Spending this month')}</div>}
       {badge && (
         <span style={{ 
           fontSize: '0.625rem', 
           fontWeight: 700, 
           padding: '0.25rem 0.5rem', 
-          backgroundColor: '#f1f5f9', 
-          color: '#64748b', 
+          backgroundColor: 'var(--bg-app)', 
+          color: 'var(--text-muted)', 
           borderRadius: '4px',
           textTransform: 'uppercase',
           letterSpacing: '0.05em'
