@@ -31,9 +31,6 @@ export default function Reports() {
     }
   };
 
-  if (loading) return <div className="loading-state">Đang tải báo cáo...</div>;
-  if (!data) return <div className="error-state">Không thể tải dữ liệu báo cáo.</div>;
-
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   return (
@@ -42,7 +39,25 @@ export default function Reports() {
       <div className="main-content">
         <div className="content-inner" style={{ padding: '2rem' }}>
           <Header />
-          <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
+          
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
+              <div style={{ height: '40px', width: '200px', backgroundColor: '#e2e8f0', borderRadius: '4px', animation: 'pulse 1.5s infinite' }}></div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+                {[1,2,3,4].map(i => <div key={i} style={{ height: '120px', backgroundColor: '#e2e8f0', borderRadius: '1rem', animation: 'pulse 1.5s infinite' }}></div>)}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+                <div style={{ height: '350px', backgroundColor: '#e2e8f0', borderRadius: '1rem', animation: 'pulse 1.5s infinite' }}></div>
+                <div style={{ height: '350px', backgroundColor: '#e2e8f0', borderRadius: '1rem', animation: 'pulse 1.5s infinite' }}></div>
+              </div>
+            </div>
+          ) : !data ? (
+            <div className="error-state" style={{ marginTop: '2rem', padding: '2rem', textAlign: 'center', backgroundColor: '#fef2f2', color: '#991b1b', borderRadius: '1rem' }}>
+              Không thể tải dữ liệu báo cáo. Vui lòng thử lại sau.
+            </div>
+          ) : (
+            <>
+              <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Báo cáo tài chính</h1>
           <p style={{ color: '#64748b' }}>Phân tích chi tiết về dòng tiền và chi tiêu của bạn.</p>
@@ -244,10 +259,12 @@ export default function Reports() {
             }}>Chi tiết</button>
           </div>
         </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
-  </div>
   );
 }
 
