@@ -154,7 +154,7 @@ function Dashboard() {
                   <span>{report?.savingsRate}% tỷ lệ tiết kiệm tháng này</span>
                 </div>
               </div>
-              <div style={{ height: '100px', width: '100%', marginTop: 'auto' }}>
+              <div style={{ height: '100px', minHeight: '100px', width: '100%', marginTop: 'auto' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={balanceTrend}>
                     <defs>
@@ -269,7 +269,7 @@ function Dashboard() {
               <div className="premium-card cash-flow-card">
                 <div className="card-title">Dòng tiền 7 ngày qua</div>
                 <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
-                <div style={{ height: '180px', width: '100%' }}>
+                <div style={{ height: '180px', minHeight: '180px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={cashFlowData}>
                       <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
