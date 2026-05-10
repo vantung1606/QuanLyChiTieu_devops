@@ -266,6 +266,8 @@ const resources = {
       "Delete category confirm": "Xóa danh mục \"{{name}}\"?",
       "Delete message": "Hành động này không thể hoàn tác. Các giao dịch liên quan sẽ không còn thuộc danh mục này.",
       "View and manage all your financial activities": "Xem và quản lý tất cả các hoạt động tài chính của bạn tại một nơi.",
+      "Loading transactions...": "Đang tải giao dịch...",
+      "Error fetching data": "Lỗi khi tải dữ liệu",
       "Last 30 Days": "30 Ngày qua",
       "All Time": "Tất cả thời gian",
       "All Types": "Tất cả loại",

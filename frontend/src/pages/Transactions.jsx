@@ -22,26 +22,33 @@ export default function Transactions() {
   });
   const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({ type: '', category: '', days: null });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
   }, [filters]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const queryParams = new URLSearchParams();
-      if (filters.type) queryParams.append('type', filters.type);
-      if (filters.days) queryParams.append('days', filters.days);
-      if (filters.category) queryParams.append('category', filters.category);
+      const params = {
+        _t: Date.now()
+      };
+      if (filters.type) params.type = filters.type;
+      if (filters.days) params.days = filters.days;
+      if (filters.category) params.category = filters.category;
 
       const [transRes, catRes] = await Promise.all([
-        api.get(`/transactions?${queryParams.toString()}`),
+        api.get('/transactions', { params }),
         api.get('/categories')
       ]);
       setTransactions(transRes.data);
       setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      toast.error(t('Error fetching data') || "Lỗi khi tải dữ liệu.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,6 +61,31 @@ export default function Transactions() {
     }
     
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleExport = async () => {
+    try {
+      const params = {};
+      if (filters.type) params.type = filters.type;
+      if (filters.days) params.days = filters.days;
+      if (filters.category) params.category = filters.category;
+
+      const response = await api.get('/transactions/export', { 
+        params,
+        responseType: 'blob' 
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'transactions.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast.error(t("Error exporting data") || "Lỗi khi xuất dữ liệu.");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -97,9 +129,6 @@ export default function Transactions() {
     );
   };
 
-  const handleExport = () => {
-    window.open(`${api.defaults.baseURL}/transactions/export`, '_blank');
-  };
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
@@ -132,7 +161,7 @@ export default function Transactions() {
           
           <div className="page-header">
             <div>
-              <h2 className="page-title">{t('Transactions')}</h2>
+              <h2 className="page-title">{t('Transactions')} {filters.category && ` - ${t(filters.category) || filters.category}`}</h2>
               <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
             </div>
             <div className="page-actions">
@@ -193,7 +222,14 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>
+                      <div className="loading-spinner"></div>
+                      <p style={{ marginTop: '1rem', color: '#64748b' }}>{t('Loading transactions...') || "Đang tải giao dịch..."}</p>
+                    </td>
+                  </tr>
+                ) : transactions.length === 0 ? (
                   <tr>
                     <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions yet')}</td>
                   </tr>
@@ -239,7 +275,7 @@ export default function Transactions() {
             
             {transactions.length > 0 && (
               <div className="pagination-footer">
-                <span>{t('Showing')} 1 {t('of')} {transactions.length} {t('transactions_count')}</span>
+                <span>{t('Showing')} {transactions.length} {t('of')} {transactions.length} {t('transactions_count')}</span>
                 <div className="pagination-buttons">
                   <button className="btn-page disabled">{t('Previous')}</button>
                   <button className="btn-page active">{t('Next')}</button>

@@ -47,36 +47,18 @@ public class TransactionService {
             startDate = java.time.LocalDateTime.now().minusDays(days);
         }
 
-        boolean hasType = type != null && !type.isEmpty();
-        boolean hasCategory = category != null && !category.isEmpty();
-        boolean hasDate = startDate != null;
+        String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
+        String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
 
-        if (hasType && hasCategory && hasDate) {
-            transactions = transactionRepository.findByUserAndTypeAndCategoryAndDateAfterOrderByDateDesc(user, type, category, startDate);
-        } else if (hasType && hasCategory) {
-            transactions = transactionRepository.findByUserAndTypeAndCategoryOrderByDateDesc(user, type, category);
-        } else if (hasType && hasDate) {
-            transactions = transactionRepository.findByUserAndTypeAndDateAfterOrderByDateDesc(user, type, startDate);
-        } else if (hasCategory && hasDate) {
-            transactions = transactionRepository.findByUserAndCategoryAndDateAfterOrderByDateDesc(user, category, startDate);
-        } else if (hasType) {
-            transactions = transactionRepository.findByUserAndTypeOrderByDateDesc(user, type);
-        } else if (hasCategory) {
-            transactions = transactionRepository.findByUserAndCategoryOrderByDateDesc(user, category);
-        } else if (hasDate) {
-            transactions = transactionRepository.findByUserAndDateAfterOrderByDateDesc(user, startDate);
-        } else {
-            transactions = transactionRepository.findByUserOrderByDateDesc(user);
-        }
-
-        return transactions.stream()
+        return transactionRepository.findFilteredTransactions(user.getId(), cleanType, cleanCategory, startDate)
+                .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<TransactionDTO> searchTransactions(String query) {
         User user = getCurrentUser();
-        return transactionRepository.findByUserAndTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(user, query, query).stream()
+        return transactionRepository.searchTransactions(user.getId(), query).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -120,26 +102,23 @@ public class TransactionService {
         transactionRepository.delete(transaction);
     }
 
-    public String exportTransactionsToCsv() {
-        List<TransactionDTO> transactions = getAllTransactions();
+    public String exportTransactionsToCsv(String type, String category, Integer days) {
+        List<TransactionDTO> transactions = getFilteredTransactions(type, category, days);
         StringBuilder csv = new StringBuilder();
-        csv.append("ID,Date,Title,Category,Type,Amount\n");
-        
+        csv.append("Date,Title,Category,Type,Amount\n");
         for (TransactionDTO t : transactions) {
-            csv.append(t.getId()).append(",")
-               .append(t.getDate()).append(",")
+            csv.append(t.getDate().toLocalDate()).append(",")
                .append("\"").append(t.getTitle().replace("\"", "\"\"")).append("\",")
                .append("\"").append(t.getCategory().replace("\"", "\"\"")).append("\",")
                .append(t.getType()).append(",")
                .append(t.getAmount()).append("\n");
         }
-        
         return csv.toString();
     }
 
     public Map<String, Double> getSummary() {
         User user = getCurrentUser();
-        List<Transaction> transactions = transactionRepository.findByUser(user);
+        List<Transaction> transactions = transactionRepository.findByUserOrderByDateDesc(user);
         
         double totalIncome = transactions.stream()
                 .filter(t -> "income".equalsIgnoreCase(t.getType()))

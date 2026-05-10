@@ -10,14 +10,23 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByUserOrderByDateDesc(User user);
-    List<Transaction> findByUserAndTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(User user, String title, String category);
     List<Transaction> findByUser(User user);
     List<Transaction> findByUserAndDateBetweenOrderByDateAsc(User user, java.time.LocalDateTime start, java.time.LocalDateTime end);
-    List<Transaction> findByUserAndCategoryOrderByDateDesc(User user, String category);
-    List<Transaction> findByUserAndDateAfterOrderByDateDesc(User user, java.time.LocalDateTime date);
-    List<Transaction> findByUserAndCategoryAndDateAfterOrderByDateDesc(User user, String category, java.time.LocalDateTime date);
-    List<Transaction> findByUserAndTypeOrderByDateDesc(User user, String type);
-    List<Transaction> findByUserAndTypeAndCategoryOrderByDateDesc(User user, String type, String category);
-    List<Transaction> findByUserAndTypeAndDateAfterOrderByDateDesc(User user, String type, java.time.LocalDateTime date);
-    List<Transaction> findByUserAndTypeAndCategoryAndDateAfterOrderByDateDesc(User user, String type, String category, java.time.LocalDateTime date);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM transactions t WHERE t.user_id = :userId AND " +
+            "t.type = IFNULL(:type, t.type) AND " +
+            "t.category = IFNULL(:category, t.category) AND " +
+            "(:startDate IS NULL OR t.date >= :startDate) " +
+            "ORDER BY t.date DESC", nativeQuery = true)
+    List<Transaction> findFilteredTransactions(
+            @org.springframework.data.repository.query.Param("userId") Long userId,
+            @org.springframework.data.repository.query.Param("type") String type,
+            @org.springframework.data.repository.query.Param("category") String category,
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
+
+    @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM transactions t WHERE t.user_id = :userId AND " +
+            "(LOWER(t.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(t.category) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+            "ORDER BY t.date DESC", nativeQuery = true)
+    List<Transaction> searchTransactions(
+            @org.springframework.data.repository.query.Param("userId") Long userId,
+            @org.springframework.data.repository.query.Param("query") String query);
 }
