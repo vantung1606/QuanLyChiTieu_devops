@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TwoFactorRequest {
     private String username;
-    private int code;
+    private String code;
 }

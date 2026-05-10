@@ -60,7 +60,7 @@ export default function Login() {
     try {
       const response = await api.post('/auth/verify-2fa', {
         username,
-        code: parseInt(twoFactorCode)
+        code: twoFactorCode
       });
 
       saveAuthData(response.data);
@@ -169,7 +169,7 @@ export default function Login() {
                 <div className="form-group">
                   <label>{t('Two-Factor Authentication')}</label>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                    {t('Enter the 6-digit code from your authenticator app')}
+                    {t('A verification code has been sent to your email. Please enter the 6-digit code to continue.')}
                   </p>
                   <div className="input-with-icon">
                     <Lock size={18} className="icon" />
@@ -179,6 +179,7 @@ export default function Login() {
                       maxLength={6}
                       value={twoFactorCode}
                       onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                      style={{ textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
                       autoFocus
                     />
                   </div>

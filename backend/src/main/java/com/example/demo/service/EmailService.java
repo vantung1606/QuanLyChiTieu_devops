@@ -36,4 +36,24 @@ public class EmailService {
             System.err.println("---------------------------------------");
         }
     }
+
+    public void sendOtpEmail(String to, String otp) {
+        String message = "Mã xác nhận bảo mật của bạn là: " + otp + "\n\n"
+                + "Mã này sẽ hết hạn sau 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.";
+
+        System.out.println("---------------------------------------");
+        System.out.println("SENDING OTP EMAIL TO: " + to);
+        System.out.println("OTP CODE: " + otp);
+        System.out.println("---------------------------------------");
+
+        try {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(to);
+            mailMessage.setSubject("Mã xác nhận 2FA - QuanLyChiTieu");
+            mailMessage.setText(message);
+            mailSender.send(mailMessage);
+        } catch (Exception e) {
+            System.err.println("NOTICE: Real OTP email could not be sent. Check console for code.");
+        }
+    }
 }

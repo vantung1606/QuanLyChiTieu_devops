@@ -1,30 +1,40 @@
 package com.example.demo.service;
 
-import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import org.springframework.stereotype.Service;
+import java.util.Random;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TwoFactorAuthService {
 
-    private final GoogleAuthenticator gAuth;
-
-    public TwoFactorAuthService() {
-        this.gAuth = new GoogleAuthenticator();
-    }
+    private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
+    private final Random random = new Random();
 
     public String generateNewSecret() {
-        final GoogleAuthenticatorKey key = gAuth.createCredentials();
-        return key.getSecret();
+        // For Email OTP, the "secret" is just the current OTP
+        return String.format("%06d", random.nextInt(1000000));
     }
 
-    public String getQrCodeUrl(String secret, String username) {
-        return GoogleAuthenticatorQRGenerator.getOtpAuthURL("Equinox Finance", username, 
-                new GoogleAuthenticatorKey.Builder(secret).build());
+    public void storeOtp(String username, String otp) {
+        otpStorage.put(username, otp);
+        // OTP expires in 5 minutes
+        new Thread(() -> {
+            try {
+                Thread.sleep(5 * 60 * 1000);
+                otpStorage.remove(username, otp);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
-    public boolean isOtpValid(String secret, int code) {
-        return gAuth.authorize(secret, code);
+    public boolean isOtpValid(String username, String code) {
+        String storedOtp = otpStorage.get(username);
+        if (storedOtp != null && storedOtp.equals(code)) {
+            otpStorage.remove(username);
+            return true;
+        }
+        return false;
     }
 }

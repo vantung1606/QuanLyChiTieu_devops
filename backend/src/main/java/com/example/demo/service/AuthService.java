@@ -73,6 +73,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.isTwoFactor()) {
+            String otp = twoFactorAuthService.generateNewSecret();
+            twoFactorAuthService.storeOtp(user.getUsername(), otp);
+            emailService.sendOtpEmail(user.getEmail(), otp);
+
             return AuthResponse.builder()
                     .username(user.getUsername())
                     .requires2FA(true)
@@ -94,11 +98,11 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse verify2FA(String username, int code, String userAgent, String ipAddress) {
+    public AuthResponse verify2FA(String username, String code, String userAgent, String ipAddress) {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        if (!twoFactorAuthService.isOtpValid(user.getSecretKey(), code)) {
+        if (!twoFactorAuthService.isOtpValid(username, code)) {
             throw new RuntimeException("Mã xác thực không đúng.");
         }
 

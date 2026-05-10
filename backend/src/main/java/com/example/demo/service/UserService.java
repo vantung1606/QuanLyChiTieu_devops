@@ -18,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TwoFactorAuthService twoFactorAuthService;
+    private final EmailService emailService;
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -33,20 +34,18 @@ public class UserService {
 
     public com.example.demo.dto.TwoFactorSetupResponse setup2FA() {
         User user = getCurrentUser();
-        String secret = twoFactorAuthService.generateNewSecret();
-        user.setSecretKey(secret);
-        userRepository.save(user);
+        String otp = twoFactorAuthService.generateNewSecret();
+        twoFactorAuthService.storeOtp(user.getUsername(), otp);
+        emailService.sendOtpEmail(user.getEmail(), otp);
         
-        String qrCodeUrl = twoFactorAuthService.getQrCodeUrl(secret, user.getUsername());
         return com.example.demo.dto.TwoFactorSetupResponse.builder()
-                .secretKey(secret)
-                .qrCodeUrl(qrCodeUrl)
+                .secretKey("SENT_TO_EMAIL") // Indicator for frontend
                 .build();
     }
 
-    public void confirm2FA(int code) {
+    public void confirm2FA(String code) {
         User user = getCurrentUser();
-        if (twoFactorAuthService.isOtpValid(user.getSecretKey(), code)) {
+        if (twoFactorAuthService.isOtpValid(user.getUsername(), code)) {
             user.setTwoFactor(true);
             userRepository.save(user);
         } else {

@@ -407,19 +407,19 @@ export default function Settings() {
                         {isSettingUp2FA && twoFactorData && (
                           <div className="2fa-setup-box animate-in" style={{ width: '100%', padding: '1.25rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                             <div style={{ textAlign: 'center' }}>
-                              <p style={{ fontSize: '0.875rem', color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 500 }}>
-                                Quét mã QR bằng ứng dụng Authenticator của bạn
-                              </p>
-                              <div style={{ padding: '1rem', backgroundColor: 'white', borderRadius: '0.5rem', display: 'inline-block' }}>
-                                <QRCodeSVG value={twoFactorData.qrCodeUrl} size={160} />
+                              <div style={{ marginBottom: '1rem', color: 'var(--primary)' }}>
+                                <ShieldCheck size={48} strokeWidth={1.5} />
                               </div>
-                              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem' }}>
-                                Hoặc nhập mã thủ công: <code style={{ color: 'var(--primary)', fontWeight: 600 }}>{twoFactorData.secretKey}</code>
+                              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                                {t('Xác thực qua Email')}
+                              </p>
+                              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                                {t('Một mã xác thực 6 chữ số đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến (hoặc thư rác) và nhập mã vào bên dưới để kích hoạt.')}
                               </p>
                             </div>
 
                             <div className="form-group">
-                              <label style={{ fontSize: '0.7rem' }}>MÃ XÁC THỰC (6 CHỮ SỐ)</label>
+                              <label style={{ fontSize: '0.7rem' }}>{t('MÃ XÁC THỰC (6 CHỮ SỐ)')}</label>
                               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                                 <input 
                                   type="text" 
@@ -427,16 +427,16 @@ export default function Settings() {
                                   maxLength={6}
                                   value={otpCode}
                                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                                  style={{ flex: 1 }}
+                                  style={{ flex: 1, textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
                                 />
                                 <button className="btn-primary" onClick={handleConfirm2FA} disabled={saving}>
-                                  Xác nhận
+                                  {t('Xác nhận')}
                                 </button>
                               </div>
                             </div>
 
                             <button className="btn-outline" onClick={() => { setIsSettingUp2FA(false); setTwoFactorData(null); }} style={{ width: '100%' }}>
-                              Hủy thiết lập
+                              {t('Hủy thiết lập')}
                             </button>
                           </div>
                         )}
