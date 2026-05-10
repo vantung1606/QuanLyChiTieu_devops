@@ -980,34 +980,6 @@ tr:last-child td {
   transform: scale(1.05);
 }
 
-/* Status Bar */
-.status-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 0.5rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background-color: var(--bg-sidebar);
-}
-
-.sys-ops {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sys-ops .dot {
-  width: 6px;
-  height: 6px;
-  background-color: var(--success);
-  border-radius: 50%;
-}
 
 /* NEW STYLES FOR TRANSACTIONS PAGE */
 .header-center {

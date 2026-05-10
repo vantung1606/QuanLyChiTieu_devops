@@ -376,15 +376,6 @@ function Dashboard() {
           <Plus size={24} />
         </button>
 
-        <div className="status-bar">
-          <div className="sys-ops">
-            ENV: PRODUCTION &nbsp;&nbsp; STATUS: STABLE &nbsp;&nbsp; VERSION: V2.4.12
-          </div>
-          <div className="sys-ops">
-            <div className="dot"></div>
-            ALL SYSTEMS OPERATIONAL
-          </div>
-        </div>
       </div>
     </div>
   );
