@@ -106,7 +106,12 @@ function Dashboard() {
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
-    if (name === 'amount') value = value.replace(/\D/g, '');
+    if (name === 'amount') {
+      // Remove non-digits
+      const rawValue = value.replace(/\D/g, '');
+      // Format with dots
+      value = rawValue ? new Intl.NumberFormat('vi-VN').format(rawValue) : '';
+    }
     setFormData({ ...formData, [name]: value });
   };
 
@@ -128,9 +133,12 @@ function Dashboard() {
     }
 
     try {
+      // Get numeric value by removing dots
+      const numericAmount = parseFloat(formData.amount.replace(/\./g, ''));
+      
       await api.post('/transactions', {
         ...formData,
-        amount: parseFloat(formData.amount),
+        amount: numericAmount,
         date: `${formData.date}T00:00:00`
       });
       setFormData({
