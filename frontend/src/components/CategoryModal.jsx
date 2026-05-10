@@ -41,6 +41,17 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
   const [selectedIcon, setSelectedIcon] = useState('Utensils');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [loading, setLoading] = useState(false);
+  
+  const formatCurrencyInput = (value) => {
+    if (!value) return "";
+    const number = value.replace(/\D/g, "");
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const handleBudgetChange = (e) => {
+    const formatted = formatCurrencyInput(e.target.value);
+    setBudget(formatted);
+  };
 
   if (!isOpen) return null;
 
@@ -52,7 +63,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
         name,
         icon: selectedIcon,
         color: selectedColor,
-        budget: parseFloat(budget) || 0
+        budget: parseFloat(budget.replace(/\./g, '')) || 0
       });
       setName('');
       setBudget('');
@@ -124,10 +135,10 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
             <div className="input-prefix">
               <span className="prefix">₫</span>
               <input 
-                type="number" 
-                placeholder="0.00" 
+                type="text" 
+                placeholder="0" 
                 value={budget}
-                onChange={(e) => setBudget(e.target.value)}
+                onChange={handleBudgetChange}
                 required
               />
             </div>
