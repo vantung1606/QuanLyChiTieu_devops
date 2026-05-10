@@ -53,10 +53,6 @@ function Dashboard() {
     date: new Date().toISOString().split('T')[0]
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const [transRes, summaryRes, catRes] = await Promise.all([
@@ -73,6 +69,10 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;

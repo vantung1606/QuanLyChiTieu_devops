@@ -1,28 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  LayoutDashboard, 
+  Receipt, 
+  Tags, 
+  BarChart2, 
+  Settings, 
+  LogOut, 
+  HelpCircle,
+  Clock
+} from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Tags, BarChart2, HelpCircle, LogOut, Settings, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import LogoutModal from './LogoutModal';
+import api from '../api/axios';
+import { useToast } from '../context/ToastContext';
 
 export default function Sidebar() {
-  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const { t } = useTranslation();
+  const toast = useToast();
 
   const isActive = (path) => {
-    return location.pathname === path ? "nav-item active" : "nav-item";
+    return location.pathname === path ? 'nav-item active' : 'nav-item';
   };
 
   const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
-  const handleConfirmLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    setIsLogoutModalOpen(false);
-    navigate('/login');
+    toast.confirm(
+      t("Logout confirmation") || "Xác nhận đăng xuất",
+      t("Are you sure you want to logout?") || "Bạn có chắc chắn muốn đăng xuất không?",
+      async () => {
+        try {
+          await api.post('/users/logout');
+          localStorage.removeItem('token');
+          navigate('/login');
+          toast.success(t("Logged out successfully") || "Đã đăng xuất thành công!");
+        } catch (error) {
+          console.error("Error logging out:", error);
+          // Still logout locally if API fails
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+      }
+    );
   };
 
   return (
@@ -86,12 +105,6 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
-
-      <LogoutModal 
-        isOpen={isLogoutModalOpen} 
-        onClose={() => setIsLogoutModalOpen(false)} 
-        onConfirm={handleConfirmLogout} 
-      />
     </>
   );
 }
