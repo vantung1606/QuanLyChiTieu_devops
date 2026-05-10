@@ -994,7 +994,6 @@ tr:last-child td {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background-color: var(--bg-sidebar);
-  border-top: 1px solid var(--border);
 }
 
 .sys-ops {

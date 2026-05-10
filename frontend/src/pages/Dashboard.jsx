@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Landmark, Plus, Calendar, Search, Filter, ShoppingBag, Car, Home, Coffee, Info, Lightbulb, Wallet, CheckCircle2, Clock } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -40,6 +41,7 @@ const SPENDING_BY_CAT = [
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const toast = useToast();
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [categories, setCategories] = useState([]);
@@ -209,7 +211,7 @@ function Dashboard() {
                 <span>0 đ</span>
                 <span>60,000,000 đ</span>
               </div>
-              <button className="btn-detail">Xem chi tiết hạn mức</button>
+              <button className="btn-detail" onClick={() => navigate('/budgets')}>Xem chi tiết hạn mức</button>
             </div>
 
             {/* Row 2: Recent Transactions & Add/Cashflow */}
