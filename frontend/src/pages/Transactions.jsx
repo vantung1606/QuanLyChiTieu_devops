@@ -21,7 +21,7 @@ export default function Transactions() {
     date: new Date().toISOString().split('T')[0]
   });
   const [categories, setCategories] = useState([]);
-  const [filters, setFilters] = useState({ days: null, category: '' });
+  const [filters, setFilters] = useState({ type: '', category: '', days: null });
 
   useEffect(() => {
     fetchData();
@@ -30,6 +30,7 @@ export default function Transactions() {
   const fetchData = async () => {
     try {
       const queryParams = new URLSearchParams();
+      if (filters.type) queryParams.append('type', filters.type);
       if (filters.days) queryParams.append('days', filters.days);
       if (filters.category) queryParams.append('category', filters.category);
 
@@ -135,6 +136,16 @@ export default function Transactions() {
               <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
             </div>
             <div className="page-actions">
+              <select 
+                className="btn-outline" 
+                value={filters.type} 
+                onChange={(e) => setFilters({...filters, type: e.target.value})}
+              >
+                <option value="">{t('All Types') || 'Tất cả loại'}</option>
+                <option value="income">{t('Income')}</option>
+                <option value="expense">{t('Expense')}</option>
+              </select>
+
               <select 
                 className="btn-outline" 
                 value={filters.days || ''} 

@@ -26,9 +26,9 @@ public class TransactionController {
 
     @GetMapping("/transactions")
     public ResponseEntity<List<TransactionDTO>> getAllTransactions(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String type, @RequestParam(required = false) String category,
             @RequestParam(required = false) Integer days) {
-        return ResponseEntity.ok(transactionService.getFilteredTransactions(category, days));
+        return ResponseEntity.ok(transactionService.getFilteredTransactions(type, category, days));
     }
 
     @PostMapping("/transactions")

@@ -1048,7 +1048,6 @@ tr:last-child td {
   color: var(--text-main);
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 140px;
 }
 
 select.btn-outline {
@@ -1059,6 +1058,8 @@ select.btn-outline {
   padding-right: 2.5rem;
   width: auto;
   line-height: 1.2;
+  font-family: inherit;
+  outline: none;
 }
 
 .btn-outline:hover {

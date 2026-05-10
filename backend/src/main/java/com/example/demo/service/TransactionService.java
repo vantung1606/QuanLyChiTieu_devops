@@ -35,10 +35,10 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
-        return getFilteredTransactions(null, null);
+        return getFilteredTransactions(null, null, null);
     }
 
-    public List<TransactionDTO> getFilteredTransactions(String category, Integer days) {
+    public List<TransactionDTO> getFilteredTransactions(String type, String category, Integer days) {
         User user = getCurrentUser();
         List<Transaction> transactions;
         
@@ -47,11 +47,23 @@ public class TransactionService {
             startDate = java.time.LocalDateTime.now().minusDays(days);
         }
 
-        if (category != null && !category.isEmpty() && startDate != null) {
+        boolean hasType = type != null && !type.isEmpty();
+        boolean hasCategory = category != null && !category.isEmpty();
+        boolean hasDate = startDate != null;
+
+        if (hasType && hasCategory && hasDate) {
+            transactions = transactionRepository.findByUserAndTypeAndCategoryAndDateAfterOrderByDateDesc(user, type, category, startDate);
+        } else if (hasType && hasCategory) {
+            transactions = transactionRepository.findByUserAndTypeAndCategoryOrderByDateDesc(user, type, category);
+        } else if (hasType && hasDate) {
+            transactions = transactionRepository.findByUserAndTypeAndDateAfterOrderByDateDesc(user, type, startDate);
+        } else if (hasCategory && hasDate) {
             transactions = transactionRepository.findByUserAndCategoryAndDateAfterOrderByDateDesc(user, category, startDate);
-        } else if (category != null && !category.isEmpty()) {
+        } else if (hasType) {
+            transactions = transactionRepository.findByUserAndTypeOrderByDateDesc(user, type);
+        } else if (hasCategory) {
             transactions = transactionRepository.findByUserAndCategoryOrderByDateDesc(user, category);
-        } else if (startDate != null) {
+        } else if (hasDate) {
             transactions = transactionRepository.findByUserAndDateAfterOrderByDateDesc(user, startDate);
         } else {
             transactions = transactionRepository.findByUserOrderByDateDesc(user);
