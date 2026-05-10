@@ -29,8 +29,10 @@ export default function Sidebar() {
     <>
       <div className="sidebar">
         <div className="sidebar-header">
-          <h2>Equinox Finance</h2>
-          <p>{t('Finance Portal') || 'Cổng quản lý tài chính'}</p>
+          <div className="sidebar-logo">
+            <LayoutDashboard size={24} />
+          </div>
+          <h2>Finance Pro <span>ENTERPRISE</span></h2>
         </div>
         <div className="sidebar-nav">
           <Link to="/" className={isActive('/')}>
@@ -60,10 +62,11 @@ export default function Sidebar() {
         </div>
         
         <div className="sidebar-bottom">
-          <Link to="/help" className="nav-item">
-            <HelpCircle size={20} />
-            {t('Help Center')}
-          </Link>
+          <div className="upgrade-card">
+            <h4>Upgrade plan for <span>Advanced Insights</span></h4>
+            <p>Mở khóa các tính năng dự báo AI và báo cáo chuyên sâu.</p>
+            <button className="btn-upgrade">Upgrade Now</button>
+          </div>
           <button 
             onClick={handleLogoutClick} 
             className="nav-item logout-btn" 

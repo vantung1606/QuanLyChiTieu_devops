@@ -61,21 +61,57 @@ export default function Header() {
     }
   };
 
+import { Bell, Settings, Search, Banknote, AlertTriangle, Cpu, Calendar, ChevronDown } from 'lucide-react';
+
+export default function Header() {
+  const { t } = useTranslation();
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [user, setUser] = useState(null);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user header:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowNotifs(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getIconColor = (type) => {
+    switch(type) {
+      case 'success': return { bg: '#e6f4ea', color: '#0d652d' };
+      case 'warning': return { bg: '#fff4e5', color: '#b26a00' };
+      case 'info': return { bg: '#f1f5f9', color: '#475569' };
+      default: return { bg: '#f1f5f9', color: '#475569' };
+    }
+  };
+
   return (
     <div className="top-header">
       <div className="header-left">
-        <h1>ExpensePro</h1>
-      </div>
-      
-      <div className="header-center">
-        <div className="search-bar">
-          <Search size={18} className="search-icon" />
-          <input type="text" placeholder={t('Search reports, accounts...')} />
+        <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Tổng quan tài chính</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '2rem', fontSize: '0.8125rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <span>Tháng 10, 2023</span>
+          <Calendar size={14} />
         </div>
       </div>
-
+      
       <div className="header-right">
-        <div className="notification-wrapper" ref={dropdownRef}>
+        <div className="notification-wrapper" ref={dropdownRef} style={{ position: 'relative' }}>
           <button 
             className={`icon-btn ${showNotifs ? 'active' : ''}`} 
             onClick={() => setShowNotifs(!showNotifs)}
@@ -83,13 +119,13 @@ export default function Header() {
             <Bell size={20} />
             <div style={{ 
               position: 'absolute', 
-              top: -2, 
-              right: -2, 
-              width: 8, 
-              height: 8, 
+              top: 0, 
+              right: 0, 
+              width: 6, 
+              height: 6, 
               backgroundColor: '#ef4444', 
               borderRadius: '50%', 
-              border: '2px solid var(--bg-main)' 
+              border: '1.5px solid white' 
             }}></div>
           </button>
 
@@ -127,14 +163,14 @@ export default function Header() {
           )}
         </div>
 
-        <button className="icon-btn">
-          <Settings size={20} />
-        </button>
-        <div className="header-user">
-          <span className="user-name">{user?.fullName || user?.username || t('User')}</span>
-          <div className="avatar">
+        <div className="header-user" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border)' }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-main)' }}>{user?.fullName || "Alex Nguyen"}</div>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Financial Manager</div>
+          </div>
+          <div className="avatar" style={{ width: '40px', height: '40px', border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <img 
-              src={`https://ui-avatars.com/api/?name=${user?.fullName || user?.username || 'User'}&background=006d5b&color=fff`} 
+              src={user?.avatar || "https://i.pravatar.cc/150?u=alex"} 
               alt="User Avatar" 
             />
           </div>

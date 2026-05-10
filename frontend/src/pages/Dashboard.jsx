@@ -1,22 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Landmark, Plus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Landmark, Plus, Calendar, Search, Filter, ShoppingBag, Car, Home, Coffee, Info, Lightbulb, Wallet, CheckCircle2, Clock } from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, AreaChart, Area, Cell, PieChart, Pie
+} from 'recharts';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import StatCard from '../components/StatCard';
-import TransactionForm from '../components/TransactionForm';
-import FinancialTip from '../components/FinancialTip';
-import TransactionList from '../components/TransactionList';
-
 import { useToast } from '../context/ToastContext';
+
+// Mock data for charts
+const BALANCE_DATA = [
+  { name: '1', val: 65 },
+  { name: '2', val: 58 },
+  { name: '3', val: 72 },
+  { name: '4', val: 68 },
+  { name: '5', val: 85 },
+  { name: '6', val: 76.5 },
+];
+
+const CASH_FLOW_DATA = [
+  { name: 'T5', income: 80, expense: 45 },
+  { name: 'T6', income: 95, expense: 50 },
+  { name: 'T7', income: 85, expense: 60 },
+  { name: 'T8', income: 110, expense: 40 },
+  { name: 'T9', income: 100, expense: 55 },
+  { name: 'T10', income: 125, expense: 48 },
+];
+
+const SPENDING_BY_CAT = [
+  { name: 'Ăn uống & Cà phê', amount: 12600000, percentage: 35, color: '#3b82f6' },
+  { name: 'Nhà cửa & Tiện ích', amount: 15000000, percentage: 28, color: '#10b981' },
+  { name: 'Di chuyển', amount: 4200000, percentage: 12, color: '#f59e0b' },
+  { name: 'Giải trí', amount: 2100000, percentage: 9, color: '#ef4444' },
+];
 
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
@@ -24,7 +52,6 @@ function Dashboard() {
     category: '',
     date: new Date().toISOString().split('T')[0]
   });
-  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -37,22 +64,19 @@ function Dashboard() {
         api.get('/summary'),
         api.get('/categories')
       ]);
-      setTransactions(transRes.data);
+      setTransactions(transRes.data.slice(0, 5)); // Only top 5 for dashboard
       setSummary(summaryRes.data);
       setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
-    
-    if (name === 'amount') {
-      // Loại bỏ tất cả ký tự không phải số
-      value = value.replace(/\D/g, '');
-    }
-    
+    if (name === 'amount') value = value.replace(/\D/g, '');
     setFormData({ ...formData, [name]: value });
   };
 
@@ -72,82 +96,225 @@ function Dashboard() {
         date: new Date().toISOString().split('T')[0]
       });
       fetchData();
-      toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
+      toast.success("Đã thêm giao dịch thành công!");
     } catch (error) {
-      console.error("Error saving transaction:", error);
-      toast.error(t("Error saving transaction") || "Lỗi khi lưu giao dịch.");
+      toast.error("Lỗi khi lưu giao dịch.");
     }
   };
 
-  const handleDelete = async (id) => {
-    toast.confirm(
-      t("Delete confirmation") || "Xác nhận xóa",
-      t("Are you sure delete transaction") || "Bạn có chắc chắn muốn xóa giao dịch này?",
-      async () => {
-        try {
-          await api.delete(`/transactions/${id}`);
-          fetchData();
-          toast.success(t("Transaction deleted") || "Đã xóa giao dịch.");
-        } catch (error) {
-          console.error("Error deleting transaction:", error);
-          toast.error(t("Error deleting transaction") || "Lỗi khi xóa giao dịch.");
-        }
-      }
-    );
-  };
-
   const formatCurrency = (val) => {
-    const locale = i18n.language === 'EN' ? 'en-US' : 'vi-VN';
-    const currency = i18n.language === 'EN' ? 'USD' : 'VND';
-    // However, if we want to keep it as VND but format differently:
-    const formatted = new Intl.NumberFormat(locale).format(val);
-    return i18n.language === 'EN' ? `$${formatted}` : `${formatted} đ`;
+    return new Intl.NumberFormat('vi-VN').format(val) + " đ";
   };
 
   return (
     <div className="app-wrapper">
       <Sidebar />
       <div className="main-content">
-        <div className="content-inner">
+        <div className="content-inner" style={{ padding: '2rem' }}>
           <Header />
           
-          <div className="metrics-row">
-            <StatCard 
-              title={t('Total Income')} 
-              amount={`+${formatCurrency(summary.totalIncome)}`} 
-              type="income" 
-              icon={TrendingUp} 
-            />
-            <StatCard 
-              title={t('Total Expense')} 
-              amount={`-${formatCurrency(summary.totalExpense)}`} 
-              type="expense" 
-              icon={TrendingDown} 
-            />
-            <StatCard 
-              title={t('Balance')} 
-              amount={formatCurrency(summary.balance)} 
-              type="balance" 
-              icon={Landmark} 
-            />
-          </div>
-
           <div className="dashboard-grid">
-            <div className="left-col">
-              <TransactionForm 
-                formData={formData} 
-                handleInputChange={handleInputChange} 
-                handleSubmit={handleSubmit} 
-                categories={categories}
-              />
-              <FinancialTip />
+            {/* Row 1: Balance & Budget */}
+            <div className="premium-card balance-card">
+              <div>
+                <div className="card-label">Số dư hiện tại</div>
+                <div className="balance-amount">{formatCurrency(summary.balance)}</div>
+                <div className="balance-trend">
+                  <TrendingUp size={16} />
+                  <span>+12.5% so với tháng trước</span>
+                </div>
+              </div>
+              <div style={{ height: '100px', width: '100%', marginTop: 'auto' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={BALANCE_DATA}>
+                    <defs>
+                      <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="val" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorVal)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div className="right-col">
-              <TransactionList 
-                transactions={transactions} 
-                formatCurrency={formatCurrency} 
-                handleDelete={handleDelete} 
-              />
+
+            <div className="premium-card budget-card">
+              <div className="budget-header">
+                <span className="budget-label">Ngân sách chi tiêu</span>
+                <span className="budget-month">THÁNG 10</span>
+              </div>
+              <div className="budget-value">{formatCurrency(48500000)}</div>
+              <div className="budget-status">Đã tiêu <span>82%</span> hạn mức</div>
+              <div className="progress-container">
+                <div className="progress-bar" style={{ width: '82%' }}></div>
+              </div>
+              <div className="budget-limits">
+                <span>0 đ</span>
+                <span>60,000,000 đ</span>
+              </div>
+              <button className="btn-detail">Xem chi tiết hạn mức</button>
+            </div>
+
+            {/* Row 2: Recent Transactions & Add/Cashflow */}
+            <div className="premium-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.125rem' }}>Giao dịch gần đây</h3>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cập nhật 2 phút trước</p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <div className="search-bar" style={{ maxWidth: '200px' }}>
+                    <Search size={14} className="search-icon" />
+                    <input type="text" placeholder="Tìm kiếm..." style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }} />
+                  </div>
+                  <button className="icon-btn" style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '0.5rem' }}>
+                    <Filter size={16} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="transactions-list">
+                {transactions.map((t, idx) => (
+                  <div key={t.id || idx} className="transaction-item-premium">
+                    <div className="trans-info-group">
+                      <div className="trans-icon-box" style={{ backgroundColor: t.type === 'income' ? '#e6f4ea' : '#f1f5f9', color: t.type === 'income' ? '#0d652d' : '#475569' }}>
+                        {t.type === 'income' ? <TrendingUp size={20} /> : <ShoppingBag size={20} />}
+                      </div>
+                      <div className="trans-details">
+                        <h4>{t.title}</h4>
+                        <p>{t.category} • {new Date(t.date).toLocaleDateString('vi-VN')}</p>
+                      </div>
+                    </div>
+                    <div className="trans-method">
+                      <Wallet size={14} />
+                      <span>{idx % 2 === 0 ? 'Thẻ Visa' : 'Tiền mặt'}</span>
+                    </div>
+                    <div className="trans-status success">Thành công</div>
+                    <div className={`trans-amount ${t.type === 'income' ? 'income' : 'expense'}`}>
+                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>Xem tất cả lịch sử giao dịch</button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div className="premium-card add-transaction-card" style={{ padding: '1.5rem' }}>
+                <h3 className="card-title">Thêm giao dịch</h3>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>TIÊU ĐỀ</label>
+                    <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Ví dụ: Ăn trưa..." style={{ padding: '0.625rem' }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>SỐ TIỀN</label>
+                      <input name="amount" value={formData.amount} onChange={handleInputChange} placeholder="0 đ" style={{ padding: '0.625rem' }} />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>LOẠI</label>
+                      <select name="type" value={formData.type} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
+                        <option value="expense">Chi tiêu</option>
+                        <option value="income">Thu nhập</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                    <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
+                    <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
+                      <option value="">Chọn danh mục</option>
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', backgroundColor: '#0f172a' }}>
+                    <Plus size={18} /> Lưu giao dịch
+                  </button>
+                </form>
+              </div>
+
+              <div className="premium-card cash-flow-card">
+                <div className="card-title">Dòng tiền 6 tháng</div>
+                <div className="trend-label">Tăng trưởng +8%</div>
+                <div style={{ height: '180px', width: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={CASH_FLOW_DATA}>
+                      <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                      <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.65rem', color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+                    <span>Thu nhập (Trung bình 110M)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+                    <span>Chi tiêu (Trung bình 45M)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3: Spending Analysis */}
+            <div className="premium-card" style={{ gridColumn: 'span 2' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Phân tích chi tiêu</h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Phân bổ chi phí theo danh mục tháng này</p>
+                </div>
+                <button className="btn-detail" style={{ width: 'auto', padding: '0.5rem 1rem' }}>Chi tiết báo cáo</button>
+              </div>
+
+              <div className="spending-analysis-grid">
+                <div className="category-stats-list">
+                  {SPENDING_BY_CAT.map((cat, idx) => (
+                    <div key={idx} className="cat-stat-item">
+                      <div className="cat-stat-header">
+                        <span>{cat.name}</span>
+                        <span>{formatCurrency(cat.amount)} ({cat.percentage}%)</span>
+                      </div>
+                      <div className="cat-stat-bar-bg">
+                        <div className="cat-stat-bar-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="analysis-insights">
+                  <div className="insight-box">
+                    <div className="insight-item">
+                      <div className="insight-icon">
+                        <TrendingDown size={18} className="text-success" color="#10b981" />
+                      </div>
+                      <div className="insight-details">
+                        <h5>Tiết kiệm nhiều hơn</h5>
+                        <p>Chi phí đăng ký dịch vụ (Netflix, Spotify...) đang chiếm 5% tổng chi tiêu. Hãy cân nhắc tối ưu.</p>
+                      </div>
+                    </div>
+                    <div className="insight-item">
+                      <div className="insight-icon">
+                        <TrendingUp size={18} className="text-success" color="#10b981" />
+                      </div>
+                      <div className="insight-details">
+                        <h5>Xu hướng tích cực</h5>
+                        <p>Bạn đã giảm 15% chi phí ăn ngoài so với tháng trước. Tuyệt vời!</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="projection-box">
+                    <div className="projection-label">DỰ BÁO CUỐI THÁNG</div>
+                    <div className="projection-value">Dự kiến chi tiêu: {formatCurrency(52400000)}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -158,11 +325,11 @@ function Dashboard() {
 
         <div className="status-bar">
           <div className="sys-ops">
-            {t('ENVIRONMENT')}: PRODUCTION &nbsp;&nbsp; {t('CONTAINER')}: {t('RUNNING')} &nbsp;&nbsp; {t('VERSION')}: V2.4.12
+            ENV: PRODUCTION &nbsp;&nbsp; STATUS: STABLE &nbsp;&nbsp; VERSION: V2.4.12
           </div>
           <div className="sys-ops">
             <div className="dot"></div>
-            {t('SYSTEM OPERATIONAL')}
+            ALL SYSTEMS OPERATIONAL
           </div>
         </div>
       </div>
