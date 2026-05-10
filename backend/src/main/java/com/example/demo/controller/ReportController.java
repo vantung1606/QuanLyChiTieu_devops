@@ -1,13 +1,22 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ReportResponse;
+import com.example.demo.dto.TransactionDTO;
 import com.example.demo.service.ReportService;
+import com.example.demo.service.TransactionService;
+import com.example.demo.service.PdfExportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -16,36 +25,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
 
     private final ReportService reportService;
-    private final com.example.demo.service.TransactionService transactionService;
-    private final com.example.demo.service.PdfExportService pdfExportService;
+    private final TransactionService transactionService;
+    private final PdfExportService pdfExportService;
 
     @GetMapping("/financial-performance")
     public ResponseEntity<ReportResponse> getFinancialPerformance(
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
         return ResponseEntity.ok(reportService.getFinancialReport(month, year));
     }
 
     @GetMapping("/export/pdf")
     public void exportToPDF(
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year,
-            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            HttpServletResponse response) throws IOException {
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
-        String filename = "financial_report_" + (month != null ? year + "_" + month : java.time.LocalDate.now()) + ".pdf";
+        String dateSuffix = (month != null && year != null) ? year + "_" + month : LocalDate.now().toString();
+        String filename = "financial_report_" + dateSuffix + ".pdf";
         String headerValue = "attachment; filename=" + filename;
         response.setHeader(headerKey, headerValue);
 
-        // Fetch transactions for the specific month if provided
-        List<com.example.demo.dto.TransactionDTO> transactions;
+        List<TransactionDTO> transactions;
         if (month != null && year != null) {
-            // Get all transactions for that month by setting a large 'days' value and filtering in service
-            // Or better, let's use a more direct approach if available.
-            // For now, we'll fetch them and filter manually if needed, or use the existing service.
             transactions = transactionService.getFilteredTransactions(null, null, null).stream()
                     .filter(t -> t.getDate().getMonthValue() == month && t.getDate().getYear() == year)
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
         } else {
             transactions = transactionService.getFilteredTransactions(null, null, 30);
         }
