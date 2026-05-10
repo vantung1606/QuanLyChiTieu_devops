@@ -20,11 +20,11 @@
 .dark-mode {
   --bg-main: #020617;
   --bg-sidebar: #0f172a;
-  --bg-card: #0f172a;
+  --bg-card: #1e293b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: #1e293b;
-  --input-bg: #1e293b;
+  --border: #334155;
+  --input-bg: #0f172a;
   --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
   --dark-card: #1e293b;
   --gradient-balance: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -964,7 +964,7 @@ tr:last-child td {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: var(--text-main);
+  background-color: var(--primary);
   color: white;
   display: flex;
   align-items: center;
@@ -993,7 +993,8 @@ tr:last-child td {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background-color: var(--bg-main);
+  background-color: var(--bg-sidebar);
+  border-top: 1px solid var(--border);
 }
 
 .sys-ops {
@@ -1074,7 +1075,7 @@ tr:last-child td {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: white;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -1142,7 +1143,7 @@ tr:last-child td {
 
 .data-table th {
   padding: 1rem 1.5rem;
-  background-color: #f1f5f9;
+  background-color: var(--bg-sidebar);
   border-bottom: 2px solid var(--border);
   font-weight: 700;
   font-size: 0.7rem;
@@ -1323,12 +1324,13 @@ tr:last-child td {
 }
 
 .modal-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 1rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
+  border: 1px solid var(--border);
 }
 
 .modal-header {
