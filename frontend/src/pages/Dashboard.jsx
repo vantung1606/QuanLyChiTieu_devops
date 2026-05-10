@@ -40,10 +40,11 @@ const SPENDING_BY_CAT = [
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const toast = useToast();
-  const [transactions, setTransactions] = useState([]);
-  const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [report, setReport] = useState(null);
+  const [balanceTrend, setBalanceTrend] = useState([]);
+  const [cashFlowData, setCashFlowData] = useState([]);
+  const [spendingByCat, setSpendingByCat] = useState([]);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -55,14 +56,40 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [transRes, summaryRes, catRes] = await Promise.all([
+      const [transRes, summaryRes, catRes, reportRes] = await Promise.all([
         api.get('/transactions'),
         api.get('/summary'),
-        api.get('/categories')
+        api.get('/categories'),
+        api.get('/reports/financial-performance')
       ]);
-      setTransactions(transRes.data.slice(0, 5)); // Only top 5 for dashboard
+      
+      setTransactions(transRes.data.slice(0, 5));
       setSummary(summaryRes.data);
       setCategories(catRes.data);
+      setReport(reportRes.data);
+
+      // Process Balance Trend from report
+      let currentBal = summaryRes.data.balance;
+      const historyPoints = [...reportRes.data.incomeVsExpenses].reverse();
+      const trend = [];
+      
+      // Calculate historical balance points (going backwards)
+      let tempBal = currentBal;
+      historyPoints.forEach((point, idx) => {
+        trend.unshift({ name: point.date, val: tempBal });
+        tempBal -= (point.income - point.expenses);
+      });
+      setBalanceTrend(trend.slice(-10)); // Last 10 points for smoother chart
+
+      // Process Cash Flow (group by month if many points, but report gives daily)
+      // For dashboard, we might want to show last few days/weeks
+      setCashFlowData(reportRes.data.incomeVsExpenses.slice(-7).map(p => ({
+        name: p.date.split(' ')[1], // Only day number
+        income: p.income / 1000, // K format
+        expense: p.expenses / 1000
+      })));
+
+      setSpendingByCat(reportRes.data.categoryBreakdown);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -120,13 +147,13 @@ function Dashboard() {
                 <div className="card-label">Số dư hiện tại</div>
                 <div className="balance-amount">{formatCurrency(summary.balance)}</div>
                 <div className="balance-trend">
-                  <TrendingUp size={16} />
-                  <span>+12.5% so với tháng trước</span>
+                  {report?.savingsRate > 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  <span>{report?.savingsRate}% tỷ lệ tiết kiệm tháng này</span>
                 </div>
               </div>
               <div style={{ height: '100px', width: '100%', marginTop: 'auto' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={BALANCE_DATA}>
+                  <AreaChart data={balanceTrend}>
                     <defs>
                       <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -237,26 +264,30 @@ function Dashboard() {
               </div>
 
               <div className="premium-card cash-flow-card">
-                <div className="card-title">Dòng tiền 6 tháng</div>
-                <div className="trend-label">Tăng trưởng +8%</div>
+                <div className="card-title">Dòng tiền 7 ngày qua</div>
+                <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
                 <div style={{ height: '180px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={CASH_FLOW_DATA}>
+                    <BarChart data={cashFlowData}>
                       <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
                       <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                      <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
+                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                        formatter={(value) => formatCurrency(value * 1000)}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.65rem', color: '#94a3b8' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
-                    <span>Thu nhập (Trung bình 110M)</span>
+                    <span>Thu nhập</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
-                    <span>Chi tiêu (Trung bình 45M)</span>
+                    <span>Chi tiêu</span>
                   </div>
                 </div>
               </div>
@@ -274,37 +305,28 @@ function Dashboard() {
 
               <div className="spending-analysis-grid">
                 <div className="category-stats-list">
-                  {SPENDING_BY_CAT.map((cat, idx) => (
+                  {spendingByCat.length > 0 ? spendingByCat.map((cat, idx) => (
                     <div key={idx} className="cat-stat-item">
                       <div className="cat-stat-header">
                         <span>{cat.name}</span>
-                        <span>{formatCurrency(cat.amount)} ({cat.percentage}%)</span>
+                        <span>{formatCurrency(cat.value)} ({Math.round(cat.percentage)}%)</span>
                       </div>
                       <div className="cat-stat-bar-bg">
                         <div className="cat-stat-bar-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
                       </div>
                     </div>
-                  ))}
+                  )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Chưa có dữ liệu chi tiêu tháng này.</div>}
                 </div>
 
                 <div className="analysis-insights">
                   <div className="insight-box">
                     <div className="insight-item">
                       <div className="insight-icon">
-                        <TrendingDown size={18} className="text-success" color="#10b981" />
+                        <Lightbulb size={18} className="text-success" color="#f59e0b" />
                       </div>
                       <div className="insight-details">
-                        <h5>Tiết kiệm nhiều hơn</h5>
-                        <p>Chi phí đăng ký dịch vụ (Netflix, Spotify...) đang chiếm 5% tổng chi tiêu. Hãy cân nhắc tối ưu.</p>
-                      </div>
-                    </div>
-                    <div className="insight-item">
-                      <div className="insight-icon">
-                        <TrendingUp size={18} className="text-success" color="#10b981" />
-                      </div>
-                      <div className="insight-details">
-                        <h5>Xu hướng tích cực</h5>
-                        <p>Bạn đã giảm 15% chi phí ăn ngoài so với tháng trước. Tuyệt vời!</p>
+                        <h5>AI Financial Insight</h5>
+                        <p>{report?.aiInsight || "Bắt đầu thêm giao dịch để nhận được các gợi ý quản lý tài chính thông minh từ AI."}</p>
                       </div>
                     </div>
                   </div>
