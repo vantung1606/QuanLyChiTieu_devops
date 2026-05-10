@@ -45,6 +45,12 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .fullName(request.getFullName())
+                .currency("VND")
+                .language("VI")
+                .darkMode(false)
+                .twoFactor(false)
+                .emailUpdates(true)
+                .pushNotifs(false)
                 .build();
         userRepository.save(user);
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
