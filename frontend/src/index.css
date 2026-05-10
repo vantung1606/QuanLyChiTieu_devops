@@ -1,7 +1,7 @@
 :root {
-  --primary: #006d5b;
-  --primary-hover: #005648;
-  --bg-main: #f4f7fa;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --bg-main: #f8fafc;
   --bg-sidebar: #ffffff;
   --bg-card: #ffffff;
   --text-main: #0f172a;
@@ -15,6 +15,19 @@
   --dark-card: #1e293b;
   --dark-card-hover: #0f172a;
   --gradient-balance: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.dark-mode {
+  --bg-main: #020617;
+  --bg-sidebar: #0f172a;
+  --bg-card: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #1e293b;
+  --input-bg: #1e293b;
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  --dark-card: #1e293b;
+  --gradient-balance: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 * {
@@ -132,8 +145,8 @@ body {
 }
 
 .upgrade-card {
-  background-color: #0f172a;
-  color: white;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border);
   padding: 1.25rem;
   border-radius: 1rem;
   margin-bottom: 1.5rem;
@@ -436,7 +449,7 @@ body {
 .btn-detail {
   width: 100%;
   padding: 0.625rem;
-  background-color: #f8fafc;
+  background-color: var(--bg-main);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   font-size: 0.75rem;
@@ -525,7 +538,7 @@ body {
 
 /* Right Column Cards */
 .add-transaction-card {
-  background-color: #f8fafc;
+  background-color: var(--bg-main);
   border: 1px solid var(--border);
 }
 
@@ -536,8 +549,8 @@ body {
 }
 
 .cash-flow-card {
-  background-color: #0f172a;
-  color: white;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
   margin-top: 1.5rem;
 }
 
@@ -601,12 +614,13 @@ body {
 }
 
 .insight-box {
-  background-color: #f8fafc;
+  background-color: var(--bg-main);
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  border: 1px solid var(--border);
 }
 
 .insight-item {
@@ -1012,8 +1026,8 @@ tr:last-child td {
 .search-bar input {
   padding-left: 2.5rem;
   border-radius: 2rem;
-  background-color: #f1f5f9;
-  border-color: transparent;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border);
 }
 
 .search-bar input:focus {
