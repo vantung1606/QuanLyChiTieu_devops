@@ -25,8 +25,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer days) {
+        return ResponseEntity.ok(transactionService.getFilteredTransactions(category, days));
     }
 
     @PostMapping("/transactions")
@@ -44,4 +46,13 @@ public class TransactionController {
      public ResponseEntity<Map<String, Double>> getSummary() {
          return ResponseEntity.ok(transactionService.getSummary());
     }
+
+     @GetMapping("/transactions/export")
+     public ResponseEntity<String> exportTransactions() {
+         String csv = transactionService.exportTransactionsToCsv();
+         return ResponseEntity.ok()
+                 .header("Content-Type", "text/csv; charset=UTF-8")
+                 .header("Content-Disposition", "attachment; filename=transactions.csv")
+                 .body(csv);
+     }
 }

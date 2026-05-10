@@ -35,8 +35,29 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
+        return getFilteredTransactions(null, null);
+    }
+
+    public List<TransactionDTO> getFilteredTransactions(String category, Integer days) {
         User user = getCurrentUser();
-        return transactionRepository.findByUserOrderByDateDesc(user).stream()
+        List<Transaction> transactions;
+        
+        java.time.LocalDateTime startDate = null;
+        if (days != null && days > 0) {
+            startDate = java.time.LocalDateTime.now().minusDays(days);
+        }
+
+        if (category != null && !category.isEmpty() && startDate != null) {
+            transactions = transactionRepository.findByUserAndCategoryAndDateAfterOrderByDateDesc(user, category, startDate);
+        } else if (category != null && !category.isEmpty()) {
+            transactions = transactionRepository.findByUserAndCategoryOrderByDateDesc(user, category);
+        } else if (startDate != null) {
+            transactions = transactionRepository.findByUserAndDateAfterOrderByDateDesc(user, startDate);
+        } else {
+            transactions = transactionRepository.findByUserOrderByDateDesc(user);
+        }
+
+        return transactions.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -85,6 +106,23 @@ public class TransactionService {
         }
 
         transactionRepository.delete(transaction);
+    }
+
+    public String exportTransactionsToCsv() {
+        List<TransactionDTO> transactions = getAllTransactions();
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,Date,Title,Category,Type,Amount\n");
+        
+        for (TransactionDTO t : transactions) {
+            csv.append(t.getId()).append(",")
+               .append(t.getDate()).append(",")
+               .append("\"").append(t.getTitle().replace("\"", "\"\"")).append("\",")
+               .append("\"").append(t.getCategory().replace("\"", "\"\"")).append("\",")
+               .append(t.getType()).append(",")
+               .append(t.getAmount()).append("\n");
+        }
+        
+        return csv.toString();
     }
 
     public Map<String, Double> getSummary() {

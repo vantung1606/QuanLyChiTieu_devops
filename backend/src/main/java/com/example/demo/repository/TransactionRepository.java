@@ -13,4 +13,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByUserAndTitleContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrderByDateDesc(User user, String title, String category);
     List<Transaction> findByUser(User user);
     List<Transaction> findByUserAndDateBetweenOrderByDateAsc(User user, java.time.LocalDateTime start, java.time.LocalDateTime end);
+    List<Transaction> findByUserAndCategoryOrderByDateDesc(User user, String category);
+    List<Transaction> findByUserAndDateAfterOrderByDateDesc(User user, java.time.LocalDateTime date);
+    List<Transaction> findByUserAndCategoryAndDateAfterOrderByDateDesc(User user, String category, java.time.LocalDateTime date);
 }

@@ -21,15 +21,20 @@ export default function Transactions() {
     date: new Date().toISOString().split('T')[0]
   });
   const [categories, setCategories] = useState([]);
+  const [filters, setFilters] = useState({ days: null, category: '' });
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [filters]);
 
   const fetchData = async () => {
     try {
+      const queryParams = new URLSearchParams();
+      if (filters.days) queryParams.append('days', filters.days);
+      if (filters.category) queryParams.append('category', filters.category);
+
       const [transRes, catRes] = await Promise.all([
-        api.get('/transactions'),
+        api.get(`/transactions?${queryParams.toString()}`),
         api.get('/categories')
       ]);
       setTransactions(transRes.data);
@@ -91,6 +96,10 @@ export default function Transactions() {
     );
   };
 
+  const handleExport = () => {
+    window.open(`${api.defaults.baseURL}/transactions/export`, '_blank');
+  };
+
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
   };
@@ -126,18 +135,36 @@ export default function Transactions() {
               <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
             </div>
             <div className="page-actions">
-              <button className="btn-outline">
-                <Calendar size={16} /> {t('Last 30 Days')}
-              </button>
-              <button className="btn-outline">
-                <Filter size={16} /> {t('All Categories')}
-              </button>
+              <select 
+                className="btn-outline" 
+                value={filters.days || ''} 
+                onChange={(e) => setFilters({...filters, days: e.target.value ? parseInt(e.target.value) : null})}
+                style={{ appearance: 'none', paddingRight: '2rem' }}
+              >
+                <option value="">{t('All Time')}</option>
+                <option value="7">{t('Last 7 Days')}</option>
+                <option value="30">{t('Last 30 Days')}</option>
+                <option value="90">{t('Last 90 Days')}</option>
+              </select>
+
+              <select 
+                className="btn-outline" 
+                value={filters.category} 
+                onChange={(e) => setFilters({...filters, category: e.target.value})}
+                style={{ appearance: 'none', paddingRight: '2rem' }}
+              >
+                <option value="">{t('All Categories')}</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{t(cat.name) || cat.name}</option>
+                ))}
+              </select>
+
               <span style={{flex: 1}}></span>
-              <button className="btn-outline">
+              <button className="btn-outline" onClick={handleExport}>
                 <Download size={16} /> {t('Download CSV')}
               </button>
               <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-                <Plus size={16} /> {t('Add category')}
+                <Plus size={16} /> {t('Add transaction')}
               </button>
             </div>
           </div>
