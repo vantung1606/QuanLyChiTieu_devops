@@ -112,6 +112,21 @@ function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.title.trim()) {
+      toast.error("Vui lòng nhập tiêu đề giao dịch");
+      return;
+    }
+    if (!formData.amount || isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
+      toast.error("Vui lòng nhập số tiền hợp lệ (> 0)");
+      return;
+    }
+    if (!formData.category) {
+      toast.error("Vui lòng chọn danh mục");
+      return;
+    }
+
     try {
       await api.post('/transactions', {
         ...formData,
@@ -128,7 +143,10 @@ function Dashboard() {
       fetchData();
       toast.success("Đã thêm giao dịch thành công!");
     } catch (error) {
-      toast.error("Lỗi khi lưu giao dịch.");
+      const errorMsg = error.response?.data?.message || error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).join(", ") 
+        : "Lỗi khi lưu giao dịch.";
+      toast.error(errorMsg);
     }
   };
 
