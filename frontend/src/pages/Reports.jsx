@@ -13,8 +13,11 @@ import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
+import { useToast } from '../context/ToastContext';
+
 export default function Reports() {
   const { t } = useTranslation();
+  const toast = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,9 +48,10 @@ export default function Reports() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      toast.success("Báo cáo đã được tải xuống thành công!");
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      alert(t('Cannot download report data') || "Không thể tải báo cáo. Vui lòng thử lại sau.");
+      toast.error(t('Cannot download report data') || "Không thể tải báo cáo. Vui lòng thử lại sau.");
     }
   };
 

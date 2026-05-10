@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function TransactionForm({ formData, handleInputChange, handleSubmit }) {
+export default function TransactionForm({ formData, handleInputChange, handleSubmit, categories = [] }) {
   const { t } = useTranslation();
   return (
     <div className="card">
@@ -22,13 +22,11 @@ export default function TransactionForm({ formData, handleInputChange, handleSub
           <div className="form-group">
             <label>{t('Amount')} (Min 0)</label>
             <input 
-              type="number" 
+              type="text" 
               name="amount" 
-              value={formData.amount} 
+              value={formData.amount ? new Intl.NumberFormat('vi-VN').format(formData.amount) : ''} 
               onChange={handleInputChange} 
               required 
-              min="0" 
-              step="1000"
               placeholder="0"
             />
           </div>
@@ -44,11 +42,11 @@ export default function TransactionForm({ formData, handleInputChange, handleSub
           <label>{t('Category')}</label>
           <select name="category" value={formData.category} onChange={handleInputChange} required>
             <option value="" disabled>{t('Select category')}</option>
-            <option value="Ăn uống">{t('Dining')}</option>
-            <option value="Lương">{t('Salary')}</option>
-            <option value="Học tập">{t('Education')}</option>
-            <option value="Di chuyển">{t('Transport')}</option>
-            <option value="Khác">{t('Others')}</option>
+            {categories.map(cat => (
+              <option key={cat.id || cat.name} value={cat.name}>
+                {t(cat.name) || cat.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="form-group">

@@ -10,8 +10,11 @@ import TransactionForm from '../components/TransactionForm';
 import FinancialTip from '../components/FinancialTip';
 import TransactionList from '../components/TransactionList';
 
+import { useToast } from '../context/ToastContext';
+
 function Dashboard() {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [formData, setFormData] = useState({
@@ -21,6 +24,7 @@ function Dashboard() {
     category: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -28,20 +32,27 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [transRes, summaryRes] = await Promise.all([
+      const [transRes, summaryRes, catRes] = await Promise.all([
         api.get('/transactions'),
-        api.get('/summary')
+        api.get('/summary'),
+        api.get('/categories')
       ]);
       setTransactions(transRes.data);
       setSummary(summaryRes.data);
+      setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'amount' && value < 0) return;
+    let { name, value } = e.target;
+    
+    if (name === 'amount') {
+      // Loại bỏ tất cả ký tự không phải số
+      value = value.replace(/\D/g, '');
+    }
+    
     setFormData({ ...formData, [name]: value });
   };
 
@@ -61,21 +72,28 @@ function Dashboard() {
         date: new Date().toISOString().split('T')[0]
       });
       fetchData();
+      toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
     } catch (error) {
       console.error("Error saving transaction:", error);
-      alert(t("Error saving transaction"));
+      toast.error(t("Error saving transaction") || "Lỗi khi lưu giao dịch.");
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t("Are you sure delete transaction"))) {
-      try {
-        await api.delete(`/transactions/${id}`);
-        fetchData();
-      } catch (error) {
-        console.error("Error deleting transaction:", error);
+    toast.confirm(
+      t("Delete confirmation") || "Xác nhận xóa",
+      t("Are you sure delete transaction") || "Bạn có chắc chắn muốn xóa giao dịch này?",
+      async () => {
+        try {
+          await api.delete(`/transactions/${id}`);
+          fetchData();
+          toast.success(t("Transaction deleted") || "Đã xóa giao dịch.");
+        } catch (error) {
+          console.error("Error deleting transaction:", error);
+          toast.error(t("Error deleting transaction") || "Lỗi khi xóa giao dịch.");
+        }
       }
-    }
+    );
   };
 
   const formatCurrency = (val) => {
@@ -120,6 +138,7 @@ function Dashboard() {
                 formData={formData} 
                 handleInputChange={handleInputChange} 
                 handleSubmit={handleSubmit} 
+                categories={categories}
               />
               <FinancialTip />
             </div>

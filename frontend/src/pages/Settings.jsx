@@ -9,8 +9,11 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import api from '../api/axios';
 
+import { useToast } from '../context/ToastContext';
+
 export default function Settings() {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState({
     fullName: '',
@@ -31,7 +34,6 @@ export default function Settings() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
   const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
@@ -63,9 +65,9 @@ export default function Settings() {
     try {
       await api.delete(`/sessions/${sessionId}`);
       setSessions(sessions.filter(s => s.id !== sessionId));
-      setMessage({ type: 'success', text: 'Đã đăng xuất thiết bị thành công!' });
+      toast.success('Đã đăng xuất thiết bị thành công!');
     } catch (error) {
-      setMessage({ type: 'error', text: 'Không thể đăng xuất thiết bị này.' });
+      toast.error('Không thể đăng xuất thiết bị này.');
     }
   };
 
@@ -81,13 +83,12 @@ export default function Settings() {
 
   const handleSaveProfile = async () => {
     setSaving(true);
-    setMessage({ type: '', text: '' });
     try {
       const response = await api.put('/users/profile', profile);
       setProfile(response.data);
-      setMessage({ type: 'success', text: 'Cập nhật hồ sơ thành công!' });
+      toast.success('Cập nhật hồ sơ thành công!');
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ' });
+      toast.error(error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ');
     } finally {
       setSaving(false);
     }
@@ -96,7 +97,7 @@ export default function Settings() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwords.new !== passwords.confirm) {
-      setMessage({ type: 'error', text: 'Mật khẩu mới không khớp' });
+      toast.error('Mật khẩu mới không khớp');
       return;
     }
 
@@ -106,11 +107,11 @@ export default function Settings() {
         currentPassword: passwords.current,
         newPassword: passwords.new
       });
-      setMessage({ type: 'success', text: 'Đổi mật khẩu thành công!' });
+      toast.success('Đổi mật khẩu thành công!');
       setPasswords({ current: '', new: '', confirm: '' });
       setIsChangingPassword(false);
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data || 'Mật khẩu hiện tại không chính xác' });
+      toast.error(error.response?.data || 'Mật khẩu hiện tại không chính xác');
     } finally {
       setSaving(false);
     }
@@ -198,25 +199,6 @@ export default function Settings() {
 
               {/* Content Area */}
               <div className="settings-content">
-                {message.text && (
-                  <div className={`alert-box ${message.type === 'success' ? 'success' : 'error'}`} style={{
-                    padding: '1rem',
-                    borderRadius: '0.5rem',
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    backgroundColor: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
-                    color: message.type === 'success' ? '#065f46' : '#991b1b',
-                    border: `1px solid ${message.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-                    fontSize: '0.875rem',
-                    fontWeight: 500
-                  }}>
-                    {message.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-                    {typeof message.text === 'string' ? message.text : JSON.stringify(message.text)}
-                  </div>
-                )}
-
                 {/* Tab Content Rendering */}
                 {activeTab === 'profile' && (
                   <div className="settings-section-card animate-in">

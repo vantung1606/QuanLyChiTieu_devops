@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-export default function TransactionModal({ isOpen, onClose, formData, handleInputChange, handleSubmit }) {
+export default function TransactionModal({ isOpen, onClose, formData, handleInputChange, handleSubmit, categories = [] }) {
   if (!isOpen) return null;
 
   return (
@@ -33,11 +33,11 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
               <div className="input-prefix">
                 <span className="prefix">đ</span>
                 <input 
-                  type="number" 
+                  type="text" 
                   name="amount" 
-                  value={formData.amount} 
+                  value={formData.amount ? new Intl.NumberFormat('vi-VN').format(formData.amount) : ''} 
                   onChange={handleInputChange} 
-                  placeholder="0.00" 
+                  placeholder="0" 
                   required 
                 />
               </div>
@@ -56,12 +56,11 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
             <label>Danh mục</label>
             <select name="category" value={formData.category} onChange={handleInputChange} required>
               <option value="">Chọn danh mục</option>
-              <option value="Ăn uống">Ăn uống</option>
-              <option value="Di chuyển">Di chuyển</option>
-              <option value="Phần mềm">Phần mềm</option>
-              <option value="Lương">Lương</option>
-              <option value="Giáo dục">Giáo dục</option>
-              <option value="Khác">Khác</option>
+              {categories.map(cat => (
+                <option key={cat.id || cat.name} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
 

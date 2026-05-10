@@ -15,8 +15,11 @@ const ICON_MAP = {
   Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell, LayoutGrid
 };
 
+import { useToast } from '../context/ToastContext';
+
 export default function Categories() {
   const { t } = useTranslation();
+  const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -60,9 +63,10 @@ export default function Categories() {
       fetchCategories();
       setIsDeleteModalOpen(false);
       setCategoryToDelete(null);
+      toast.success(t('Category deleted') || "Đã xóa danh mục thành công!");
     } catch (error) {
       console.error("Error deleting category:", error);
-      alert(t('Error deleting category') || "Không thể xóa danh mục. Vui lòng thử lại!");
+      toast.error(t('Error deleting category') || "Không thể xóa danh mục. Vui lòng thử lại!");
     } finally {
       setDeleteLoading(false);
     }

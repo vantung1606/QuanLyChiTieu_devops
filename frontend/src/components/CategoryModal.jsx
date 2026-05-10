@@ -31,8 +31,11 @@ const COLORS = [
   '#64748b', // Slate
 ];
 
+import { useToast } from '../context/ToastContext';
+
 export default function CategoryModal({ isOpen, onClose, refresh }) {
   const { t } = useTranslation();
+  const toast = useToast();
   const [name, setName] = useState('');
   const [budget, setBudget] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('Utensils');
@@ -55,9 +58,10 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
       setBudget('');
       refresh();
       onClose();
+      toast.success(t('Category added') || "Đã thêm danh mục thành công!");
     } catch (error) {
       console.error("Error creating category:", error);
-      alert(error.response?.data?.message || t('Error creating category'));
+      toast.error(error.response?.data?.message || t('Error creating category'));
     } finally {
       setLoading(false);
     }

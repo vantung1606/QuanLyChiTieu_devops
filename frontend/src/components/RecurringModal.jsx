@@ -3,8 +3,11 @@ import { X, Calendar, DollarSign, Tag, Clock, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
+import { useToast } from '../context/ToastContext';
+
 export default function RecurringModal({ isOpen, onClose, refresh }) {
   const { t } = useTranslation();
+  const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -50,7 +53,7 @@ export default function RecurringModal({ isOpen, onClose, refresh }) {
         nextExecutionDate: formData.startDate + "T00:00:00"
       };
       
-      await api.post('/api/recurring', payload);
+      await api.post('/recurring', payload);
       refresh();
       onClose();
       // Reset form
@@ -63,9 +66,10 @@ export default function RecurringModal({ isOpen, onClose, refresh }) {
         startDate: new Date().toISOString().split('T')[0],
         endDate: ''
       });
+      toast.success("Đã tạo giao dịch định kỳ thành công!");
     } catch (error) {
       console.error("Error creating recurring transaction:", error);
-      alert("Có lỗi xảy ra khi tạo giao dịch định kỳ.");
+      toast.error("Có lỗi xảy ra khi tạo giao dịch định kỳ.");
     } finally {
       setLoading(false);
     }
@@ -100,10 +104,10 @@ export default function RecurringModal({ isOpen, onClose, refresh }) {
               <div className="input-prefix">
                 <span className="prefix">₫</span>
                 <input 
-                  type="number" 
-                  placeholder="0.00" 
-                  value={formData.amount}
-                  onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                  type="text" 
+                  placeholder="0" 
+                  value={formData.amount ? new Intl.NumberFormat('vi-VN').format(formData.amount) : ''}
+                  onChange={(e) => setFormData({...formData, amount: e.target.value.replace(/\D/g, '')})}
                   required
                 />
               </div>

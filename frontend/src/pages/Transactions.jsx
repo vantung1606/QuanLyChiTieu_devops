@@ -6,8 +6,11 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import TransactionModal from '../components/TransactionModal';
 
+import { useToast } from '../context/ToastContext';
+
 export default function Transactions() {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -17,6 +20,7 @@ export default function Transactions() {
     category: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -24,16 +28,25 @@ export default function Transactions() {
 
   const fetchData = async () => {
     try {
-      const transRes = await api.get('/transactions');
+      const [transRes, catRes] = await Promise.all([
+        api.get('/transactions'),
+        api.get('/categories')
+      ]);
       setTransactions(transRes.data);
+      setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'amount' && value < 0) return;
+    let { name, value } = e.target;
+    
+    if (name === 'amount') {
+      // Loại bỏ tất cả ký tự không phải số (ví dụ: dấu chấm, dấu phẩy, chữ cái)
+      value = value.replace(/\D/g, '');
+    }
+    
     setFormData({ ...formData, [name]: value });
   };
 
@@ -54,20 +67,28 @@ export default function Transactions() {
       });
       setIsModalOpen(false);
       fetchData();
+      toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
     } catch (error) {
       console.error("Error saving transaction:", error);
+      toast.error(t("Error saving transaction") || "Lỗi khi lưu giao dịch.");
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t('Are you sure delete transaction') || "Bạn có chắc chắn muốn xóa giao dịch này?")) {
-      try {
-        await api.delete(`/transactions/${id}`);
-        fetchData();
-      } catch (error) {
-        console.error("Error deleting transaction:", error);
+    toast.confirm(
+      t('Delete confirmation') || "Xác nhận xóa",
+      t('Are you sure delete transaction') || "Bạn có chắc chắn muốn xóa giao dịch này?",
+      async () => {
+        try {
+          await api.delete(`/transactions/${id}`);
+          fetchData();
+          toast.success(t("Transaction deleted") || "Đã xóa giao dịch.");
+        } catch (error) {
+          console.error("Error deleting transaction:", error);
+          toast.error(t("Error deleting transaction") || "Lỗi khi xóa giao dịch.");
+        }
       }
-    }
+    );
   };
 
   const formatCurrency = (val) => {
@@ -197,6 +218,7 @@ export default function Transactions() {
           formData={formData}
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
+          categories={categories}
         />
       </div>
     </div>

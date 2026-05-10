@@ -8,8 +8,11 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import RecurringModal from '../components/RecurringModal';
 
+import { useToast } from '../context/ToastContext';
+
 export default function Recurring() {
   const { t } = useTranslation();
+  const toast = useToast();
   const [recurring, setRecurring] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +23,7 @@ export default function Recurring() {
 
   const fetchRecurring = async () => {
     try {
-      const res = await api.get('/api/recurring');
+      const res = await api.get('/recurring');
       setRecurring(res.data);
       setLoading(false);
     } catch (error) {
@@ -31,23 +34,30 @@ export default function Recurring() {
 
   const handleTriggerNow = async () => {
     try {
-      await api.post('/api/recurring/process');
+      await api.post('/recurring/process');
       fetchRecurring();
-      alert("Đã kích hoạt xử lý thủ công thành công!");
+      toast.success("Đã kích hoạt xử lý thủ công thành công!");
     } catch (error) {
       console.error("Error triggering processing:", error);
+      toast.error("Không thể kích hoạt xử lý.");
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa giao dịch định kỳ này?")) {
-      try {
-        await api.delete(`/api/recurring/${id}`);
-        fetchRecurring();
-      } catch (error) {
-        console.error("Error deleting recurring:", error);
+    toast.confirm(
+      "Xác nhận xóa", 
+      "Bạn có chắc muốn xóa giao dịch định kỳ này?", 
+      async () => {
+        try {
+          await api.delete(`/recurring/${id}`);
+          fetchRecurring();
+          toast.success("Đã xóa giao dịch định kỳ.");
+        } catch (error) {
+          console.error("Error deleting recurring:", error);
+          toast.error("Lỗi khi xóa giao dịch.");
+        }
       }
-    }
+    );
   };
 
   const formatCurrency = (val) => {

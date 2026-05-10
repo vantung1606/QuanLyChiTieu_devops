@@ -5,8 +5,11 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import '../auth.css';
 
+import { useToast } from '../context/ToastContext';
+
 export default function Register() {
   const { t } = useTranslation();
+  const toast = useToast();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -39,7 +42,7 @@ export default function Register() {
       });
 
       // Redirect to login with success state
-      alert(t('Registration successful', { name: fullName }));
+      toast.success(t('Registration successful', { name: fullName }));
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || t('Registration failed'));
