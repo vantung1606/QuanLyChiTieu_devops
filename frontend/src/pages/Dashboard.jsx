@@ -50,6 +50,7 @@ function Dashboard() {
   const [balanceTrend, setBalanceTrend] = useState([]);
   const [cashFlowData, setCashFlowData] = useState([]);
   const [spendingByCat, setSpendingByCat] = useState([]);
+  const [budgetSummary, setBudgetSummary] = useState({ totalBudget: 0, totalSpent: 0 });
   
   const [formData, setFormData] = useState({
     title: '',
@@ -95,6 +96,11 @@ function Dashboard() {
       setCashFlowData(cashFlow);
 
       setSpendingByCat(reportRes.data?.categoryBreakdown || []);
+
+      // Calculate total budget and spent from categories
+      const totalBud = catRes.data.reduce((sum, cat) => sum + (cat.budget || 0), 0);
+      const totalSp = catRes.data.reduce((sum, cat) => sum + (cat.spent || 0), 0);
+      setBudgetSummary({ totalBudget: totalBud, totalSpent: totalSp });
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -202,14 +208,16 @@ function Dashboard() {
                 <span className="budget-label">Ngân sách chi tiêu</span>
                 <span className="budget-month">THÁNG 10</span>
               </div>
-              <div className="budget-value">{formatCurrency(48500000)}</div>
-              <div className="budget-status">Đã tiêu <span>82%</span> hạn mức</div>
+              <div className="budget-value">{formatCurrency(budgetSummary.totalSpent)}</div>
+              <div className="budget-status">
+                Đã tiêu <span>{budgetSummary.totalBudget > 0 ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100) : 0}%</span> hạn mức
+              </div>
               <div className="progress-container">
-                <div className="progress-bar" style={{ width: '82%' }}></div>
+                <div className="progress-bar" style={{ width: `${budgetSummary.totalBudget > 0 ? Math.min((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100, 100) : 0}%` }}></div>
               </div>
               <div className="budget-limits">
                 <span>0 đ</span>
-                <span>60,000,000 đ</span>
+                <span>{formatCurrency(budgetSummary.totalBudget)}</span>
               </div>
               <button className="btn-detail" onClick={() => navigate('/budgets')}>Xem chi tiết hạn mức</button>
             </div>
