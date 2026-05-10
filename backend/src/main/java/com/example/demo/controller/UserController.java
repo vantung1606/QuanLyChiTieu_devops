@@ -34,4 +34,25 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/2fa/setup")
+    public ResponseEntity<com.example.demo.dto.TwoFactorSetupResponse> setup2FA() {
+        return ResponseEntity.ok(userService.setup2FA());
+    }
+
+    @PostMapping("/2fa/confirm")
+    public ResponseEntity<String> confirm2FA(@RequestBody com.example.demo.dto.TwoFactorRequest request) {
+        try {
+            userService.confirm2FA(request.getCode());
+            return ResponseEntity.ok("2FA enabled successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/2fa/disable")
+    public ResponseEntity<String> disable2FA() {
+        userService.disable2FA();
+        return ResponseEntity.ok("2FA disabled successfully");
+    }
 }

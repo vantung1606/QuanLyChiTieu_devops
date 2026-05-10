@@ -40,6 +40,8 @@ public class User {
     
     @Builder.Default
     private boolean twoFactor = false;
+
+    private String secretKey;
     
     @Builder.Default
     private boolean emailUpdates = true;

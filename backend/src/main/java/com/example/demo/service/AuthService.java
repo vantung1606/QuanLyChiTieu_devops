@@ -28,6 +28,7 @@ public class AuthService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
+    private final TwoFactorAuthService twoFactorAuthService;
 
     private final UserSessionRepository sessionRepository;
 
@@ -70,10 +71,40 @@ public class AuthService {
         );
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isTwoFactor()) {
+            return AuthResponse.builder()
+                    .username(user.getUsername())
+                    .requires2FA(true)
+                    .build();
+        }
+
         var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         var jwtToken = jwtService.generateToken(userDetails);
 
         // Record the session
+        recordSession(user, jwtToken, userAgent, ipAddress);
+
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .username(userDetails.getUsername())
+                .darkMode(user.isDarkMode())
+                .currency(user.getCurrency())
+                .language(user.getLanguage())
+                .build();
+    }
+
+    public AuthResponse verify2FA(String username, int code, String userAgent, String ipAddress) {
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!twoFactorAuthService.isOtpValid(user.getSecretKey(), code)) {
+            throw new RuntimeException("Mã xác thực không đúng.");
+        }
+
+        var userDetails = userDetailsService.loadUserByUsername(username);
+        var jwtToken = jwtService.generateToken(userDetails);
+
         recordSession(user, jwtToken, userAgent, ipAddress);
 
         return AuthResponse.builder()

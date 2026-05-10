@@ -8,6 +8,7 @@ import {
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import api from '../api/axios';
+import { QRCodeSVG } from 'qrcode.react';
 
 import { useToast } from '../context/ToastContext';
 
@@ -32,6 +33,9 @@ export default function Settings() {
     confirm: ''
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isSettingUp2FA, setIsSettingUp2FA] = useState(false);
+  const [twoFactorData, setTwoFactorData] = useState(null);
+  const [otpCode, setOtpCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sessions, setSessions] = useState([]);
@@ -115,6 +119,53 @@ export default function Settings() {
       setIsChangingPassword(false);
     } catch (error) {
       toast.error(error.response?.data || 'Mật khẩu hiện tại không chính xác');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSetup2FA = async () => {
+    setSaving(true);
+    try {
+      const response = await api.post('/users/2fa/setup');
+      setTwoFactorData(response.data);
+      setIsSettingUp2FA(true);
+    } catch (error) {
+      toast.error('Không thể khởi tạo 2FA.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleConfirm2FA = async () => {
+    if (!otpCode) {
+      toast.error('Vui lòng nhập mã OTP');
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.post('/users/2fa/confirm', { code: parseInt(otpCode) });
+      toast.success('Đã bật xác thực 2 lớp thành công!');
+      setProfile({ ...profile, twoFactor: true });
+      setIsSettingUp2FA(false);
+      setTwoFactorData(null);
+      setOtpCode('');
+    } catch (error) {
+      toast.error(error.response?.data || 'Mã OTP không đúng');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn tắt xác thực 2 lớp? Bảo mật tài khoản sẽ bị giảm xuống.')) return;
+    setSaving(true);
+    try {
+      await api.post('/users/2fa/disable');
+      toast.success('Đã tắt xác thực 2 lớp.');
+      setProfile({ ...profile, twoFactor: false });
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tắt 2FA.');
     } finally {
       setSaving(false);
     }
@@ -340,19 +391,55 @@ export default function Settings() {
                         </form>
                       )}
 
-                      <div className="security-item">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <ShieldCheck size={16} className="text-muted" />
-                          <span className="sec-label">Xác thực 2 lớp</span>
+                      <div className="security-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <ShieldCheck size={16} className="text-muted" />
+                            <span className="sec-label">Xác thực 2 lớp (2FA)</span>
+                          </div>
+                          {profile.twoFactor ? (
+                            <button className="badge-outline success" onClick={handleDisable2FA} disabled={saving} style={{ cursor: 'pointer' }}>Đã bật - Tắt</button>
+                          ) : (
+                            <button className="badge-outline danger" onClick={handleSetup2FA} disabled={saving} style={{ cursor: 'pointer' }}>Chưa bật - Thiết lập</button>
+                          )}
                         </div>
-                        <label className="switch">
-                          <input 
-                            type="checkbox" 
-                            checked={profile.twoFactor || false} 
-                            onChange={() => setProfile({...profile, twoFactor: !profile.twoFactor})} 
-                          />
-                          <span className="slider"></span>
-                        </label>
+
+                        {isSettingUp2FA && twoFactorData && (
+                          <div className="2fa-setup-box animate-in" style={{ width: '100%', padding: '1.25rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ textAlign: 'center' }}>
+                              <p style={{ fontSize: '0.875rem', color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 500 }}>
+                                Quét mã QR bằng ứng dụng Authenticator của bạn
+                              </p>
+                              <div style={{ padding: '1rem', backgroundColor: 'white', borderRadius: '0.5rem', display: 'inline-block' }}>
+                                <QRCodeSVG value={twoFactorData.qrCodeUrl} size={160} />
+                              </div>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem' }}>
+                                Hoặc nhập mã thủ công: <code style={{ color: 'var(--primary)', fontWeight: 600 }}>{twoFactorData.secretKey}</code>
+                              </p>
+                            </div>
+
+                            <div className="form-group">
+                              <label style={{ fontSize: '0.7rem' }}>MÃ XÁC THỰC (6 CHỮ SỐ)</label>
+                              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                                <input 
+                                  type="text" 
+                                  placeholder="000000" 
+                                  maxLength={6}
+                                  value={otpCode}
+                                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                                  style={{ flex: 1 }}
+                                />
+                                <button className="btn-primary" onClick={handleConfirm2FA} disabled={saving}>
+                                  Xác nhận
+                                </button>
+                              </div>
+                            </div>
+
+                            <button className="btn-outline" onClick={() => { setIsSettingUp2FA(false); setTwoFactorData(null); }} style={{ width: '100%' }}>
+                              Hủy thiết lập
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 

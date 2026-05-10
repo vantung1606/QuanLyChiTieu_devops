@@ -17,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TwoFactorAuthService twoFactorAuthService;
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -28,6 +29,36 @@ public class UserService {
         }
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public com.example.demo.dto.TwoFactorSetupResponse setup2FA() {
+        User user = getCurrentUser();
+        String secret = twoFactorAuthService.generateNewSecret();
+        user.setSecretKey(secret);
+        userRepository.save(user);
+        
+        String qrCodeUrl = twoFactorAuthService.getQrCodeUrl(secret, user.getUsername());
+        return com.example.demo.dto.TwoFactorSetupResponse.builder()
+                .secretKey(secret)
+                .qrCodeUrl(qrCodeUrl)
+                .build();
+    }
+
+    public void confirm2FA(int code) {
+        User user = getCurrentUser();
+        if (twoFactorAuthService.isOtpValid(user.getSecretKey(), code)) {
+            user.setTwoFactor(true);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Mã xác thực không đúng.");
+        }
+    }
+
+    public void disable2FA() {
+        User user = getCurrentUser();
+        user.setTwoFactor(false);
+        user.setSecretKey(null);
+        userRepository.save(user);
     }
 
     public UserDTO getProfile() {
@@ -64,7 +95,8 @@ public class UserService {
         }
 
         user.setDarkMode(dto.isDarkMode());
-        user.setTwoFactor(dto.isTwoFactor());
+        // Do not update twoFactor directly here to ensure user confirmed setup
+        // user.setTwoFactor(dto.isTwoFactor());
         user.setEmailUpdates(dto.isEmailUpdates());
         user.setPushNotifs(dto.isPushNotifs());
         

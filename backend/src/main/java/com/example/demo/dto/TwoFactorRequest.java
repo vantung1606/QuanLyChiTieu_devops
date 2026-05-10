@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String token;
+public class TwoFactorRequest {
     private String username;
-    private boolean darkMode;
-    private String currency;
-    private String language;
-    private boolean requires2FA;
+    private int code;
 }
