@@ -40,6 +40,9 @@ const SPENDING_BY_CAT = [
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const toast = useToast();
+  const [transactions, setTransactions] = useState([]);
+  const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [report, setReport] = useState(null);
   const [balanceTrend, setBalanceTrend] = useState([]);
@@ -69,8 +72,8 @@ function Dashboard() {
       setReport(reportRes.data);
 
       // Process Balance Trend from report
-      let currentBal = summaryRes.data.balance;
-      const historyPoints = [...reportRes.data.incomeVsExpenses].reverse();
+      let currentBal = summaryRes.data?.balance || 0;
+      const historyPoints = [...(reportRes.data?.incomeVsExpenses || [])].reverse();
       const trend = [];
       
       // Calculate historical balance points (going backwards)
@@ -82,14 +85,14 @@ function Dashboard() {
       setBalanceTrend(trend.slice(-10)); // Last 10 points for smoother chart
 
       // Process Cash Flow (group by month if many points, but report gives daily)
-      // For dashboard, we might want to show last few days/weeks
-      setCashFlowData(reportRes.data.incomeVsExpenses.slice(-7).map(p => ({
-        name: p.date.split(' ')[1], // Only day number
-        income: p.income / 1000, // K format
-        expense: p.expenses / 1000
-      })));
+      const cashFlow = (reportRes.data?.incomeVsExpenses || []).slice(-7).map(p => ({
+        name: p.date ? p.date.split(' ')[1] : '', 
+        income: (p.income || 0) / 1000, 
+        expense: (p.expenses || 0) / 1000
+      }));
+      setCashFlowData(cashFlow);
 
-      setSpendingByCat(reportRes.data.categoryBreakdown);
+      setSpendingByCat(reportRes.data?.categoryBreakdown || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
