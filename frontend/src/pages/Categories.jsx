@@ -113,8 +113,8 @@ export default function Categories() {
           <div className="metrics-row" style={{ marginBottom: '2rem' }}>
             <div className="stat-card">
               <div className="stat-info">
-                <span>{t('Most spent category')}</span>
-                <h3>{loading ? "..." : getTopSpending()}</h3>
+                <span className="stat-title">{t('Most spent category')}</span>
+                <h3 className="stat-value">{loading ? "..." : getTopSpending()}</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
                 <TrendingUp size={24} />
@@ -122,8 +122,8 @@ export default function Categories() {
             </div>
             <div className="stat-card">
               <div className="stat-info">
-                <span>{t('Total categories')}</span>
-                <h3>{categories.length} {t('active')}</h3>
+                <span className="stat-title">{t('Total categories')}</span>
+                <h3 className="stat-value">{categories.length} {t('active')}</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
                 <LayoutGrid size={24} />
@@ -131,8 +131,8 @@ export default function Categories() {
             </div>
             <div className="stat-card">
               <div className="stat-info">
-                <span>{t('Budget Status')}</span>
-                <h3>{loading ? "..." : getBudgetStatus()}</h3>
+                <span className="stat-title">{t('Budget Status')}</span>
+                <h3 className="stat-value">{loading ? "..." : getBudgetStatus()}</h3>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
                 <TrendingDown size={24} />
