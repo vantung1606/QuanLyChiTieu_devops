@@ -20,8 +20,8 @@ export default function Settings() {
     email: '',
     username: '',
     currency: 'VND',
-    language: 'VI',
-    darkMode: false,
+    language: localStorage.getItem('language') || 'VI',
+    darkMode: localStorage.getItem('darkMode') === 'true',
     twoFactor: false,
     emailUpdates: true,
     pushNotifs: false
@@ -72,14 +72,17 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if (profile.darkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('darkMode', 'false');
+    // Only apply if loading is false to avoid initial state overwrite
+    if (!loading) {
+      if (profile.darkMode) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'true');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'false');
+      }
     }
-  }, [profile.darkMode]);
+  }, [profile.darkMode, loading]);
 
   const handleSaveProfile = async () => {
     setSaving(true);
