@@ -69,10 +69,10 @@ public class UserService {
                 .fullName(user.getFullName())
                 .currency(user.getCurrency())
                 .language(user.getLanguage())
-                .darkMode(user.isDarkMode())
-                .twoFactor(user.isTwoFactor())
-                .emailUpdates(user.isEmailUpdates())
-                .pushNotifs(user.isPushNotifs())
+                .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
+                .twoFactor(Boolean.TRUE.equals(user.getTwoFactor()))
+                .emailUpdates(Boolean.TRUE.equals(user.getEmailUpdates()))
+                .pushNotifs(Boolean.TRUE.equals(user.getPushNotifs()))
                 .build();
     }
 
@@ -93,11 +93,11 @@ public class UserService {
             user.setLanguage(dto.getLanguage());
         }
 
-        user.setDarkMode(dto.isDarkMode());
+        user.setDarkMode(Boolean.TRUE.equals(dto.getDarkMode()));
         // Do not update twoFactor directly here to ensure user confirmed setup
-        // user.setTwoFactor(dto.isTwoFactor());
-        user.setEmailUpdates(dto.isEmailUpdates());
-        user.setPushNotifs(dto.isPushNotifs());
+        // user.setTwoFactor(dto.getTwoFactor());
+        user.setEmailUpdates(Boolean.TRUE.equals(dto.getEmailUpdates()));
+        user.setPushNotifs(Boolean.TRUE.equals(dto.getPushNotifs()));
         
         // Email check
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
@@ -115,10 +115,10 @@ public class UserService {
                 .fullName(updatedUser.getFullName())
                 .currency(updatedUser.getCurrency())
                 .language(updatedUser.getLanguage())
-                .darkMode(updatedUser.isDarkMode())
-                .twoFactor(updatedUser.isTwoFactor())
-                .emailUpdates(updatedUser.isEmailUpdates())
-                .pushNotifs(updatedUser.isPushNotifs())
+                .darkMode(Boolean.TRUE.equals(updatedUser.getDarkMode()))
+                .twoFactor(Boolean.TRUE.equals(updatedUser.getTwoFactor()))
+                .emailUpdates(Boolean.TRUE.equals(updatedUser.getEmailUpdates()))
+                .pushNotifs(Boolean.TRUE.equals(updatedUser.getPushNotifs()))
                 .build();
     }
 

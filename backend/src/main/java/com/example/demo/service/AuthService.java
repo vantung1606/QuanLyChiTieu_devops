@@ -56,46 +56,73 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
-                .darkMode(user.isDarkMode())
+                .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
                 .currency(user.getCurrency())
                 .language(user.getLanguage())
                 .build();
     }
 
     public AuthResponse login(AuthRequest request, String userAgent, String ipAddress) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        try {
+            System.out.println("DEBUG: Login attempt for user: " + request.getUsername());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            
+            var user = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (user.isTwoFactor()) {
-            String otp = twoFactorAuthService.generateNewSecret();
-            twoFactorAuthService.storeOtp(user.getUsername(), otp);
-            emailService.sendOtpEmail(user.getEmail(), otp);
+            System.out.println("DEBUG: User authenticated. 2FA Status: " + user.getTwoFactor());
+
+            if (Boolean.TRUE.equals(user.getTwoFactor())) {
+                try {
+                    String otp = twoFactorAuthService.generateNewSecret();
+                    System.out.println("DEBUG: Generated OTP: " + otp);
+                    
+                    twoFactorAuthService.storeOtp(user.getUsername(), otp);
+                    System.out.println("DEBUG: OTP stored in memory.");
+                    
+                    if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                        System.out.println("DEBUG: Attempting to send email to: " + user.getEmail());
+                        emailService.sendOtpEmail(user.getEmail(), otp);
+                    } else {
+                        System.out.println("WARNING: User " + user.getUsername() + " has no email.");
+                        System.out.println("---------------------------------------");
+                        System.out.println("OTP CODE (NO EMAIL): " + otp);
+                        System.out.println("---------------------------------------");
+                    }
+
+                    return AuthResponse.builder()
+                            .username(user.getUsername())
+                            .requires2FA(true)
+                            .build();
+                } catch (Exception e) {
+                    System.err.println("ERROR during 2FA processing: " + e.getMessage());
+                    e.printStackTrace();
+                    throw new RuntimeException("Lỗi xử lý xác thực 2 lớp: " + e.getMessage());
+                }
+            }
+
+            var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+            var jwtToken = jwtService.generateToken(userDetails);
+
+            recordSession(user, jwtToken, userAgent, ipAddress);
 
             return AuthResponse.builder()
-                    .username(user.getUsername())
-                    .requires2FA(true)
+                    .token(jwtToken)
+                    .username(userDetails.getUsername())
+                    .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
+                    .currency(user.getCurrency())
+                    .language(user.getLanguage())
                     .build();
+        } catch (Exception e) {
+            System.err.println("CRITICAL LOGIN ERROR: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-
-        var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        var jwtToken = jwtService.generateToken(userDetails);
-
-        // Record the session
-        recordSession(user, jwtToken, userAgent, ipAddress);
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .username(userDetails.getUsername())
-                .darkMode(user.isDarkMode())
-                .currency(user.getCurrency())
-                .language(user.getLanguage())
-                .build();
     }
 
     public AuthResponse verify2FA(String username, String code, String userAgent, String ipAddress) {
@@ -114,7 +141,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .username(userDetails.getUsername())
-                .darkMode(user.isDarkMode())
+                .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
                 .currency(user.getCurrency())
                 .language(user.getLanguage())
                 .build();

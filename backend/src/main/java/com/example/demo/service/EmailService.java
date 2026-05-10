@@ -42,9 +42,13 @@ public class EmailService {
                 + "Mã này sẽ hết hạn sau 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.";
 
         System.out.println("---------------------------------------");
-        System.out.println("SENDING OTP EMAIL TO: " + to);
+        System.out.println("SENDING OTP EMAIL TO: " + (to != null ? to : "UNKNOWN"));
         System.out.println("OTP CODE: " + otp);
         System.out.println("---------------------------------------");
+
+        if (to == null || to.isEmpty()) {
+            return;
+        }
 
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();

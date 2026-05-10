@@ -36,16 +36,16 @@ public class User {
     private String language = "VI";
     
     @Builder.Default
-    private boolean darkMode = false;
+    private Boolean darkMode = false;
     
     @Builder.Default
-    private boolean twoFactor = false;
+    private Boolean twoFactor = false;
 
     private String secretKey;
     
     @Builder.Default
-    private boolean emailUpdates = true;
+    private Boolean emailUpdates = true;
     
     @Builder.Default
-    private boolean pushNotifs = false;
+    private Boolean pushNotifs = false;
 }

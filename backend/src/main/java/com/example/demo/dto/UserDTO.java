@@ -16,8 +16,8 @@ public class UserDTO {
     private String fullName;
     private String currency;
     private String language;
-    private boolean darkMode;
-    private boolean twoFactor;
-    private boolean emailUpdates;
-    private boolean pushNotifs;
+    private Boolean darkMode;
+    private Boolean twoFactor;
+    private Boolean emailUpdates;
+    private Boolean pushNotifs;
 }
