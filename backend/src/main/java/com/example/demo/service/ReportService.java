@@ -34,10 +34,18 @@ public class ReportService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public ReportResponse getFinancialReport() {
+    public ReportResponse getFinancialReport(Integer month, Integer year) {
         User user = getCurrentUser();
-        LocalDateTime end = LocalDateTime.now();
-        LocalDateTime start = end.minusDays(30);
+        LocalDateTime start;
+        LocalDateTime end;
+
+        if (month != null && year != null) {
+            start = LocalDateTime.of(year, month, 1, 0, 0);
+            end = start.plusMonths(1).minusNanos(1);
+        } else {
+            end = LocalDateTime.now();
+            start = end.minusDays(30);
+        }
 
         List<Transaction> transactions = transactionRepository.findByUserAndDateBetweenOrderByDateAsc(user, start, end);
 
@@ -71,10 +79,12 @@ public class ReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd");
         Map<String, ReportResponse.ChartDataPoint> chartDataMap = new LinkedHashMap<>();
         
-        // Initialize last 30 days
-        for (int i = 30; i >= 0; i--) {
-            String dateStr = end.minusDays(i).format(formatter);
+        // Initialize days in range
+        LocalDateTime temp = start;
+        while (temp.isBefore(end) || temp.isEqual(end)) {
+            String dateStr = temp.format(formatter);
             chartDataMap.put(dateStr, new ReportResponse.ChartDataPoint(dateStr, 0, 0));
+            temp = temp.plusDays(1);
         }
 
         for (Transaction t : transactions) {

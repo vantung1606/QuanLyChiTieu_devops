@@ -20,18 +20,36 @@ public class ReportController {
     private final com.example.demo.service.PdfExportService pdfExportService;
 
     @GetMapping("/financial-performance")
-    public ResponseEntity<ReportResponse> getFinancialPerformance() {
-        return ResponseEntity.ok(reportService.getFinancialReport());
+    public ResponseEntity<ReportResponse> getFinancialPerformance(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year) {
+        return ResponseEntity.ok(reportService.getFinancialReport(month, year));
     }
 
     @GetMapping("/export/pdf")
-    public void exportToPDF(jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+    public void exportToPDF(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=financial_report_" + java.time.LocalDate.now() + ".pdf";
+        String filename = "financial_report_" + (month != null ? year + "_" + month : java.time.LocalDate.now()) + ".pdf";
+        String headerValue = "attachment; filename=" + filename;
         response.setHeader(headerKey, headerValue);
 
-        var transactions = transactionService.getAllTransactions();
+        // Fetch transactions for the specific month if provided
+        List<com.example.demo.dto.TransactionDTO> transactions;
+        if (month != null && year != null) {
+            // Get all transactions for that month by setting a large 'days' value and filtering in service
+            // Or better, let's use a more direct approach if available.
+            // For now, we'll fetch them and filter manually if needed, or use the existing service.
+            transactions = transactionService.getFilteredTransactions(null, null, null).stream()
+                    .filter(t -> t.getDate().getMonthValue() == month && t.getDate().getYear() == year)
+                    .collect(java.util.stream.Collectors.toList());
+        } else {
+            transactions = transactionService.getFilteredTransactions(null, null, 30);
+        }
+        
         pdfExportService.export(response, transactions);
     }
 }
