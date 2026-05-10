@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUp, TrendingDown, Wallet, PieChart, 
+  TrendingUp, TrendingDown, Wallet, 
   Calendar, Download, ArrowUpRight, ArrowDownRight,
   ShoppingBag, Car, Home, Coffee, Info, Lightbulb
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart as RePieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
@@ -18,6 +18,8 @@ import { useToast } from '../context/ToastContext';
 export default function Reports() {
   const { t } = useTranslation();
   const toast = useToast();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -150,10 +152,10 @@ export default function Reports() {
 
               {/* Stats Overview */}
               <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-                <StatCard label={t('Savings Rate')} value={data.savingsRate + "%"} change="+2.1%" color="#10b981" />
-                <StatCard label={t('Top Spending Category')} value={t(data.topSpendingCategory) || data.topSpendingCategory} subValue={data.topSpendingAmount.toLocaleString() + " VNĐ"} icon={<ShoppingBag size={20} />} color="#ef4444" />
-                <StatCard label={t('Net Cash Flow')} value={data.netCashFlow.toLocaleString() + " VNĐ"} change="+4.2k" color="#3b82f6" />
-                <StatCard label={t('Estimated Tax')} value={data.taxLiabilityEst.toLocaleString() + " VNĐ"} badge="Q4 PROJECTION" color="#64748b" />
+                <StatCard label={t('Savings Rate')} value={(data?.savingsRate || 0) + "%"} change="+2.1%" color="#10b981" />
+                <StatCard label={t('Top Spending Category')} value={t(data?.topSpendingCategory) || data?.topSpendingCategory || t('None')} subValue={(data?.topSpendingAmount || 0).toLocaleString() + " VNĐ"} icon={<ShoppingBag size={20} />} color="#ef4444" />
+                <StatCard label={t('Net Cash Flow')} value={(data?.netCashFlow || 0).toLocaleString() + " VNĐ"} change="+4.2k" color="#3b82f6" />
+                <StatCard label={t('Estimated Tax')} value={(data?.taxLiabilityEst || 0).toLocaleString() + " VNĐ"} badge="Q4 PROJECTION" color="#64748b" />
               </div>
 
               {/* Main Charts Area */}
@@ -177,7 +179,7 @@ export default function Reports() {
                   </div>
                   <div style={{ height: '300px', minHeight: '300px' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={data.incomeVsExpenses} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                      <BarChart data={data?.incomeVsExpenses || []} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                         <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
@@ -196,9 +198,9 @@ export default function Reports() {
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>{t('Spending by Category')}</h3>
                   <div style={{ height: '220px', minHeight: '220px', position: 'relative' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <RePieChart>
+                      <PieChart>
                         <Pie
-                          data={data.categoryBreakdown}
+                          data={data?.categoryBreakdown || []}
                           cx="50%"
                           cy="50%"
                           innerRadius={60}
@@ -206,12 +208,12 @@ export default function Reports() {
                           paddingAngle={5}
                           dataKey="value"
                         >
-                          {data.categoryBreakdown.map((entry, index) => (
+                          {(data?.categoryBreakdown || []).map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
                         <Tooltip />
-                      </RePieChart>
+                      </PieChart>
                     </ResponsiveContainer>
                     <div style={{ 
                       position: 'absolute', 
@@ -220,18 +222,18 @@ export default function Reports() {
                       transform: 'translate(-50%, -50%)',
                       textAlign: 'center'
                     }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>${(data.topSpendingAmount / 1000).toFixed(0)}k</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>VNĐ {(data?.topSpendingAmount || 0).toLocaleString()}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('Total')}</div>
                     </div>
                   </div>
                   <div style={{ marginTop: '1.5rem' }}>
-                    {data.categoryBreakdown.slice(0, 3).map((cat, idx) => (
+                    {(data?.categoryBreakdown || []).slice(0, 3).map((cat, idx) => (
                       <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: cat.color || COLORS[idx % COLORS.length] }}></div>
                           <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t(cat.name) || cat.name}</span>
                         </div>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>{cat.percentage.toFixed(0)}%</span>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>{(cat.percentage || 0).toFixed(0)}%</span>
                       </div>
                     ))}
                   </div>
@@ -246,8 +248,8 @@ export default function Reports() {
                     <button style={{ fontSize: '0.875rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>{t('View All')}</button>
                   </div>
                   <div className="outflows-list">
-                    {data.topOutflows.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: idx === data.topOutflows.length - 1 ? 'none' : '1px solid var(--border)' }}>
+                    {(data?.topOutflows || []).map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: idx === (data?.topOutflows || []).length - 1 ? 'none' : '1px solid var(--border)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--bg-app)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                             <ShoppingBag size={20} style={{ margin: 'auto' }} />
@@ -258,7 +260,7 @@ export default function Reports() {
                           </div>
                         </div>
                         <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>
-                          -{item.amount.toLocaleString()} VNĐ
+                          -{(item.amount || 0).toLocaleString()} VNĐ
                         </div>
                       </div>
                     ))}
@@ -287,7 +289,7 @@ export default function Reports() {
                   </div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>{t('AI Financial Insight')}</h3>
                   <p style={{ color: '#94a3b8', lineHeight: 1.6, marginBottom: '2rem' }}>
-                    {data.aiInsight}
+                    {data?.aiInsight}
                   </p>
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <button style={{ 
