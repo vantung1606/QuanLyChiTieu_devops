@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
+import Layout from '../components/Layout';
 import TransactionModal from '../components/TransactionModal';
 
 import { useToast } from '../context/ToastContext';
@@ -153,13 +152,8 @@ export default function Transactions() {
   };
 
   return (
-    <div className="app-wrapper">
-      <Sidebar />
-      <div className="main-content">
-        <div className="content-inner">
-          <Header />
-          
-          <div className="page-header">
+    <Layout>
+      <div className="page-header">
             <div>
               <h2 className="page-title">{t('Transactions')} {filters.category && ` - ${t(filters.category) || filters.category}`}</h2>
               <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
@@ -284,8 +278,6 @@ export default function Transactions() {
             )}
           </div>
 
-        </div>
-
         <TransactionModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
@@ -294,7 +286,6 @@ export default function Transactions() {
           handleSubmit={handleSubmit}
           categories={categories}
         />
-      </div>
-    </div>
+    </Layout>
   );
 }

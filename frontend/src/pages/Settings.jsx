@@ -5,8 +5,7 @@ import {
   Globe, Moon, DollarSign, Trash2, 
   ShieldCheck, Lock, AlertCircle, CheckCircle2
 } from 'lucide-react';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
+import Layout from '../components/Layout';
 import api from '../api/axios';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -172,13 +171,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="app-wrapper">
-      <Sidebar />
-      <div className="main-content">
-        <div className="content-inner">
-          <Header />
-          
-          <div className="settings-container">
+    <Layout>
+      <div className="settings-container">
             <div className="page-header">
               <div>
                 <h2 className="page-title">Cài đặt</h2>
@@ -533,8 +527,6 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+    </Layout>
   );
 }

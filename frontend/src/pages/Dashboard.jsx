@@ -8,8 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
+import Layout from '../components/Layout';
 import { useToast } from '../context/ToastContext';
 
 // Mock data for charts
@@ -88,11 +87,17 @@ function Dashboard() {
       setBalanceTrend(trend.slice(-10)); // Last 10 points for smoother chart
 
       // Process Cash Flow (group by month if many points, but report gives daily)
-      const cashFlow = (reportRes.data?.incomeVsExpenses || []).slice(-7).map(p => ({
-        name: p.date ? p.date.split(' ')[1] : '', 
-        income: (p.income || 0) / 1000, 
-        expense: (p.expenses || 0) / 1000
-      }));
+      const cashFlow = (reportRes.data?.incomeVsExpenses || []).slice(-7).map(p => {
+        // Handle different date formats like "May 11" or "2024-05-11"
+        const dateParts = p.date ? p.date.split(' ') : [];
+        const name = dateParts.length > 1 ? dateParts[1] : (p.date || '');
+        
+        return {
+          name: name, 
+          income: (p.income || 0) / 1000, 
+          expense: (p.expenses || 0) / 1000
+        };
+      });
       setCashFlowData(cashFlow);
 
       setSpendingByCat(reportRes.data?.categoryBreakdown || []);
@@ -171,221 +176,213 @@ function Dashboard() {
   };
 
   return (
-    <div className="app-wrapper">
-      <Sidebar />
-      <div className="main-content">
-        <div className="content-inner" style={{ padding: '2rem' }}>
-          <Header />
+    <Layout>
+      <div className="dashboard-grid">
+        {/* Row 1: Balance & Budget */}
+        <div className="premium-card balance-card">
+          <div>
+            <div className="card-label">Số dư hiện tại</div>
+            <div className="balance-amount">{formatCurrency(summary.balance)}</div>
+            <div className="balance-trend">
+              {report?.savingsRate > 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+              <span>{report?.savingsRate}% tỷ lệ tiết kiệm tháng này</span>
+            </div>
+          </div>
+          <div style={{ height: '100px', minHeight: '100px', width: '100%', marginTop: 'auto' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={balanceTrend}>
+                <defs>
+                  <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <Area type="monotone" dataKey="val" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorVal)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="premium-card budget-card">
+          <div className="budget-header">
+            <span className="budget-label">Ngân sách chi tiêu</span>
+            <span className="budget-month">THÁNG 10</span>
+          </div>
+          <div className="budget-value">{formatCurrency(budgetSummary.totalSpent)}</div>
+          <div className="budget-status">
+            Đã tiêu <span>{budgetSummary.totalBudget > 0 ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100) : 0}%</span> hạn mức
+          </div>
+          <div className="progress-container">
+            <div className="progress-bar" style={{ width: `${budgetSummary.totalBudget > 0 ? Math.min((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100, 100) : 0}%` }}></div>
+          </div>
+          <div className="budget-limits">
+            <span>0 đ</span>
+            <span>{formatCurrency(budgetSummary.totalBudget)}</span>
+          </div>
+          <button className="btn-detail" onClick={() => navigate('/budgets')}>Xem chi tiết hạn mức</button>
+        </div>
+
+        {/* Row 2: Recent Transactions & Add/Cashflow */}
+        <div className="premium-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.125rem' }}>Giao dịch gần đây</h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cập nhật 2 phút trước</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className="search-bar" style={{ maxWidth: '200px' }}>
+                <Search size={14} className="search-icon" />
+                <input type="text" placeholder="Tìm kiếm..." style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }} />
+              </div>
+              <button className="icon-btn" style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '0.5rem' }}>
+                <Filter size={16} />
+              </button>
+            </div>
+          </div>
           
-          <div className="dashboard-grid">
-            {/* Row 1: Balance & Budget */}
-            <div className="premium-card balance-card">
-              <div>
-                <div className="card-label">Số dư hiện tại</div>
-                <div className="balance-amount">{formatCurrency(summary.balance)}</div>
-                <div className="balance-trend">
-                  {report?.savingsRate > 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                  <span>{report?.savingsRate}% tỷ lệ tiết kiệm tháng này</span>
+          <div className="transactions-list">
+            {transactions.map((t, idx) => (
+              <div key={t.id || idx} className="transaction-item-premium">
+                <div className="trans-info-group">
+                  <div className="trans-icon-box" style={{ backgroundColor: t.type === 'income' ? '#e6f4ea' : '#f1f5f9', color: t.type === 'income' ? '#0d652d' : '#475569' }}>
+                    {t.type === 'income' ? <TrendingUp size={20} /> : <ShoppingBag size={20} />}
+                  </div>
+                  <div className="trans-details">
+                    <h4>{t.title}</h4>
+                    <p>{t.category} • {new Date(t.date).toLocaleDateString('vi-VN')}</p>
+                  </div>
+                </div>
+                <div className="trans-method">
+                  <Wallet size={14} />
+                  <span>{idx % 2 === 0 ? 'Thẻ Visa' : 'Tiền mặt'}</span>
+                </div>
+                <div className="trans-status success">Thành công</div>
+                <div className={`trans-amount ${t.type === 'income' ? 'income' : 'expense'}`}>
+                  {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                 </div>
               </div>
-              <div style={{ height: '100px', minHeight: '100px', width: '100%', marginTop: 'auto' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={balanceTrend}>
-                    <defs>
-                      <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <Area type="monotone" dataKey="val" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorVal)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+            <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>Xem tất cả lịch sử giao dịch</button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="premium-card add-transaction-card" style={{ padding: '1.5rem' }}>
+            <h3 className="card-title">Thêm giao dịch</h3>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>TIÊU ĐỀ</label>
+                <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Ví dụ: Ăn trưa..." style={{ padding: '0.625rem' }} />
               </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>SỐ TIỀN</label>
+                  <input name="amount" value={formData.amount} onChange={handleInputChange} placeholder="0 đ" style={{ padding: '0.625rem' }} />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>LOẠI</label>
+                  <select name="type" value={formData.type} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
+                    <option value="expense">Chi tiêu</option>
+                    <option value="income">Thu nhập</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
+                <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
+                  <option value="">Chọn danh mục</option>
+                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                </select>
+              </div>
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', backgroundColor: '#0f172a' }}>
+                <Plus size={18} /> Lưu giao dịch
+              </button>
+            </form>
+          </div>
+
+          <div className="premium-card cash-flow-card">
+            <div className="card-title">Dòng tiền 7 ngày qua</div>
+            <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
+            <div style={{ height: '180px', minHeight: '180px', width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={cashFlowData}>
+                  <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
+                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                    formatter={(value) => formatCurrency(value * 1000)}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-
-            <div className="premium-card budget-card">
-              <div className="budget-header">
-                <span className="budget-label">Ngân sách chi tiêu</span>
-                <span className="budget-month">THÁNG 10</span>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.65rem', color: '#94a3b8' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+                <span>Thu nhập</span>
               </div>
-              <div className="budget-value">{formatCurrency(budgetSummary.totalSpent)}</div>
-              <div className="budget-status">
-                Đã tiêu <span>{budgetSummary.totalBudget > 0 ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100) : 0}%</span> hạn mức
-              </div>
-              <div className="progress-container">
-                <div className="progress-bar" style={{ width: `${budgetSummary.totalBudget > 0 ? Math.min((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100, 100) : 0}%` }}></div>
-              </div>
-              <div className="budget-limits">
-                <span>0 đ</span>
-                <span>{formatCurrency(budgetSummary.totalBudget)}</span>
-              </div>
-              <button className="btn-detail" onClick={() => navigate('/budgets')}>Xem chi tiết hạn mức</button>
-            </div>
-
-            {/* Row 2: Recent Transactions & Add/Cashflow */}
-            <div className="premium-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.125rem' }}>Giao dịch gần đây</h3>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cập nhật 2 phút trước</p>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <div className="search-bar" style={{ maxWidth: '200px' }}>
-                    <Search size={14} className="search-icon" />
-                    <input type="text" placeholder="Tìm kiếm..." style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }} />
-                  </div>
-                  <button className="icon-btn" style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '0.5rem' }}>
-                    <Filter size={16} />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="transactions-list">
-                {transactions.map((t, idx) => (
-                  <div key={t.id || idx} className="transaction-item-premium">
-                    <div className="trans-info-group">
-                      <div className="trans-icon-box" style={{ backgroundColor: t.type === 'income' ? '#e6f4ea' : '#f1f5f9', color: t.type === 'income' ? '#0d652d' : '#475569' }}>
-                        {t.type === 'income' ? <TrendingUp size={20} /> : <ShoppingBag size={20} />}
-                      </div>
-                      <div className="trans-details">
-                        <h4>{t.title}</h4>
-                        <p>{t.category} • {new Date(t.date).toLocaleDateString('vi-VN')}</p>
-                      </div>
-                    </div>
-                    <div className="trans-method">
-                      <Wallet size={14} />
-                      <span>{idx % 2 === 0 ? 'Thẻ Visa' : 'Tiền mặt'}</span>
-                    </div>
-                    <div className="trans-status success">Thành công</div>
-                    <div className={`trans-amount ${t.type === 'income' ? 'income' : 'expense'}`}>
-                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-                <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>Xem tất cả lịch sử giao dịch</button>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div className="premium-card add-transaction-card" style={{ padding: '1.5rem' }}>
-                <h3 className="card-title">Thêm giao dịch</h3>
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>TIÊU ĐỀ</label>
-                    <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Ví dụ: Ăn trưa..." style={{ padding: '0.625rem' }} />
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>SỐ TIỀN</label>
-                      <input name="amount" value={formData.amount} onChange={handleInputChange} placeholder="0 đ" style={{ padding: '0.625rem' }} />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>LOẠI</label>
-                      <select name="type" value={formData.type} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
-                        <option value="expense">Chi tiêu</option>
-                        <option value="income">Thu nhập</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                    <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
-                    <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
-                      <option value="">Chọn danh mục</option>
-                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', backgroundColor: '#0f172a' }}>
-                    <Plus size={18} /> Lưu giao dịch
-                  </button>
-                </form>
-              </div>
-
-              <div className="premium-card cash-flow-card">
-                <div className="card-title">Dòng tiền 7 ngày qua</div>
-                <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
-                <div style={{ height: '180px', minHeight: '180px', width: '100%' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={cashFlowData}>
-                      <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
-                      <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
-                        formatter={(value) => formatCurrency(value * 1000)}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.65rem', color: '#94a3b8' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
-                    <span>Thu nhập</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
-                    <span>Chi tiêu</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Row 3: Spending Analysis */}
-            <div className="premium-card" style={{ gridColumn: 'span 2' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Phân tích chi tiêu</h3>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Phân bổ chi phí theo danh mục tháng này</p>
-                </div>
-                <button className="btn-detail" style={{ width: 'auto', padding: '0.5rem 1rem' }}>Chi tiết báo cáo</button>
-              </div>
-
-              <div className="spending-analysis-grid">
-                <div className="category-stats-list">
-                  {spendingByCat.length > 0 ? spendingByCat.map((cat, idx) => (
-                    <div key={idx} className="cat-stat-item">
-                      <div className="cat-stat-header">
-                        <span>{cat.name}</span>
-                        <span>{formatCurrency(cat.value)} ({Math.round(cat.percentage)}%)</span>
-                      </div>
-                      <div className="cat-stat-bar-bg">
-                        <div className="cat-stat-bar-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
-                      </div>
-                    </div>
-                  )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Chưa có dữ liệu chi tiêu tháng này.</div>}
-                </div>
-
-                <div className="analysis-insights">
-                  <div className="insight-box">
-                    <div className="insight-item">
-                      <div className="insight-icon">
-                        <Lightbulb size={18} className="text-success" color="#f59e0b" />
-                      </div>
-                      <div className="insight-details">
-                        <h5>AI Financial Insight</h5>
-                        <p>{report?.aiInsight || "Bắt đầu thêm giao dịch để nhận được các gợi ý quản lý tài chính thông minh từ AI."}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="projection-box">
-                    <div className="projection-label">DỰ BÁO CUỐI THÁNG</div>
-                    <div className="projection-value">Dự kiến chi tiêu: {formatCurrency(52400000)}</div>
-                  </div>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+                <span>Chi tiêu</span>
               </div>
             </div>
           </div>
         </div>
 
-        <button className="fab">
-          <Plus size={24} />
-        </button>
+        {/* Row 3: Spending Analysis */}
+        <div className="premium-card analysis-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Phân tích chi tiêu</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Phân bổ chi phí theo danh mục tháng này</p>
+            </div>
+            <button className="btn-detail" style={{ width: 'auto', padding: '0.5rem 1rem' }}>Chi tiết báo cáo</button>
+          </div>
 
+          <div className="spending-analysis-grid">
+            <div className="category-stats-list">
+              {spendingByCat.length > 0 ? spendingByCat.map((cat, idx) => (
+                <div key={idx} className="cat-stat-item">
+                  <div className="cat-stat-header">
+                    <span>{cat.name}</span>
+                    <span>{formatCurrency(cat.value)} ({Math.round(cat.percentage)}%)</span>
+                  </div>
+                  <div className="cat-stat-bar-bg">
+                    <div className="cat-stat-bar-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
+                  </div>
+                </div>
+              )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Chưa có dữ liệu chi tiêu tháng này.</div>}
+            </div>
+
+            <div className="analysis-insights">
+              <div className="insight-box">
+                <div className="insight-item">
+                  <div className="insight-icon">
+                    <Lightbulb size={18} className="text-success" color="#f59e0b" />
+                  </div>
+                  <div className="insight-details">
+                    <h5>AI Financial Insight</h5>
+                    <p>{report?.aiInsight || "Bắt đầu thêm giao dịch để nhận được các gợi ý quản lý tài chính thông minh từ AI."}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="projection-box">
+                <div className="projection-label">DỰ BÁO CUỐI THÁNG</div>
+                <div className="projection-value">Dự kiến chi tiêu: {formatCurrency(52400000)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+      
+      <button className="fab">
+        <Plus size={24} />
+      </button>
+    </Layout>
   );
 }
 

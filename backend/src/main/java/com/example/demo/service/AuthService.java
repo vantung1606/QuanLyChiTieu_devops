@@ -78,7 +78,7 @@ public class AuthService {
                     )
             );
             
-            var user = userRepository.findByUsername(request.getUsername())
+            var user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             System.out.println("DEBUG: User authenticated. 2FA Status: " + user.getTwoFactor());
@@ -132,7 +132,7 @@ public class AuthService {
     }
 
     public AuthResponse verify2FA(String username, String code, String userAgent, String ipAddress) {
-        var user = userRepository.findByUsername(username)
+        var user = userRepository.findByUsernameOrEmail(username, username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         if (!twoFactorAuthService.isOtpValid(username, code)) {

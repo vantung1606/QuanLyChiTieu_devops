@@ -4,9 +4,8 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
 import RecurringModal from '../components/RecurringModal';
+import Layout from '../components/Layout';
 
 import { useToast } from '../context/ToastContext';
 
@@ -65,12 +64,7 @@ export default function Recurring() {
   };
 
   return (
-    <div className="app-wrapper">
-      <Sidebar />
-      <div className="main-content">
-        <div className="content-inner">
-          <Header />
-
+    <Layout>
           <div className="page-header">
             <div>
               <h2 className="page-title">Giao dịch định kỳ</h2>
@@ -146,14 +140,12 @@ export default function Recurring() {
               </tbody>
             </table>
           </div>
-        </div>
 
         <RecurringModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           refresh={fetchRecurring}
         />
-      </div>
-    </div>
+    </Layout>
   );
 }

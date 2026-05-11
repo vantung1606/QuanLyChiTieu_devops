@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Settings, Search, Banknote, AlertTriangle, Cpu, Calendar, ChevronDown } from 'lucide-react';
+import { Bell, Settings, Search, Banknote, AlertTriangle, Cpu, Calendar, ChevronDown, Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 
@@ -24,7 +24,7 @@ const NOTIFICATIONS = [
   }
 ];
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
   const { t } = useTranslation();
   const [showNotifs, setShowNotifs] = useState(false);
   const [user, setUser] = useState(null);
@@ -64,8 +64,11 @@ export default function Header() {
   return (
     <div className="top-header">
       <div className="header-left">
+        <button className="icon-btn menu-toggle" onClick={onMenuClick} style={{ marginRight: '1rem' }}>
+          <Menu size={24} />
+        </button>
         <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Tổng quan tài chính</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '2rem', fontSize: '0.8125rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="date-picker-trigger" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '2rem', fontSize: '0.8125rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
           <span>Tháng 10, 2023</span>
           <Calendar size={14} />
         </div>

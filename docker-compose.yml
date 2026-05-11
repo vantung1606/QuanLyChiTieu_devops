@@ -19,7 +19,7 @@ services:
     build: ./backend
     container_name: expense-backend
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - DB_URL=jdbc:mysql://mysql-db:3306/expense_tracker?allowPublicKeyRetrieval=true&useSSL=false
       - DB_USERNAME=root
@@ -34,7 +34,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - VITE_API_URL=http://localhost:8080/api
+      - VITE_API_URL=http://localhost:8081/api
     depends_on:
       - backend
 

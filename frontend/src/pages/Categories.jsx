@@ -5,8 +5,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
+import Layout from '../components/Layout';
 import CategoryModal from '../components/CategoryModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
@@ -93,13 +92,8 @@ export default function Categories() {
   };
 
   return (
-    <div className="app-wrapper">
-      <Sidebar />
-      <div className="main-content">
-        <div className="content-inner">
-          <Header />
-
-          <div className="page-header">
+    <Layout>
+      <div className="page-header">
             <div>
               <h2 className="page-title">{t('Categories')}</h2>
               <p className="page-subtitle">{t('Manage categories')}</p>
@@ -286,8 +280,6 @@ export default function Categories() {
               </table>
             </div>
           </div>
-        </div>
-
         <CategoryModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
@@ -302,7 +294,6 @@ export default function Categories() {
           message={t('Delete message')}
           loading={deleteLoading}
         />
-      </div>
-    </div>
+    </Layout>
   );
 }
