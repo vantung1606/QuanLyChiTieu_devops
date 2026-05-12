@@ -1860,7 +1860,7 @@ select.btn-outline {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #f1f5f9;
+  border: 4px solid var(--border);
 }
 
 .avatar-edit-overlay {
@@ -2097,16 +2097,6 @@ select.btn-outline {
 }
 
 /* Dark Mode Theme */
-.dark-mode {
-  --bg-main: #0f172a;
-  --bg-sidebar: #1e293b;
-  --bg-card: #1e293b;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --input-bg: #1e293b;
-}
-
 .dark-mode body {
   background-color: var(--bg-main);
   color: var(--text-main);

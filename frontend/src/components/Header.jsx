@@ -41,9 +41,9 @@ export default function Header({ onMenuClick }) {
             <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-main)' }}>{user?.fullName || "Alex Nguyen"}</div>
             <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Financial Manager</div>
           </div>
-          <div className="avatar" style={{ width: '40px', height: '40px', border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <div className="avatar" style={{ width: '40px', height: '40px', border: '2px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <img 
-              src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.fullName || user?.username || 'User'}&background=006d5b&color=fff`} 
+              src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || user?.username || 'User')}&background=006d5b&color=fff&size=128`} 
               alt="User Avatar" 
             />
           </div>

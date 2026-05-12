@@ -24,7 +24,8 @@ export default function Settings() {
     darkMode: localStorage.getItem('darkMode') === 'true',
     twoFactor: false,
     emailUpdates: true,
-    pushNotifs: false
+    pushNotifs: false,
+    avatar: ''
   });
   const [passwords, setPasswords] = useState({
     current: '',
@@ -201,7 +202,7 @@ export default function Settings() {
             <div className="settings-header-cards">
               <div className="profile-main-card">
                 <div className="profile-avatar-wrapper">
-                  <img src={profile.avatar || `https://ui-avatars.com/api/?name=${profile.fullName || profile.username}&background=006d5b&color=fff`} alt="Avatar" />
+                  <img src={profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName || profile.username || 'User')}&background=006d5b&color=fff&size=256`} alt="Avatar" />
                   <label htmlFor="avatar-upload" className="avatar-edit-overlay" style={{ cursor: 'pointer' }}>
                     <Camera size={14} />
                     <input 
