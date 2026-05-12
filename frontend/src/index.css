@@ -37,6 +37,10 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+html {
+  font-size: 15px; /* Slightly smaller base font to make layout more refined */
+}
+
 body {
   background-color: var(--bg-main);
   color: var(--text-main);
