@@ -1493,6 +1493,24 @@ select.btn-outline {
   margin-bottom: 2rem;
 }
 
+.chart-wrapper {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  min-height: 400px; /* Ensure space for Recharts to calculate dimensions */
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  flex: 1;
+  width: 100%;
+  min-height: 350px;
+  position: relative;
+}
+
 .category-card {
   background: var(--bg-card);
   padding: 1.5rem;
