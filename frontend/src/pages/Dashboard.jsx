@@ -249,7 +249,7 @@ function Dashboard() {
                   </div>
                   <div className="trans-details">
                     <h4>{t.title}</h4>
-                    <p>{t.category} • {new Date(t.date).toLocaleDateString('vi-VN')}</p>
+                    <p>{t.category} • {new Date(t.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                   </div>
                 </div>
                 <div className="trans-method">
