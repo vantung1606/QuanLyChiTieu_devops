@@ -76,7 +76,9 @@ export default function Settings() {
 
   useEffect(() => {
     // Only apply if loading is false to avoid initial state overwrite
-    if (!loading) {
+    // AND only if the value has actually changed to prevent flicker
+    const currentTheme = document.body.classList.contains('dark-mode');
+    if (!loading && profile.darkMode !== currentTheme) {
       if (profile.darkMode) {
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'true');
