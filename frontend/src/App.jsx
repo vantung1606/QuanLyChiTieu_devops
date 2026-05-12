@@ -11,6 +11,7 @@ import ResetPassword from './pages/ResetPassword';
 import Reports from './pages/Reports';
 import Recurring from './pages/Recurring';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   useEffect(() => {
@@ -25,6 +26,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
