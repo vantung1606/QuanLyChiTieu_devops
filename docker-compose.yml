@@ -6,7 +6,7 @@ services:
       MYSQL_DATABASE: expense_tracker
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "3309:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
@@ -19,7 +19,7 @@ services:
     build: ./backend
     container_name: expense-backend
     ports:
-      - "8081:8081"
+      - "8083:8081"
     environment:
       - DB_URL=jdbc:mysql://mysql-db:3306/expense_tracker?allowPublicKeyRetrieval=true&useSSL=false
       - DB_USERNAME=root
@@ -29,12 +29,13 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8083/api
     container_name: expense-frontend
     ports:
-      - "80:80"
-    environment:
-      - VITE_API_URL=http://localhost:8081/api
+      - "8084:80"
     depends_on:
       - backend
 

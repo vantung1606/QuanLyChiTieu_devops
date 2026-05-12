@@ -119,7 +119,7 @@ export default function Login() {
             {!requires2FA ? (
               <>
                 <div className="form-group">
-                  <label>{t('Username or Email')}</label>
+                  <label>{t('Username')}</label>
                   <div className="input-with-icon">
                     <Mail size={18} className="icon" />
                     <input 
