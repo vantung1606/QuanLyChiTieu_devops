@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   User, Shield, Sliders, Bell, Camera, ChevronRight, 
   Globe, Moon, DollarSign, Trash2, 
-  ShieldCheck, Lock, AlertCircle, CheckCircle2
+  ShieldCheck, Lock, AlertCircle, CheckCircle2, LogOut
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import api from '../api/axios';
@@ -518,10 +518,10 @@ export default function Settings() {
                             </div>
                             {!session.isCurrent && (
                               <button 
-                                className="btn-icon-text text-danger" 
-                                style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}
+                                className="btn-revoke" 
                                 onClick={() => handleRevokeSession(session.id)}
                               >
+                                <LogOut size={14} />
                                 Đăng xuất
                               </button>
                             )}

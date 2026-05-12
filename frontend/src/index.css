@@ -1203,6 +1203,36 @@ select.btn-outline {
   box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
 }
 
+.btn-revoke {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-revoke:hover {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.logout-btn-sidebar:hover {
+  color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.logout-btn-sidebar:hover svg {
+  color: #ef4444 !important;
+}
+
 .table-card {
   padding: 0;
   overflow: hidden;
