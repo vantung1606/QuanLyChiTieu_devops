@@ -76,8 +76,9 @@ const NotificationBell = () => {
 
   const getIconColor = (type) => {
     switch (type) {
-      case 'BUDGET_EXCEEDED': return '#ef4444';
-      case 'RECURRING_PAID': return '#10b981';
+      case 'BUDGET_EXCEEDED': return '#ef4444'; // Đỏ
+      case 'BUDGET_WARNING': return '#f59e0b';  // Vàng/Cam
+      case 'RECURRING_PAID': return '#10b981'; // Xanh lá
       default: return '#3b82f6';
     }
   };

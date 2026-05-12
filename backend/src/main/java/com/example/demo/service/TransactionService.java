@@ -82,11 +82,8 @@ public class TransactionService {
 
     private void checkBudget(Transaction transaction) {
         User user = transaction.getUser();
-        System.out.println("DEBUG: Checking budget for category: " + transaction.getCategory() + " user: " + user.getUsername());
         categoryRepository.findByNameAndUser(transaction.getCategory(), user).ifPresent(category -> {
-            System.out.println("DEBUG: Found category with budget: " + category.getBudget());
             if (category.getBudget() > 0) {
-                // Tính tổng chi của danh mục này trong tháng hiện tại
                 java.time.LocalDateTime startOfMonth = java.time.LocalDateTime.now()
                         .with(java.time.temporal.TemporalAdjusters.firstDayOfMonth())
                         .withHour(0).withMinute(0).withSecond(0);
@@ -97,16 +94,23 @@ public class TransactionService {
                         .mapToDouble(Transaction::getAmount)
                         .sum();
                 
-                System.out.println("DEBUG: Total spent so far: " + totalSpent);
-
-                if (totalSpent > category.getBudget()) {
-                    System.out.println("DEBUG: Budget exceeded! Creating notification.");
+                double budget = category.getBudget();
+                
+                if (totalSpent >= budget) {
                     notificationService.createNotification(
                         user,
-                        "Cảnh báo hạn mức: " + category.getName(),
-                        "Bạn đã chi tiêu " + String.format("%,.0f", totalSpent) + " VNĐ, vượt quá hạn mức " + 
-                        String.format("%,.0f", category.getBudget()) + " VNĐ của danh mục này.",
+                        "BÁO ĐỘNG: Vượt hạn mức " + category.getName(),
+                        "Bạn đã chi tiêu " + String.format("%,.0f", totalSpent) + " VNĐ, chính thức VƯỢT hạn mức " + 
+                        String.format("%,.0f", budget) + " VNĐ.",
                         "BUDGET_EXCEEDED"
+                    );
+                } else if (totalSpent >= budget * 0.8) {
+                    notificationService.createNotification(
+                        user,
+                        "CẢNH BÁO: Sắp hết hạn mức " + category.getName(),
+                        "Bạn đã chi tiêu " + String.format("%,.0f", totalSpent) + " VNĐ, chạm mốc 80% hạn mức (" + 
+                        String.format("%,.0f", budget) + " VNĐ). Hãy cân đối lại nhé!",
+                        "BUDGET_WARNING"
                     );
                 }
             }
