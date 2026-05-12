@@ -9,10 +9,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173", "http://localhost:8084", "http://localhost:8085", "https://dongtienvang.up.railway.app")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+        // CORS is handled by Spring Security in SecurityConfig
     }
 }

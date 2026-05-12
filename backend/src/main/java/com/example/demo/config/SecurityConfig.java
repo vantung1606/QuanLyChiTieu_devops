@@ -33,10 +33,12 @@ public class SecurityConfig {
                     "http://localhost:5174", 
                     "http://localhost:8084", 
                     "http://localhost:8085",
-                    "https://dongtienvang.up.railway.app"
+                    "https://dongtienvang.up.railway.app",
+                    "https://quanlychitieudevops-production.up.railway.app"
                 ));
-                corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
                 corsConfiguration.setAllowedHeaders(List.of("*"));
+                corsConfiguration.setExposedHeaders(List.of("Authorization"));
                 corsConfiguration.setAllowCredentials(true);
                 return corsConfiguration;
             }))
