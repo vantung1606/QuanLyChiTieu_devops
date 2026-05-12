@@ -42,6 +42,11 @@ public class TransactionController {
          transactionService.deleteTransaction(id);
          return ResponseEntity.ok().build();
      }
+
+     @PutMapping("/transactions/{id}")
+     public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id, @Valid @RequestBody TransactionDTO transactionDTO) {
+         return ResponseEntity.ok(transactionService.updateTransaction(id, transactionDTO));
+     }
  
      @GetMapping("/summary")
      public ResponseEntity<Map<String, Double>> getSummary() {

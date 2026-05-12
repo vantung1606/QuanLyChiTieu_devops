@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -42,10 +45,7 @@ public class TransactionService {
         User user = getCurrentUser();
         List<Transaction> transactions;
         
-        java.time.LocalDateTime startDate = null;
-        if (days != null && days > 0) {
-            startDate = java.time.LocalDateTime.now().minusDays(days);
-        }
+        LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
 
         String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
         String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;

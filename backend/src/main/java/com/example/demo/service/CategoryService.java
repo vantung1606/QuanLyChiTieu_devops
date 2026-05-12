@@ -95,6 +95,29 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    public void createDefaultCategories(User user) {
+        String[][] defaults = {
+            {"Ăn uống", "Utensils", "#EF4444", "1000000.0"},
+            {"Di chuyển", "Car", "#3B82F6", "500000.0"},
+            {"Mua sắm", "ShoppingBag", "#8B5CF6", "1000000.0"},
+            {"Giải trí", "Gamepad2", "#F59E0B", "500000.0"},
+            {"Lương", "Banknote", "#10B981", "0.0"},
+            {"Khác", "MoreHorizontal", "#6B7280", "200000.0"}
+        };
+
+        for (String[] def : defaults) {
+            Category category = Category.builder()
+                    .name(def[0])
+                    .icon(def[1])
+                    .color(def[2])
+                    .budget(Double.parseDouble(def[3]))
+                    .user(user)
+                    .build();
+            categoryRepository.save(category);
+        }
+    }
+
     private CategoryDTO convertToDTO(Category entity, Double spent) {
         return CategoryDTO.builder()
                 .id(entity.getId())

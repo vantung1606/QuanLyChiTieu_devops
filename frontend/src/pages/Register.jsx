@@ -19,6 +19,15 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    setFullName('');
+    setUsername('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setError('');
+  }, []);
+
   const handleRegister = async () => {
     if (!fullName || !username || !email || !password || !confirmPassword) {
       setError(t('Please enter full information'));

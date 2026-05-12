@@ -29,6 +29,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final TwoFactorAuthService twoFactorAuthService;
+    private final CategoryService categoryService;
 
     private final UserSessionRepository sessionRepository;
 
@@ -53,6 +54,10 @@ public class AuthService {
                 .pushNotifs(false)
                 .build();
         userRepository.save(user);
+        
+        // Initialize default categories for new user
+        categoryService.createDefaultCategories(user);
+
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         var jwtToken = jwtService.generateToken(userDetails);
         

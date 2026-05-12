@@ -17,6 +17,14 @@ export default function Login() {
   const navigate = useNavigate();
   const passwordInputRef = useRef(null);
 
+  React.useEffect(() => {
+    setUsername('');
+    setPassword('');
+    setTwoFactorCode('');
+    setError('');
+    setRequires2FA(false);
+  }, []);
+
   const handleLogin = async () => {
     if (!username || !password) {
       setError(t('Please enter full information'));

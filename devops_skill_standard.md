@@ -41,7 +41,7 @@ Mỗi khi gặp lỗi trong quá trình hỗ trợ User, AI phải ghi lại the
 - [ ] Có Docker & Docker Compose chạy ổn định.
 - [ ] Có CI/CD pass (Xanh trên GitHub).
 - [ ] Đã Deploy lên URL công khai (Render/Vercel).
-- [ ] Đã có ít nhất 3 Incident được ghi lại.
+- [x] Đã có ít nhất 3 Incident được ghi lại.
 - [ ] Không có thông tin nhạy cảm (Password/Key) trong code commit.
 
 ---
