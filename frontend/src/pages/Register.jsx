@@ -25,6 +25,19 @@ export default function Register() {
       return;
     }
 
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError(t('Invalid email format'));
+      return;
+    }
+
+    // Kiểm tra độ dài mật khẩu (Ít nhất 6 ký tự)
+    if (password.length < 6) {
+      setError(t('Password must be at least 6 characters'));
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError(t('Password confirmation does not match'));
       return;
@@ -45,7 +58,13 @@ export default function Register() {
       toast.success(t('Registration successful', { name: fullName }));
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || t('Registration failed'));
+      const data = err.response?.data;
+      if (data?.errors) {
+        const firstError = Object.values(data.errors)[0];
+        setError(firstError);
+      } else {
+        setError(data?.message || t('Registration failed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -58,7 +77,7 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-layout" onKeyDown={handleKeyDown}>
+    <div className="auth-layout">
       <div className="auth-header">
         <h2>ExpenseTracker</h2>
         <HelpCircle size={20} color="var(--text-muted)" />
@@ -73,81 +92,101 @@ export default function Register() {
 
           {error && <div className="error-alert">{error}</div>}
 
-          <div className="auth-form">
+          <form 
+            className="auth-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleRegister();
+            }}
+          >
             <div className="form-group">
-              <label>{t('Full Name')}</label>
+              <label htmlFor="fullname-input">{t('Full Name')}</label>
               <div className="input-with-icon">
                 <User size={18} className="icon" />
                 <input 
+                  id="fullname-input"
+                  name="fullName"
                   type="text" 
                   placeholder="Van Tung" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  autoComplete="name"
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label>{t('Username')}</label>
+              <label htmlFor="username-input">{t('Username')}</label>
               <div className="input-with-icon">
                 <User size={18} className="icon" style={{ opacity: 0.5 }} />
                 <input 
+                  id="username-input"
+                  name="username"
                   type="text" 
                   placeholder="tung123" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label>{t('Email Address')}</label>
+              <label htmlFor="email-input">{t('Email Address')}</label>
               <div className="input-with-icon">
                 <Mail size={18} className="icon" />
                 <input 
+                  id="email-input"
+                  name="email"
                   type="email" 
                   placeholder="tung@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label>{t('Password')}</label>
+              <label htmlFor="password-input">{t('Password')}</label>
               <div className="input-with-icon">
                 <Lock size={18} className="icon" />
                 <input 
+                  id="password-input"
+                  name="password"
                   type="password" 
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label>{t('Confirm Password')}</label>
+              <label htmlFor="confirm-password-input">{t('Confirm Password')}</label>
               <div className="input-with-icon">
                 <ShieldCheck size={18} className="icon" />
                 <input 
+                  id="confirm-password-input"
+                  name="confirmPassword"
                   type="password" 
                   placeholder="••••••••" 
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
             </div>
 
             <button 
-              type="button" 
+              type="submit" 
               className="auth-btn" 
               disabled={loading}
-              onClick={handleRegister}
             >
               {loading ? t('Creating account...') : t('Create account')}
             </button>
-          </div>
+          </form>
 
           <div className="auth-divider">{t('OR REGISTER WITH')}</div>
 
