@@ -43,7 +43,7 @@ export default function Header({ onMenuClick }) {
           </div>
           <div className="avatar" style={{ width: '40px', height: '40px', border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <img 
-              src={user?.avatar || "https://i.pravatar.cc/150?u=alex"} 
+              src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.fullName || user?.username || 'User'}&background=006d5b&color=fff`} 
               alt="User Avatar" 
             />
           </div>

@@ -74,31 +74,43 @@ export default function Settings() {
     }
   };
 
-  useEffect(() => {
-    // Only apply if loading is false to avoid initial state overwrite
-    // AND only if the value has actually changed to prevent flicker
-    const currentTheme = document.body.classList.contains('dark-mode');
-    if (!loading && profile.darkMode !== currentTheme) {
-      if (profile.darkMode) {
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      const response = await api.put('/users/profile', profile);
+      setProfile(response.data);
+      
+      // Apply theme change only on save
+      if (response.data.darkMode) {
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'true');
       } else {
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'false');
       }
-    }
-  }, [profile.darkMode, loading]);
-
-  const handleSaveProfile = async () => {
-    setSaving(true);
-    try {
-      const response = await api.put('/users/profile', profile);
-      setProfile(response.data);
+      
       toast.success('Cập nhật hồ sơ thành công!');
+      // Force refresh header if needed, or window reload for simplicity in syncing across components
+      window.location.reload(); 
     } catch (error) {
       toast.error(error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile({ ...profile, avatar: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -186,10 +198,17 @@ export default function Settings() {
             <div className="settings-header-cards">
               <div className="profile-main-card">
                 <div className="profile-avatar-wrapper">
-                  <img src={`https://ui-avatars.com/api/?name=${profile.fullName || profile.username}&background=006d5b&color=fff`} alt="Avatar" />
-                  <div className="avatar-edit-overlay">
+                  <img src={profile.avatar || `https://ui-avatars.com/api/?name=${profile.fullName || profile.username}&background=006d5b&color=fff`} alt="Avatar" />
+                  <label htmlFor="avatar-upload" className="avatar-edit-overlay" style={{ cursor: 'pointer' }}>
                     <Camera size={14} />
-                  </div>
+                    <input 
+                      id="avatar-upload"
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleAvatarChange} 
+                      style={{ display: 'none' }}
+                    />
+                  </label>
                 </div>
                 <div className="profile-summary">
                   <h2>{String(profile.fullName || profile.username || 'Người dùng')}</h2>
