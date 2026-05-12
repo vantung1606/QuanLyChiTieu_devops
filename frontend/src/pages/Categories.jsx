@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
+import {
+  Plus, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap,
   TrendingUp, TrendingDown, MoreVertical, LayoutGrid, Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell, Trash2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import CategoryModal from '../components/CategoryModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const ICON_MAP = {
-  Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap, 
+  Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap,
   Briefcase, ShoppingBag, Plane, Car, Dog, Dumbbell, LayoutGrid
 };
 
@@ -29,7 +29,7 @@ export default function Categories() {
 
   useEffect(() => {
     fetchCategories();
-    
+
     // Close menu when clicking outside
     const handleClickOutside = () => setActiveMenu(null);
     window.addEventListener('click', handleClickOutside);
@@ -55,7 +55,7 @@ export default function Categories() {
 
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
-    
+
     setDeleteLoading(true);
     try {
       await api.delete(`/categories/${categoryToDelete.id}`);
@@ -93,207 +93,195 @@ export default function Categories() {
 
   return (
     <Layout>
-      <div className="page-header">
-            <div>
-              <h2 className="page-title">{t('Categories')}</h2>
-              <p className="page-subtitle">{t('Manage categories')}</p>
-            </div>
-            <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-              <Plus size={16} /> {t('Add category')}
+      <div className="enterprise-container budgets-page-active">
+        <div className="enterprise-header">
+          <div className="enterprise-header-left">
+            <h1>{t('Danh mục')}</h1>
+            <p>{t('Quản lý và theo dõi chi tiêu của bạn theo từng lĩnh vực khác nhau. Tối ưu hóa ngân sách với công cụ quản lý chuyên nghiệp.')}</p>
+          </div>
+          <div className="enterprise-header-actions">
+            <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
+              <Plus size={18} /> {t('Thêm danh mục mới')}
             </button>
           </div>
+        </div>
 
-          {/* Quick Stats */}
-          <div className="metrics-row" style={{ marginBottom: '2rem' }}>
-            <div className="stat-card">
-              <div className="stat-info">
-                <span className="stat-title">{t('Most spent category')}</span>
-                <h3 className="stat-value">{loading ? "..." : getTopSpending()}</h3>
-              </div>
-              <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                <TrendingUp size={24} />
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-info">
-                <span className="stat-title">{t('Total categories')}</span>
-                <h3 className="stat-value">{categories.length} {t('active')}</h3>
-              </div>
-              <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                <LayoutGrid size={24} />
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-info">
-                <span className="stat-title">{t('Budget Status')}</span>
-                <h3 className="stat-value">{loading ? "..." : getBudgetStatus()}</h3>
-              </div>
-              <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                <TrendingDown size={24} />
-              </div>
-            </div>
+        {/* Quick Stats */}
+        <div className="enterprise-bottom-grid" style={{ marginBottom: '2rem' }}>
+          <div className="enterprise-summary-card">
+            <TrendingUp size={24} color="#3b82f6" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--ent-text-muted)' }}>{t('Most spent category')}</h3>
+            <div className="enterprise-balance-large" style={{ fontSize: '1.5rem' }}>{loading ? "..." : getTopSpending()}</div>
           </div>
+          <div className="enterprise-summary-card">
+            <LayoutGrid size={24} color="#10b981" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--ent-text-muted)' }}>{t('Total categories')}</h3>
+            <div className="enterprise-balance-large" style={{ fontSize: '1.5rem' }}>{categories.length} {t('active')}</div>
+          </div>
+          <div className="enterprise-summary-card">
+            <TrendingDown size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--ent-text-muted)' }}>{t('Budget Status')}</h3>
+            <div className="enterprise-balance-large" style={{ fontSize: '1.5rem' }}>{loading ? "..." : getBudgetStatus()}</div>
+          </div>
+        </div>
 
-          {/* Category Cards */}
-          <div className="category-grid">
-            {categories.map((cat) => {
-              const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
-              const progress = calculateProgress(cat.spent, cat.budget);
-              return (
-                <div key={cat.id} className="category-card">
-                  <div className="category-card-header" style={{ position: 'relative' }}>
-                    <div className="category-icon-wrapper" style={{ backgroundColor: `${cat.color}15`, color: cat.color }}>
-                      <IconComp size={24} />
+        {/* Category Grid */}
+        <div className="category-grid" style={{ marginBottom: '2rem' }}>
+          {categories.map((cat) => {
+            const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
+            const progress = calculateProgress(cat.spent, cat.budget);
+            return (
+              <div key={cat.id} className="category-card">
+                <div className="category-card-header" style={{ position: 'relative' }}>
+                  <div className="category-icon-wrapper" style={{ backgroundColor: `${cat.color}15`, color: cat.color }}>
+                    <IconComp size={24} />
+                  </div>
+                  <button
+                    className="action-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenu(activeMenu === cat.id ? null : cat.id);
+                    }}
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+
+                  {activeMenu === cat.id && (
+                    <div className="dropdown-menu">
+                      <button
+                        className="dropdown-item danger"
+                        onClick={() => handleDelete(cat)}
+                      >
+                        <Trash2 size={14} /> {t('Delete category')}
+                      </button>
                     </div>
-                    <button 
-                      className="action-icon" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveMenu(activeMenu === cat.id ? null : cat.id);
+                  )}
+                </div>
+                <div className="category-card-info" onClick={() => setActiveMenu(null)}>
+                  <h3>{t(cat.name) || cat.name}</h3>
+                  <span>{t('Spending this month')}</span>
+                </div>
+                <div className="category-card-amount" onClick={() => setActiveMenu(null)}>
+                  <h4>{formatCurrency(cat.spent)}</h4>
+                  <div className="progress-container">
+                    <div
+                      className="progress-bar"
+                      style={{
+                        width: `${progress}%`,
+                        backgroundColor: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color
                       }}
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                    
-                    {activeMenu === cat.id && (
-                      <div className="dropdown-menu">
-                        <button 
-                          className="dropdown-item danger" 
-                          onClick={() => handleDelete(cat)}
-                        >
-                          <Trash2 size={14} /> {t('Delete category')}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="category-card-info" onClick={() => setActiveMenu(null)}>
-                    <h3>{t(cat.name) || cat.name}</h3>
-                    <span>{t('Spending this month')}</span>
-                  </div>
-                  <div className="category-card-amount" onClick={() => setActiveMenu(null)}>
-                    <h4>{formatCurrency(cat.spent)}</h4>
-                      <div className="progress-container">
-                        <div 
-                          className="progress-bar" 
-                          style={{ 
-                            width: `${progress}%`, 
-                            backgroundColor: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color 
-                          }}
-                        />
-                        <span className="progress-label" style={{ color: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color }}>{progress}%</span>
-                      </div>
+                    />
+                    <span className="progress-label" style={{ color: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color }}>{progress}%</span>
                   </div>
                 </div>
-              );
-            })}
-            <div className="category-card create-new" onClick={() => setIsModalOpen(true)}>
-              <Plus size={32} />
-              <span>{t('Create new')}</span>
-            </div>
+              </div>
+            );
+          })}
+          <div className="category-card create-new" onClick={() => setIsModalOpen(true)}>
+            <Plus size={32} />
+            <span>{t('Create new')}</span>
           </div>
+        </div>
 
-          {/* Budget Allocation Table */}
-          <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-            <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>{t('Budget Allocation Detail')}</h3>
-              <button className="btn-text-premium">
-                {t('View detailed report')} <Plus size={14} style={{ transform: 'rotate(45deg)' }} />
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>{t('CATEGORY')}</th>
-                    <th>{t('STATUS')}</th>
-                    <th>{t('MONTHLY BUDGET')}</th>
-                    <th>{t('SPENT')}</th>
-                    <th>{t('PROGRESS')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.length === 0 ? (
-                    <tr><td colSpan="5" style={{textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>{t('No categories created yet')}</td></tr>
-                  ) : (
-                    categories.map(cat => {
-                      const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
-                      const progress = calculateProgress(cat.spent, cat.budget);
-                      const isOverBudget = cat.spent > cat.budget;
-                      
-                      return (
-                        <tr key={cat.id}>
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <div style={{ 
-                                width: '36px', 
-                                height: '36px', 
-                                borderRadius: '10px', 
-                                backgroundColor: `${cat.color}15`, 
-                                color: cat.color,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}>
-                                <IconComp size={18} />
-                              </div>
-                              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ color: 'var(--text-main)', fontSize: '0.95rem' }}>{t(cat.name) || cat.name}</strong>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: #{cat.id}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <span className={`status-badge ${isOverBudget ? 'warning' : 'on-track'}`} style={{ padding: '0.4rem 0.8rem', borderRadius: '6px' }}>
-                              {isOverBudget ? t('Over budget') : t('On track')}
-                            </span>
-                          </td>
-                          <td>
-                            <div style={{ fontWeight: 600 }}>{formatCurrency(cat.budget)}</div>
-                          </td>
-                          <td>
-                            <div style={{ fontWeight: 600, color: isOverBudget ? 'var(--danger)' : 'inherit' }}>
-                              {formatCurrency(cat.spent)}
-                            </div>
-                          </td>
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
-                                <span style={{ color: cat.color }}>{progress}%</span>
-                                <span style={{ color: 'var(--text-muted)' }}>{formatCurrency(cat.budget - cat.spent)} {t('remaining')}</span>
-                              </div>
-                              <div className="mini-progress-container">
-                                <div 
-                                  className="mini-progress-bar" 
-                                  style={{ 
-                                    width: `${progress}%`, 
-                                    backgroundColor: progress > 90 ? 'var(--danger)' : progress > 70 ? '#f59e0b' : cat.color 
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+        {/* Budget Allocation Table */}
+        <div className="enterprise-table-card">
+          <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--ent-border)' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--ent-text-main)' }}>{t('Budget Allocation Detail')}</h3>
           </div>
-        <CategoryModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          refresh={fetchCategories}
-        />
+          <table className="enterprise-table">
+            <thead>
+              <tr>
+                <th>{t('CATEGORY')}</th>
+                <th>{t('STATUS')}</th>
+                <th>{t('MONTHLY BUDGET')}</th>
+                <th>{t('SPENT')}</th>
+                <th>{t('PROGRESS')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.length === 0 ? (
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--ent-text-muted)' }}>{t('No categories created yet')}</td></tr>
+              ) : (
+                categories.map(cat => {
+                  const IconComp = ICON_MAP[cat.icon] || LayoutGrid;
+                  const progress = calculateProgress(cat.spent, cat.budget);
+                  const isOverBudget = cat.spent > cat.budget;
 
-        <DeleteConfirmModal 
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={confirmDelete}
-          title={t('Delete category confirm', { name: categoryToDelete?.name })}
-          message={t('Delete message')}
-          loading={deleteLoading}
-        />
+                  return (
+                    <tr key={cat.id}>
+                      <td data-label={t('CATEGORY')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            backgroundColor: `${cat.color}15`,
+                            color: cat.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <IconComp size={18} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <strong style={{ color: 'var(--ent-text-main)', fontSize: '0.95rem' }}>{t(cat.name) || cat.name}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--ent-text-muted)' }}>ID: #{cat.id}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td data-label={t('STATUS')}>
+                        <span className={`enterprise-badge-category ${isOverBudget ? 'badge-an-uong' : 'badge-luong'}`} style={{ padding: '0.4rem 0.8rem', borderRadius: '6px' }}>
+                          {isOverBudget ? t('Over budget') : t('On track')}
+                        </span>
+                      </td>
+                      <td data-label={t('MONTHLY BUDGET')}>
+                        <div style={{ fontWeight: 600, color: 'var(--ent-text-main)' }}>{formatCurrency(cat.budget)}</div>
+                      </td>
+                      <td data-label={t('SPENT')}>
+                        <div style={{ fontWeight: 600, color: isOverBudget ? '#ef4444' : 'var(--ent-text-main)' }}>
+                          {formatCurrency(cat.spent)}
+                        </div>
+                      </td>
+                      <td data-label={t('PROGRESS')}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: '120px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                            <span style={{ color: cat.color }}>{progress}%</span>
+                            <span style={{ color: 'var(--ent-text-muted)' }}>{formatCurrency(cat.budget - cat.spent)} {t('remaining')}</span>
+                          </div>
+                          <div className="mini-progress-container" style={{ background: '#f1f5f9', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div
+                              className="mini-progress-bar"
+                              style={{
+                                height: '100%',
+                                width: `${progress}%`,
+                                backgroundColor: progress > 90 ? '#ef4444' : progress > 70 ? '#f59e0b' : cat.color
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <CategoryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        refresh={fetchCategories}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title={t('Delete category confirm', { name: categoryToDelete?.name })}
+        message={t('Delete message')}
+        loading={deleteLoading}
+      />
     </Layout>
   );
 }

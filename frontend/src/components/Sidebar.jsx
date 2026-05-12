@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   LayoutDashboard, 
   Receipt, 
@@ -6,7 +6,6 @@ import {
   BarChart2, 
   Settings, 
   LogOut, 
-  HelpCircle,
   Clock,
   X
 } from 'lucide-react';
@@ -37,7 +36,6 @@ export default function Sidebar({ onClose }) {
           toast.success(t("Logged out successfully") || "Đã đăng xuất thành công!");
         } catch (error) {
           console.error("Error logging out:", error);
-          // Still logout locally if API fails
           localStorage.removeItem('token');
           navigate('/login');
         }

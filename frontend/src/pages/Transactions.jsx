@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Download, Calendar, Filter, ArrowUpRight, ArrowDownRight, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Download, Calendar, Search, ArrowUpRight, ArrowDownRight, Edit2, Trash2, ListFilter, TrendingUp, Target, PieChart, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import Layout from '../components/Layout';
 import TransactionModal from '../components/TransactionModal';
-
 import { useToast } from '../context/ToastContext';
 
 export default function Transactions() {
@@ -22,6 +21,9 @@ export default function Transactions() {
   const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({ type: '', category: '', days: null });
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -53,12 +55,9 @@ export default function Transactions() {
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
-    
     if (name === 'amount') {
-      // Loại bỏ tất cả ký tự không phải số (ví dụ: dấu chấm, dấu phẩy, chữ cái)
       value = value.replace(/\D/g, '');
     }
-    
     setFormData({ ...formData, [name]: value });
   };
 
@@ -69,9 +68,9 @@ export default function Transactions() {
       if (filters.days) params.days = filters.days;
       if (filters.category) params.category = filters.category;
 
-      const response = await api.get('/transactions/export', { 
+      const response = await api.get('/transactions/export', {
         params,
-        responseType: 'blob' 
+        responseType: 'blob'
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -90,25 +89,52 @@ export default function Transactions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/transactions', {
+      const data = {
         ...formData,
         amount: parseFloat(formData.amount),
-        date: `${formData.date}T00:00:00`
-      });
-      setFormData({
-        title: '',
-        amount: '',
-        type: 'expense',
-        category: '',
-        date: new Date().toISOString().split('T')[0]
-      });
-      setIsModalOpen(false);
+        date: formData.date.includes('T') ? formData.date : `${formData.date}T00:00:00`
+      };
+
+      if (isEditing) {
+        await api.put(`/transactions/${editId}`, data);
+        toast.success(t("Transaction updated successfully") || "Đã cập nhật giao dịch thành công!");
+      } else {
+        await api.post('/transactions', data);
+        toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
+      }
+
+      handleCloseModal();
       fetchData();
-      toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
     } catch (error) {
       console.error("Error saving transaction:", error);
       toast.error(t("Error saving transaction") || "Lỗi khi lưu giao dịch.");
     }
+  };
+
+  const handleEdit = (item) => {
+    setFormData({
+      title: item.title,
+      amount: item.amount.toString(),
+      type: item.type,
+      category: item.category,
+      date: item.date.split('T')[0]
+    });
+    setEditId(item.id);
+    setIsEditing(true);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setEditId(null);
+    setFormData({
+      title: '',
+      amount: '',
+      type: 'expense',
+      category: '',
+      date: new Date().toISOString().split('T')[0]
+    });
   };
 
   const handleDelete = async (id) => {
@@ -128,7 +154,6 @@ export default function Transactions() {
     );
   };
 
-
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
   };
@@ -144,148 +169,194 @@ export default function Transactions() {
     return 'badge-default';
   };
 
-  const getSubTitle = (title) => {
-    if (title.toLowerCase().includes('aws')) return t('Monthly subscription');
-    if (title.toLowerCase().includes('thưởng')) return t('Performance bonus');
-    if (title.toLowerCase().includes('cà phê')) return t('Morning meeting');
-    return "";
+  const calculateMonthlyTotal = () => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    return transactions
+      .filter(t => {
+        const d = new Date(t.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      })
+      .reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc - curr.amount, 0);
   };
 
   return (
     <Layout>
-      <div className="page-header">
-            <div>
-              <h2 className="page-title">{t('Transactions')} {filters.category && ` - ${t(filters.category) || filters.category}`}</h2>
-              <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
-            </div>
-            <div className="page-actions">
-              <select 
-                className="btn-outline" 
-                value={filters.type} 
-                onChange={(e) => setFilters({...filters, type: e.target.value})}
-              >
-                <option value="">{t('All Types') || 'Tất cả loại'}</option>
-                <option value="income">{t('Income')}</option>
-                <option value="expense">{t('Expense')}</option>
-              </select>
+      <div className="enterprise-container">
+        <div className="enterprise-header">
+          <div className="enterprise-header-left">
+            <h1>{t('Transactions')}</h1>
+            <p>Xem và quản lý tất cả các hoạt động tài chính của bạn tại một nơi. Tối ưu hóa dòng tiền với công cụ quản lý chuyên nghiệp.</p>
+          </div>
+          <div className="enterprise-header-actions">
+            <button className="btn-enterprise-outline" onClick={handleExport}>
+              <Download size={18} /> {t('Download CSV')}
+            </button>
+            <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
+              <Plus size={18} /> {t('Add transaction')}
+            </button>
+          </div>
+        </div>
 
-              <select 
-                className="btn-outline" 
-                value={filters.days || ''} 
-                onChange={(e) => setFilters({...filters, days: e.target.value ? parseInt(e.target.value) : null})}
-                style={{ appearance: 'none', paddingRight: '2rem' }}
-              >
-                <option value="">{t('All Time')}</option>
-                <option value="7">{t('Last 7 Days')}</option>
-                <option value="30">{t('Last 30 Days')}</option>
-                <option value="90">{t('Last 90 Days')}</option>
-              </select>
-
-              <select 
-                className="btn-outline" 
-                value={filters.category} 
-                onChange={(e) => setFilters({...filters, category: e.target.value})}
-                style={{ appearance: 'none', paddingRight: '2rem' }}
-              >
-                <option value="">{t('All Categories')}</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.name}>{t(cat.name) || cat.name}</option>
-                ))}
-              </select>
-
-              <span style={{flex: 1}}></span>
-              <button className="btn-outline" onClick={handleExport}>
-                <Download size={16} /> {t('Download CSV')}
-              </button>
-              <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-                <Plus size={16} /> {t('Add transaction')}
-              </button>
-            </div>
+        <div className="enterprise-filter-bar">
+          <div className="enterprise-search-wrapper">
+            <Search className="enterprise-search-icon" size={18} />
+            <input
+              type="text"
+              placeholder={t('Search transactions...') || 'Tìm kiếm giao dịch...'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <div className="card table-card">
-            <table className="data-table">
-              <thead>
+          <select
+            className="enterprise-select"
+            value={filters.type}
+            onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+          >
+            <option value="">{t('All Types') || 'Tất cả loại'}</option>
+            <option value="income">{t('Income')}</option>
+            <option value="expense">{t('Expense')}</option>
+          </select>
+
+          <select
+            className="enterprise-select"
+            value={filters.days || ''}
+            onChange={(e) => setFilters({ ...filters, days: e.target.value ? parseInt(e.target.value) : null })}
+          >
+            <option value="">{t('All Time')}</option>
+            <option value="7">{t('Last 7 Days')}</option>
+            <option value="30">{t('Last 30 Days')}</option>
+            <option value="90">{t('Last 90 Days')}</option>
+          </select>
+
+          <select
+            className="enterprise-select"
+            value={filters.category}
+            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+          >
+            <option value="">{t('All Categories')}</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.name}>{t(cat.name) || cat.name}</option>
+            ))}
+          </select>
+
+          <button className="enterprise-filter-toggle">
+            <ListFilter size={18} />
+          </button>
+        </div>
+
+        <div className="enterprise-table-card">
+          <table className="enterprise-table">
+            <thead>
+              <tr>
+                <th>{t('DATE_CELL')}</th>
+                <th>{t('TITLE_CELL')}</th>
+                <th>{t('CATEGORY')}</th>
+                <th>{t('Type')}</th>
+                <th style={{ textAlign: 'right' }}>{t('AMOUNT')}</th>
+                <th style={{ textAlign: 'center' }}>{t('ACTION')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th>{t('DATE_CELL')}</th>
-                  <th>{t('TITLE_CELL')}</th>
-                  <th>{t('CATEGORY')}</th>
-                  <th>{t('Type')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('AMOUNT')}</th>
-                  <th style={{ textAlign: 'center' }}>{t('ACTION')}</th>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>
+                    <div className="loading-spinner"></div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>
-                      <div className="loading-spinner"></div>
-                      <p style={{ marginTop: '1rem', color: '#64748b' }}>{t('Loading transactions...') || "Đang tải giao dịch..."}</p>
-                    </td>
-                  </tr>
-                ) : transactions.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions yet')}</td>
-                  </tr>
-                ) : (
-                  transactions.map(item => (
+              ) : transactions.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions found')}</td>
+                </tr>
+              ) : (
+                transactions
+                  .filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(item => (
                     <tr key={item.id}>
-                      <td className="date-cell">
-                        {new Date(item.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      <td data-label={t('DATE_CELL')}>
+                        {new Date(item.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
-                      <td>
-                        <div className="title-cell">
-                          <strong>{item.title}</strong>
-                          <span>{getSubTitle(item.title) || (t(item.category) || item.category)}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`category-badge ${getCategoryBadgeClass(item.category)}`}>
+                      <td data-label={t('TITLE_CELL')} style={{ fontWeight: 600 }}>{item.title}</td>
+                      <td data-label={t('CATEGORY')}>
+                        <span className={`enterprise-badge-category ${getCategoryBadgeClass(item.category)}`}>
                           {t(item.category) || item.category}
                         </span>
                       </td>
-                      <td>
-                        <div className={`type-cell ${item.type}`}>
+                      <td data-label={t('Type')}>
+                        <div className="enterprise-type-label" style={{ color: item.type === 'income' ? '#10b981' : '#ef4444' }}>
                           {item.type === 'income' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                           {item.type === 'income' ? t('Income') : t('Expense')}
                         </div>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <span className={`amount ${item.type}`}>
-                          {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
-                        </span>
+                      <td data-label={t('AMOUNT')} style={{ textAlign: 'right' }} className={`enterprise-amount ${item.type}`}>
+                        {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
                       </td>
-                      <td>
-                        <div className="action-cells">
-                          <button className="action-icon" title={t('Edit')}><Edit2 size={16} /></button>
-                          <button className="action-icon danger" title={t('Logout')} onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
+                      <td data-label={t('ACTION')}>
+                        <div className="action-cells" style={{ justifyContent: 'center' }}>
+                          <button className="action-icon" onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
+                          <button className="action-icon danger" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
                         </div>
                       </td>
                     </tr>
                   ))
-                )}
-              </tbody>
-            </table>
-            
-            {transactions.length > 0 && (
-              <div className="pagination-footer">
-                <span>{t('Showing')} {transactions.length} {t('of')} {transactions.length} {t('transactions_count')}</span>
-                <div className="pagination-buttons">
-                  <button className="btn-page disabled">{t('Previous')}</button>
-                  <button className="btn-page active">{t('Next')}</button>
-                </div>
-              </div>
-            )}
+              )}
+            </tbody>
+          </table>
+
+          <div className="enterprise-table-footer">
+            <span>Hiển thị {transactions.length} trong số {transactions.length} giao dịch</span>
+            <div className="enterprise-pagination">
+              <button className="enterprise-pagination-btn">Trước</button>
+              <button className="enterprise-pagination-btn active">1</button>
+              <button className="enterprise-pagination-btn">Tiếp</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="enterprise-bottom-grid">
+          <div className="enterprise-summary-card primary">
+            <TrendingUp size={24} style={{ marginBottom: '1rem' }} />
+            <h3>Thống kê nhanh</h3>
+            <p>Tổng chi tiêu tháng này của bạn tăng 12% so với tháng trước.</p>
+            <div className="enterprise-balance-large">{formatCurrency(calculateMonthlyTotal())}</div>
           </div>
 
-        <TransactionModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)}
-          formData={formData}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          categories={categories}
-        />
+          <div className="enterprise-summary-card">
+            <Target size={24} color="#10b981" style={{ marginBottom: '1rem' }} />
+            <h3>Thu nhập dự kiến</h3>
+            <p>Dựa trên lịch sử, bạn có khả năng nhận được 50trđ vào tuần tới.</p>
+            <div className="enterprise-progress-container">
+              <div className="enterprise-progress-bar" style={{ width: '65%' }}></div>
+            </div>
+          </div>
+
+          <div className="enterprise-summary-card">
+            <PieChart size={24} color="#3b82f6" style={{ marginBottom: '1rem' }} />
+            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <p style={{ fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>Xem báo cáo chi tiết</p>
+              <a href="/reports" className="enterprise-report-link">
+                Đến trang Báo cáo <ChevronRight size={14} />
+              </a>
+            </div>
+            <div className="enterprise-fab" onClick={() => setIsModalOpen(true)}>
+              <Plus size={24} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <TransactionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+        categories={categories}
+        isEditing={isEditing}
+      />
     </Layout>
   );
 }
