@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8081/api'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
+
+console.log('🚀 API Base URL:', instance.defaults.baseURL);
 
 // Add a request interceptor
 instance.interceptors.request.use(
@@ -23,10 +25,14 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear storage and redirect to login if token is invalid/expired
+      // Clear storage
       localStorage.removeItem('token');
       localStorage.removeItem('username');
-      window.location.href = '/login';
+      
+      // Only redirect if we're not already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

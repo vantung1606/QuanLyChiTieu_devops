@@ -5,6 +5,7 @@ import com.example.demo.entity.Transaction;
 import com.example.demo.entity.User;
 import com.example.demo.repository.TransactionRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,8 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final CategoryRepository categoryRepository;
 
     private User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -67,7 +70,51 @@ public class TransactionService {
         User user = getCurrentUser();
         Transaction transaction = convertToEntity(dto);
         transaction.setUser(user);
-        return convertToDTO(transactionRepository.save(transaction));
+        Transaction saved = transactionRepository.save(transaction);
+        
+        // Cảnh báo hạn mức sau khi lưu
+        if ("expense".equalsIgnoreCase(saved.getType())) {
+            checkBudget(saved);
+        }
+        
+        return convertToDTO(saved);
+    }
+
+    private void checkBudget(Transaction transaction) {
+        User user = transaction.getUser();
+        categoryRepository.findByNameAndUser(transaction.getCategory(), user).ifPresent(category -> {
+            if (category.getBudget() > 0) {
+                java.time.LocalDateTime startOfMonth = java.time.LocalDateTime.now()
+                        .with(java.time.temporal.TemporalAdjusters.firstDayOfMonth())
+                        .withHour(0).withMinute(0).withSecond(0);
+                
+                double totalSpent = transactionRepository.findFilteredTransactions(
+                        user.getId(), "expense", category.getName(), startOfMonth)
+                        .stream()
+                        .mapToDouble(Transaction::getAmount)
+                        .sum();
+                
+                double budget = category.getBudget();
+                
+                if (totalSpent >= budget) {
+                    notificationService.createNotification(
+                        user,
+                        "BÁO ĐỘNG: Vượt hạn mức " + category.getName(),
+                        "Bạn đã chi tiêu " + String.format("%,.0f", totalSpent) + " VNĐ, chính thức VƯỢT hạn mức " + 
+                        String.format("%,.0f", budget) + " VNĐ.",
+                        "BUDGET_EXCEEDED"
+                    );
+                } else if (totalSpent >= budget * 0.8) {
+                    notificationService.createNotification(
+                        user,
+                        "CẢNH BÁO: Sắp hết hạn mức " + category.getName(),
+                        "Bạn đã chi tiêu " + String.format("%,.0f", totalSpent) + " VNĐ, chạm mốc 80% hạn mức (" + 
+                        String.format("%,.0f", budget) + " VNĐ). Hãy cân đối lại nhé!",
+                        "BUDGET_WARNING"
+                    );
+                }
+            }
+        });
     }
 
     public TransactionDTO updateTransaction(Long id, TransactionDTO dto) {

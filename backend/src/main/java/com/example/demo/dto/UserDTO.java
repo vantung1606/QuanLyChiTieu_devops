@@ -20,4 +20,5 @@ public class UserDTO {
     private Boolean twoFactor;
     private Boolean emailUpdates;
     private Boolean pushNotifs;
+    private String avatar;
 }

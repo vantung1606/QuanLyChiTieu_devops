@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   User, Shield, Sliders, Bell, Camera, ChevronRight, 
   Globe, Moon, DollarSign, Trash2, 
-  ShieldCheck, Lock, AlertCircle, CheckCircle2
+  ShieldCheck, Lock, AlertCircle, CheckCircle2, LogOut
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import api from '../api/axios';
@@ -24,7 +24,8 @@ export default function Settings() {
     darkMode: localStorage.getItem('darkMode') === 'true',
     twoFactor: false,
     emailUpdates: true,
-    pushNotifs: false
+    pushNotifs: false,
+    avatar: ''
   });
   const [passwords, setPasswords] = useState({
     current: '',
@@ -74,29 +75,75 @@ export default function Settings() {
     }
   };
 
-  useEffect(() => {
-    // Only apply if loading is false to avoid initial state overwrite
-    if (!loading) {
-      if (profile.darkMode) {
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      const response = await api.put('/users/profile', profile);
+      setProfile(response.data);
+      
+      // Apply theme change only on save
+      if (response.data.darkMode) {
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'true');
       } else {
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'false');
       }
-    }
-  }, [profile.darkMode, loading]);
-
-  const handleSaveProfile = async () => {
-    setSaving(true);
-    try {
-      const response = await api.put('/users/profile', profile);
-      setProfile(response.data);
+      
       toast.success('Cập nhật hồ sơ thành công!');
+      // Force refresh header if needed, or window reload for simplicity in syncing across components
+      window.location.reload(); 
     } catch (error) {
-      toast.error(error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const compressImage = (dataUrl, maxWidth = 150, maxHeight = 150) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality
+      };
+    });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // Increased limit for raw file but we will compress anyway
+        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 5MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result);
+        setProfile({ ...profile, avatar: compressed });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -117,7 +164,8 @@ export default function Settings() {
       setPasswords({ current: '', new: '', confirm: '' });
       setIsChangingPassword(false);
     } catch (error) {
-      toast.error(error.response?.data || 'Mật khẩu hiện tại không chính xác');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mật khẩu hiện tại không chính xác');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -150,7 +198,8 @@ export default function Settings() {
       setTwoFactorData(null);
       setOtpCode('');
     } catch (error) {
-      toast.error(error.response?.data || 'Mã OTP không đúng');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mã OTP không đúng');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -184,10 +233,17 @@ export default function Settings() {
             <div className="settings-header-cards">
               <div className="profile-main-card">
                 <div className="profile-avatar-wrapper">
-                  <img src={`https://ui-avatars.com/api/?name=${profile.fullName || profile.username}&background=006d5b&color=fff`} alt="Avatar" />
-                  <div className="avatar-edit-overlay">
+                  <img src={profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName || profile.username || 'User')}&background=006d5b&color=fff&size=256`} alt="Avatar" />
+                  <label htmlFor="avatar-upload" className="avatar-edit-overlay" style={{ cursor: 'pointer' }}>
                     <Camera size={14} />
-                  </div>
+                    <input 
+                      id="avatar-upload"
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleAvatarChange} 
+                      style={{ display: 'none' }}
+                    />
+                  </label>
                 </div>
                 <div className="profile-summary">
                   <h2>{String(profile.fullName || profile.username || 'Người dùng')}</h2>
@@ -462,10 +518,10 @@ export default function Settings() {
                             </div>
                             {!session.isCurrent && (
                               <button 
-                                className="btn-icon-text text-danger" 
-                                style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}
+                                className="btn-revoke" 
                                 onClick={() => handleRevokeSession(session.id)}
                               >
+                                <LogOut size={14} />
                                 Đăng xuất
                               </button>
                             )}

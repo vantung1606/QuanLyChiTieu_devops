@@ -249,7 +249,7 @@ function Dashboard() {
                   </div>
                   <div className="trans-details">
                     <h4>{t.title}</h4>
-                    <p>{t.category} • {new Date(t.date).toLocaleDateString('vi-VN')}</p>
+                    <p>{t.category} • {new Date(t.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                   </div>
                 </div>
                 <div className="trans-method">
@@ -289,12 +289,18 @@ function Dashboard() {
                   </select>
                 </div>
               </div>
-              <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
-                <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
-                  <option value="">Chọn danh mục</option>
-                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                </select>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
+                  <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
+                    <option value="">Chọn danh mục</option>
+                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>NGÀY GIAO DỊCH</label>
+                  <input type="date" name="date" value={formData.date} onChange={handleInputChange} style={{ padding: '0.625rem' }} />
+                </div>
               </div>
               <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', backgroundColor: '#0f172a' }}>
                 <Plus size={18} /> Lưu giao dịch

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bell, Calendar, Menu, Download } from 'lucide-react';
+import { Bell, Calendar, Menu, Download, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
+import NotificationBell from './NotificationBell';
 
 export default function Header({ onMenuClick }) {
   const { t } = useTranslation();
@@ -50,10 +51,7 @@ export default function Header({ onMenuClick }) {
           </div>
         )}
 
-        <button className="icon-btn" style={{ position: 'relative' }}>
-          <Bell size={20} color="#64748b" />
-          <div style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%', border: '2px solid #fff' }}></div>
-        </button>
+        <NotificationBell />
 
         {isReports && (
           <button className="ent-btn-export" style={{

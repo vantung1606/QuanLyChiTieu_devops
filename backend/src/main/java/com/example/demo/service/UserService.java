@@ -73,6 +73,7 @@ public class UserService {
                 .twoFactor(Boolean.TRUE.equals(user.getTwoFactor()))
                 .emailUpdates(Boolean.TRUE.equals(user.getEmailUpdates()))
                 .pushNotifs(Boolean.TRUE.equals(user.getPushNotifs()))
+                .avatar(user.getAvatar())
                 .build();
     }
 
@@ -91,6 +92,10 @@ public class UserService {
 
         if (dto.getLanguage() != null) {
             user.setLanguage(dto.getLanguage());
+        }
+
+        if (dto.getAvatar() != null) {
+            user.setAvatar(dto.getAvatar());
         }
 
         user.setDarkMode(Boolean.TRUE.equals(dto.getDarkMode()));
@@ -119,6 +124,7 @@ public class UserService {
                 .twoFactor(Boolean.TRUE.equals(updatedUser.getTwoFactor()))
                 .emailUpdates(Boolean.TRUE.equals(updatedUser.getEmailUpdates()))
                 .pushNotifs(Boolean.TRUE.equals(updatedUser.getPushNotifs()))
+                .avatar(updatedUser.getAvatar())
                 .build();
     }
 

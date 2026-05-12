@@ -89,7 +89,7 @@ export default function Sidebar({ onClose }) {
         </div>
         <button 
           onClick={handleLogoutClick} 
-          className="nav-item logout-btn" 
+          className="nav-item logout-btn logout-btn-sidebar" 
           style={{ 
             background: 'none', 
             border: 'none', 
@@ -97,7 +97,6 @@ export default function Sidebar({ onClose }) {
             textAlign: 'left',
             cursor: 'pointer',
             padding: '12px 16px',
-            color: 'inherit',
             font: 'inherit'
           }}
         >
