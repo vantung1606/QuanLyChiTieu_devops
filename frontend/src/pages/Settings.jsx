@@ -101,16 +101,47 @@ export default function Settings() {
     }
   };
 
+  const compressImage = (dataUrl, maxWidth = 150, maxHeight = 150) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality
+      };
+    });
+  };
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+      if (file.size > 5 * 1024 * 1024) { // Increased limit for raw file but we will compress anyway
+        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 5MB.");
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile({ ...profile, avatar: reader.result });
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result);
+        setProfile({ ...profile, avatar: compressed });
       };
       reader.readAsDataURL(file);
     }
