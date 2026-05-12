@@ -93,7 +93,8 @@ export default function Settings() {
       // Force refresh header if needed, or window reload for simplicity in syncing across components
       window.location.reload(); 
     } catch (error) {
-      toast.error(error.response?.data || 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -131,7 +132,8 @@ export default function Settings() {
       setPasswords({ current: '', new: '', confirm: '' });
       setIsChangingPassword(false);
     } catch (error) {
-      toast.error(error.response?.data || 'Mật khẩu hiện tại không chính xác');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mật khẩu hiện tại không chính xác');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -164,7 +166,8 @@ export default function Settings() {
       setTwoFactorData(null);
       setOtpCode('');
     } catch (error) {
-      toast.error(error.response?.data || 'Mã OTP không đúng');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mã OTP không đúng');
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }

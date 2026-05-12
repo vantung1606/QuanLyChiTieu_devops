@@ -49,6 +49,6 @@ public class User {
     @Builder.Default
     private Boolean pushNotifs = false;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String avatar;
 }
