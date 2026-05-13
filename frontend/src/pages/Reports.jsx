@@ -91,33 +91,23 @@ export default function Reports() {
         </div>
       ) : (
         <>
-          <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
-            <div>
-              <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>{t('Financial Report')}</h1>
-              <p style={{ color: 'var(--text-muted)' }}>{t('Detailed analysis of flow')}</p>
+          <div className="reports-header">
+            <div className="reports-title-section">
+              <h1>{t('Financial Report')}</h1>
+              <p>{t('Detailed analysis of flow')}</p>
             </div>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div className="date-picker-actual" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem', 
-                padding: '0.5rem 0.75rem', 
-                backgroundColor: 'var(--bg-card)', 
-                border: '1px solid var(--border)', 
-                borderRadius: '0.5rem'
-              }}>
+            <div className="reports-actions">
+              <div className="date-picker-actual">
                 <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
                 <select 
                   value={selectedMonth} 
                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                  style={{ border: 'none', background: 'none', color: 'var(--text-main)', fontWeight: 600, cursor: 'pointer' }}
                 >
                   {months.map(m => <option key={m} value={m}>Tháng {m}</option>)}
                 </select>
                 <select 
                   value={selectedYear} 
                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  style={{ border: 'none', background: 'none', color: 'var(--text-main)', fontWeight: 600, cursor: 'pointer' }}
                 >
                   {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
@@ -125,19 +115,6 @@ export default function Reports() {
               <button 
                 className="btn-export" 
                 onClick={handleExportPDF}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.75rem', 
-                  padding: '0.625rem 1.25rem', 
-                  backgroundColor: '#0f172a', 
-                  color: '#fff', 
-                  border: 'none', 
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
               >
                 <Download size={18} /> {t('Export PDF')}
               </button>
@@ -145,7 +122,7 @@ export default function Reports() {
           </div>
 
           {/* Stats Overview */}
-          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+          <div className="stats-grid">
             <StatCard label={t('Savings Rate')} value={(data?.savingsRate || 0) + "%"} change="+2.1%" color="#10b981" />
             <StatCard label={t('Top Spending Category')} value={t(data?.topSpendingCategory) || data?.topSpendingCategory || t('None')} subValue={(data?.topSpendingAmount || 0).toLocaleString() + " VNĐ"} icon={<ShoppingBag size={20} />} color="#ef4444" />
             <StatCard label={t('Net Cash Flow')} value={(data?.netCashFlow || 0).toLocaleString() + " VNĐ"} change="+4.2k" color="#3b82f6" />
@@ -153,8 +130,8 @@ export default function Reports() {
           </div>
 
           {/* Main Charts Area */}
-          <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
-            <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
+          <div className="dashboard-grid">
+            <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>{t('Income vs Expenses')}</h3>
@@ -181,14 +158,14 @@ export default function Reports() {
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--bg-card)', color: 'var(--text-main)' }}
                       cursor={{ fill: 'var(--bg-app)' }}
                     />
-                    <Bar dataKey="income" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
-                    <Bar dataKey="expenses" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={40} />
+                    <Bar dataKey="income" fill="#3b82f6" radius={[10, 10, 0, 0]} barSize={40} />
+                    <Bar dataKey="expenses" fill="#94a3b8" radius={[10, 10, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
+            <div className="card">
               <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>{t('Spending by Category')}</h3>
               <div style={{ height: '220px', minHeight: '220px', position: 'relative' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -200,6 +177,7 @@ export default function Reports() {
                       innerRadius={60}
                       outerRadius={80}
                       paddingAngle={5}
+                      cornerRadius={8}
                       dataKey="value"
                     >
                       {(data?.categoryBreakdown || []).map((entry, index) => (
@@ -236,7 +214,7 @@ export default function Reports() {
 
           {/* Bottom Area */}
           <div className="dashboard-grid">
-            <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
+            <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)' }}>{t('Top Outflows')}</h3>
                 <button style={{ fontSize: '0.875rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>{t('View All')}</button>
@@ -318,17 +296,11 @@ export default function Reports() {
 function StatCard({ label, value, subValue, change, badge, icon, color }) {
   const { t } = useTranslation();
   return (
-    <div className="stat-card" style={{ 
-      padding: '1.5rem', 
-      backgroundColor: 'var(--bg-card)', 
-      borderRadius: '1rem', 
-      border: '1px solid var(--border)',
-      boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
-    }}>
-      <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+    <div className="stat-card">
+      <div className="stat-card-label">{label}</div>
+      <div className="stat-card-main">
         {icon && <div style={{ color: color }}>{icon}</div>}
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>{value}</div>
+        <div className="stat-card-value">{value}</div>
         {change && (
           <div style={{ 
             display: 'flex', 
@@ -342,7 +314,7 @@ function StatCard({ label, value, subValue, change, badge, icon, color }) {
           </div>
         )}
       </div>
-      {subValue && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{subValue} {t('Spending this month')}</div>}
+      {subValue && <div className="stat-card-sub">{subValue} {t('Spending this month')}</div>}
       {badge && (
         <span style={{ 
           fontSize: '0.625rem', 
@@ -352,7 +324,9 @@ function StatCard({ label, value, subValue, change, badge, icon, color }) {
           color: 'var(--text-muted)', 
           borderRadius: '4px',
           textTransform: 'uppercase',
-          letterSpacing: '0.05em'
+          letterSpacing: '0.05em',
+          marginTop: '0.5rem',
+          display: 'inline-block'
         }}>{badge}</span>
       )}
     </div>

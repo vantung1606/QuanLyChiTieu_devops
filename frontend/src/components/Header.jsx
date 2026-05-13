@@ -34,40 +34,13 @@ export default function Header({ onMenuClick }) {
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {isReports ? t('Financial Report') : isDashboard ? t('Dashboard') : t('Finance Portal')}
           </h1>
-          {isReports && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{t('Detailed analysis of flow')}</p>}
         </div>
       </div>
 
-      <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        {isReports && (
-          <div className="ent-date-selectors" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-app)', borderRadius: '0.75rem', padding: '0.25rem 0.5rem' }}>
-            <select style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-main)' }}>
-              <option>{t('Last 30 Days')}</option>
-            </select>
-          </div>
-        )}
-
+      <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <NotificationBell />
 
-        {isReports && (
-          <button className="ent-btn-export" style={{
-            background: 'var(--text-main)',
-            color: 'var(--bg-main)',
-            border: 'none',
-            borderRadius: '0.75rem',
-            padding: '0.625rem 1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontWeight: 600,
-            fontSize: '0.8125rem',
-            cursor: 'pointer'
-          }}>
-            <Download size={16} /> {t('Export PDF')}
-          </button>
-        )}
-
-        <div className="header-user" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border)' }}>
+        <div className="header-user" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1rem', borderLeft: '1px solid var(--border)' }}>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-main)' }}>{user?.fullName || "hy"}</div>
             <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Financial Manager</div>

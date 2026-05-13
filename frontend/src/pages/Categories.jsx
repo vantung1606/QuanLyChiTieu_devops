@@ -177,9 +177,9 @@ export default function Categories() {
               </div>
             );
           })}
-          <div className="category-card create-new" onClick={() => setIsModalOpen(true)}>
-            <Plus size={32} />
-            <span>{t('Create new')}</span>
+          <div className="category-card create-new" onClick={() => setIsModalOpen(true)} style={{ minHeight: '140px' }}>
+            <Plus size={24} />
+            <span style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>{t('Create new')}</span>
           </div>
         </div>
 
@@ -210,7 +210,11 @@ export default function Categories() {
                   return (
                     <tr key={cat.id}>
                       <td data-label={t('CATEGORY')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-end' }}>
+                          <div className="cat-name-info" style={{ textAlign: 'right' }}>
+                            <div className="cat-primary-name" style={{ fontWeight: 800, color: 'var(--ent-text-main)', fontSize: '1rem' }}>{cat.name}</div>
+                            <div className="cat-secondary-id" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: #{cat.id}</div>
+                          </div>
                           <div style={{
                             width: '36px',
                             height: '36px',
@@ -219,13 +223,10 @@ export default function Categories() {
                             color: cat.color,
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            flexShrink: 0
                           }}>
                             <IconComp size={18} />
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <strong style={{ color: 'var(--ent-text-main)', fontSize: '0.95rem' }}>{t(cat.name) || cat.name}</strong>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--ent-text-muted)' }}>ID: #{cat.id}</span>
                           </div>
                         </div>
                       </td>
@@ -235,20 +236,20 @@ export default function Categories() {
                         </span>
                       </td>
                       <td data-label={t('MONTHLY BUDGET')}>
-                        <div style={{ fontWeight: 600, color: 'var(--ent-text-main)' }}>{formatCurrency(cat.budget)}</div>
+                        <strong style={{ color: 'var(--ent-text-main)', fontWeight: 700 }}>{formatCurrency(cat.budget)}</strong>
                       </td>
                       <td data-label={t('SPENT')}>
-                        <div style={{ fontWeight: 600, color: isOverBudget ? '#ef4444' : 'var(--ent-text-main)' }}>
+                        <strong style={{ fontWeight: 900, color: isOverBudget ? 'var(--danger)' : 'var(--ent-text-main)', fontSize: '1.1rem' }}>
                           {formatCurrency(cat.spent)}
-                        </div>
+                        </strong>
                       </td>
                       <td data-label={t('PROGRESS')}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: '120px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
-                            <span style={{ color: cat.color }}>{progress}%</span>
-                            <span style={{ color: 'var(--ent-text-muted)' }}>{formatCurrency(cat.budget - cat.spent)} {t('remaining')}</span>
+                            <span style={{ color: cat.color, fontWeight: 800 }}>{progress}%</span>
+                            <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{formatCurrency(cat.budget - cat.spent)} {t('remaining')}</span>
                           </div>
-                          <div className="mini-progress-container" style={{ background: '#f1f5f9', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div className="mini-progress-container" style={{ background: 'var(--bg-app)', height: '6px', borderRadius: '3px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                             <div
                               className="mini-progress-bar"
                               style={{
