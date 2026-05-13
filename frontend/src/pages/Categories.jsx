@@ -62,10 +62,10 @@ export default function Categories() {
       fetchCategories();
       setIsDeleteModalOpen(false);
       setCategoryToDelete(null);
-      toast.success(t('Category deleted') || "Đã xóa danh mục thành công!");
+      toast.success(t('Category deleted successfully'));
     } catch (error) {
       console.error("Error deleting category:", error);
-      toast.error(t('Error deleting category') || "Không thể xóa danh mục. Vui lòng thử lại!");
+      toast.error(t('Error deleting category'));
     } finally {
       setDeleteLoading(false);
     }
@@ -96,12 +96,12 @@ export default function Categories() {
       <div className="enterprise-container budgets-page-active">
         <div className="enterprise-header">
           <div className="enterprise-header-left">
-            <h1>{t('Danh mục')}</h1>
-            <p>{t('Quản lý và theo dõi chi tiêu của bạn theo từng lĩnh vực khác nhau. Tối ưu hóa ngân sách với công cụ quản lý chuyên nghiệp.')}</p>
+            <h1>{t('Categories')}</h1>
+            <p>{t('Manage categories')}</p>
           </div>
           <div className="enterprise-header-actions">
             <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
-              <Plus size={18} /> {t('Thêm danh mục mới')}
+              <Plus size={18} /> {t('Add category')}
             </button>
           </div>
         </div>

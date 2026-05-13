@@ -162,11 +162,11 @@ function Dashboard() {
         date: new Date().toISOString().split('T')[0]
       });
       fetchData();
-      toast.success("Đã thêm giao dịch thành công!");
+      toast.success(t("Transaction added successfully"));
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data?.errors 
         ? Object.values(error.response.data.errors).join(", ") 
-        : "Lỗi khi lưu giao dịch.";
+        : t("Error saving transaction");
       toast.error(errorMsg);
     }
   };

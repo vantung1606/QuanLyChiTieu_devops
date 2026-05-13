@@ -60,7 +60,7 @@ export default function Reports() {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success("Báo cáo đã được tải xuống thành công!");
+      toast.success(t('Download successful'));
     } catch (error) {
       console.error('Error exporting PDF:', error);
       toast.error("Không thể tải báo cáo. Vui lòng thử lại sau.");

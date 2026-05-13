@@ -35,7 +35,7 @@ export default function Recurring() {
     try {
       await api.post('/recurring/process');
       fetchRecurring();
-      toast.success("Đã kích hoạt xử lý thủ công thành công!");
+      toast.success(t('Manual processing activated'));
     } catch (error) {
       console.error("Error triggering processing:", error);
       toast.error("Không thể kích hoạt xử lý.");
@@ -50,7 +50,7 @@ export default function Recurring() {
         try {
           await api.delete(`/recurring/${id}`);
           fetchRecurring();
-          toast.success("Đã xóa giao dịch định kỳ.");
+          toast.success(t('Recurring transaction deleted'));
         } catch (error) {
           console.error("Error deleting recurring:", error);
           toast.error("Lỗi khi xóa giao dịch.");

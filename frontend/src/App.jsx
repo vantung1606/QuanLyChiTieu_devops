@@ -13,7 +13,12 @@ import Recurring from './pages/Recurring';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
+import { useTranslation } from 'react-i18next';
+
 function App() {
+  const [loading, setLoading] = React.useState(true);
+  const { t } = useTranslation();
+
   useEffect(() => {
     // Apply dark mode theme if enabled
     const isDark = localStorage.getItem('darkMode') === 'true';
@@ -22,7 +27,23 @@ function App() {
     } else {
       document.body.classList.remove('dark-mode');
     }
+
+    // Simulate initial loading for 1.5s
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="loading-overlay">
+        <div className="spinner"></div>
+        <div className="loading-text">{t('App Preparing')}</div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

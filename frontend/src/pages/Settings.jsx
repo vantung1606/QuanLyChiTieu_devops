@@ -69,9 +69,9 @@ export default function Settings() {
     try {
       await api.delete(`/sessions/${sessionId}`);
       setSessions(sessions.filter(s => s.id !== sessionId));
-      toast.success('Đã đăng xuất thiết bị thành công!');
+      toast.success(t('Logout successful'));
     } catch (error) {
-      toast.error('Không thể đăng xuất thiết bị này.');
+      toast.error(t('Error updating profile'));
     }
   };
 
@@ -90,11 +90,11 @@ export default function Settings() {
         localStorage.setItem('darkMode', 'false');
       }
       
-      toast.success('Cập nhật hồ sơ thành công!');
+      toast.success(t('Profile updated successfully'));
       // Force refresh header if needed, or window reload for simplicity in syncing across components
       window.location.reload(); 
     } catch (error) {
-      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Có lỗi xảy ra khi cập nhật hồ sơ');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : t('Error updating profile'));
       toast.error(errorMsg);
     } finally {
       setSaving(false);
@@ -135,7 +135,7 @@ export default function Settings() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // Increased limit for raw file but we will compress anyway
-        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 5MB.");
+        toast.error(t('Error updating profile'));
         return;
       }
       const reader = new FileReader();
@@ -160,11 +160,11 @@ export default function Settings() {
         currentPassword: passwords.current,
         newPassword: passwords.new
       });
-      toast.success('Đổi mật khẩu thành công!');
+      toast.success(t('Password changed successfully'));
       setPasswords({ current: '', new: '', confirm: '' });
       setIsChangingPassword(false);
     } catch (error) {
-      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mật khẩu hiện tại không chính xác');
+      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : t('Error updating profile'));
       toast.error(errorMsg);
     } finally {
       setSaving(false);
@@ -192,7 +192,7 @@ export default function Settings() {
     setSaving(true);
     try {
       await api.post('/users/2fa/confirm', { code: parseInt(otpCode) });
-      toast.success('Đã bật xác thực 2 lớp thành công!');
+      toast.success(t('Security'));
       setProfile({ ...profile, twoFactor: true });
       setIsSettingUp2FA(false);
       setTwoFactorData(null);
@@ -210,7 +210,7 @@ export default function Settings() {
     setSaving(true);
     try {
       await api.post('/users/2fa/disable');
-      toast.success('Đã tắt xác thực 2 lớp.');
+      toast.success(t('Security'));
       setProfile({ ...profile, twoFactor: false });
     } catch (error) {
       toast.error('Có lỗi xảy ra khi tắt 2FA.');
@@ -224,8 +224,8 @@ export default function Settings() {
       <div className="settings-container">
             <div className="page-header">
               <div>
-                <h2 className="page-title">Cài đặt</h2>
-                <p className="page-subtitle">Quản lý hồ sơ, bảo mật và tùy chọn ứng dụng của bạn.</p>
+                <h2 className="page-title">{t('Settings')}</h2>
+                <p className="page-subtitle">{t('View and manage all your financial activities')}</p>
               </div>
             </div>
 
@@ -276,28 +276,28 @@ export default function Settings() {
                   onClick={() => setActiveTab('profile')}
                 >
                   <User size={18} />
-                  Hồ sơ
+                  {t('Profile Settings')}
                 </div>
                 <div 
                   className={`settings-nav-item ${activeTab === 'security' ? 'active' : ''}`}
                   onClick={() => setActiveTab('security')}
                 >
                   <Shield size={18} />
-                  Bảo mật
+                  {t('Security')}
                 </div>
                 <div 
                   className={`settings-nav-item ${activeTab === 'preferences' ? 'active' : ''}`}
                   onClick={() => setActiveTab('preferences')}
                 >
                   <Sliders size={18} />
-                  Tùy chọn
+                  {t('Preferences')}
                 </div>
                 <div 
                   className={`settings-nav-item ${activeTab === 'notifications' ? 'active' : ''}`}
                   onClick={() => setActiveTab('notifications')}
                 >
                   <Bell size={18} />
-                  Thông báo
+                  {t('Notifications')}
                 </div>
               </div>
 
@@ -306,10 +306,10 @@ export default function Settings() {
                 {/* Tab Content Rendering */}
                 {activeTab === 'profile' && (
                   <div className="settings-section-card animate-in">
-                    <h3>Thông tin hồ sơ</h3>
+                    <h3>{t('Profile Settings')}</h3>
                     <div className="form-row">
                       <div className="form-group">
-                        <label>HỌ VÀ TÊN</label>
+                        <label>{t('Full Name')}</label>
                         <input 
                           type="text" 
                           value={profile.fullName || ''} 
@@ -317,7 +317,7 @@ export default function Settings() {
                         />
                       </div>
                       <div className="form-group">
-                        <label>ĐỊA CHỈ EMAIL</label>
+                        <label>{t('Email Address')}</label>
                         <input 
                           type="email" 
                           value={profile.email || ''} 
@@ -326,8 +326,8 @@ export default function Settings() {
                       </div>
                     </div>
                     <div className="form-group" style={{ marginTop: '1rem' }}>
-                      <label>TÊN ĐĂNG NHẬP (KHÔNG THỂ THAY ĐỔI)</label>
-                      <input type="text" value={profile.username || ''} disabled style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-muted)' }} />
+                      <label>{t('Username')}</label>
+                      <input type="text" value={profile.username || ''} disabled className="disabled-input" />
                     </div>
                   </div>
                 )}
@@ -461,15 +461,15 @@ export default function Settings() {
                                 <ShieldCheck size={48} strokeWidth={1.5} />
                               </div>
                               <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '0.5rem', fontWeight: 600 }}>
-                                {t('Xác thực qua Email')}
+                                {t('Email Verification')}
                               </p>
                               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                                {t('Một mã xác thực 6 chữ số đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến (hoặc thư rác) và nhập mã vào bên dưới để kích hoạt.')}
+                                {t('A 6-digit verification code has been sent to your email. Please check your inbox (or spam) and enter the code below to activate.')}
                               </p>
                             </div>
 
                             <div className="form-group">
-                              <label style={{ fontSize: '0.7rem' }}>{t('MÃ XÁC THỰC (6 CHỮ SỐ)')}</label>
+                              <label style={{ fontSize: '0.7rem' }}>{t('VERIFICATION CODE (6 DIGITS)')}</label>
                               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                                 <input 
                                   type="text" 
@@ -480,13 +480,13 @@ export default function Settings() {
                                   style={{ flex: 1, textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
                                 />
                                 <button className="btn-primary" onClick={handleConfirm2FA} disabled={saving}>
-                                  {t('Xác nhận')}
+                                  {t('Confirm')}
                                 </button>
                               </div>
                             </div>
 
                             <button className="btn-outline" onClick={() => { setIsSettingUp2FA(false); setTwoFactorData(null); }} style={{ width: '100%' }}>
-                              {t('Hủy thiết lập')}
+                              {t('Cancel Setup')}
                             </button>
                           </div>
                         )}
@@ -564,9 +564,9 @@ export default function Settings() {
 
                 {/* Footer Buttons */}
                 <div className="settings-footer">
-                  <button className="btn-outline" onClick={fetchProfile} disabled={saving}>Hủy thay đổi</button>
+                  <button className="btn-outline" onClick={fetchProfile} disabled={saving}>{t('Cancel')}</button>
                   <button className="btn-primary" onClick={handleSaveProfile} disabled={saving}>
-                    {saving ? 'Đang lưu...' : 'Lưu tất cả'}
+                    {saving ? t('Processing...') : t('Save Changes')}
                   </button>
                 </div>
 

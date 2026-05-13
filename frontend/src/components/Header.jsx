@@ -25,28 +25,24 @@ export default function Header({ onMenuClick }) {
   }, []);
 
   return (
-    <div className="top-header" style={{ height: '70px', padding: '0 2rem' }}>
+    <div className="top-header" style={{ height: '70px', padding: '0 2rem', borderBottom: '1px solid var(--border)' }}>
       <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button className="icon-btn menu-toggle" onClick={onMenuClick}>
           <Menu size={24} />
         </button>
         <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
-            {isReports ? t('Báo cáo tài chính') : isDashboard ? t('Tổng quan tài chính') : t('Quản lý chi tiêu')}
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            {isReports ? t('Financial Report') : isDashboard ? t('Dashboard') : t('Finance Portal')}
           </h1>
-          {isReports && <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>Phân tích chi chi tiết về dòng tiền của bạn.</p>}
+          {isReports && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{t('Detailed analysis of flow')}</p>}
         </div>
       </div>
 
       <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         {isReports && (
-          <div className="ent-date-selectors" style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '0.75rem', padding: '0.25rem 0.5rem' }}>
-            <select style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: '0.8125rem' }}>
-              <option>Tháng 5</option>
-            </select>
-            <div style={{ width: '1px', height: '16px', background: '#cbd5e1', margin: '0 0.5rem' }}></div>
-            <select style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: '0.8125rem' }}>
-              <option>2026</option>
+          <div className="ent-date-selectors" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-app)', borderRadius: '0.75rem', padding: '0.25rem 0.5rem' }}>
+            <select style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-main)' }}>
+              <option>{t('Last 30 Days')}</option>
             </select>
           </div>
         )}
@@ -55,8 +51,8 @@ export default function Header({ onMenuClick }) {
 
         {isReports && (
           <button className="ent-btn-export" style={{
-            background: '#0f172a',
-            color: '#fff',
+            background: 'var(--text-main)',
+            color: 'var(--bg-main)',
             border: 'none',
             borderRadius: '0.75rem',
             padding: '0.625rem 1.25rem',
@@ -67,16 +63,16 @@ export default function Header({ onMenuClick }) {
             fontSize: '0.8125rem',
             cursor: 'pointer'
           }}>
-            <Download size={16} /> {t('Xuất PDF')}
+            <Download size={16} /> {t('Export PDF')}
           </button>
         )}
 
-        <div className="header-user" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid #e2e8f0' }}>
+        <div className="header-user" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border)' }}>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>{user?.fullName || "hy"}</div>
-            <div style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>Financial Manager</div>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-main)' }}>{user?.fullName || "hy"}</div>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Financial Manager</div>
           </div>
-          <div className="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <div className="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <img src={user?.avatar || "https://i.pravatar.cc/150?u=hy"} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>

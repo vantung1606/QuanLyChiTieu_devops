@@ -69,7 +69,7 @@ export default function CategoryModal({ isOpen, onClose, refresh }) {
       setBudget('');
       refresh();
       onClose();
-      toast.success(t('Category added') || "Đã thêm danh mục thành công!");
+      toast.success(t('Category created successfully'));
     } catch (error) {
       console.error("Error creating category:", error);
       toast.error(error.response?.data?.message || t('Error creating category'));

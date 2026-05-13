@@ -97,17 +97,16 @@ export default function Transactions() {
 
       if (isEditing) {
         await api.put(`/transactions/${editId}`, data);
-        toast.success(t("Transaction updated successfully") || "Đã cập nhật giao dịch thành công!");
+        toast.success(t("Transaction updated successfully"));
       } else {
         await api.post('/transactions', data);
-        toast.success(t("Transaction added successfully") || "Đã thêm giao dịch thành công!");
+        toast.success(t("Transaction added successfully"));
       }
-
       handleCloseModal();
       fetchData();
     } catch (error) {
       console.error("Error saving transaction:", error);
-      toast.error(t("Error saving transaction") || "Lỗi khi lưu giao dịch.");
+      toast.error(t("Error saving transaction"));
     }
   };
 
@@ -140,15 +139,15 @@ export default function Transactions() {
   const handleDelete = async (id) => {
     toast.confirm(
       t('Delete confirmation') || "Xác nhận xóa",
-      t('Are you sure delete transaction') || "Bạn có chắc chắn muốn xóa giao dịch này?",
+      t('Are you sure delete transaction'),
       async () => {
         try {
           await api.delete(`/transactions/${id}`);
           fetchData();
-          toast.success(t("Transaction deleted") || "Đã xóa giao dịch.");
+          toast.success(t("Transaction deleted successfully"));
         } catch (error) {
           console.error("Error deleting transaction:", error);
-          toast.error(t("Error deleting transaction") || "Lỗi khi xóa giao dịch.");
+          toast.error(t("Error deleting transaction"));
         }
       }
     );

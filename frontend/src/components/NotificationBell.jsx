@@ -245,6 +245,23 @@ const NotificationBell = () => {
           color: var(--text-muted);
           font-size: 13px;
         }
+
+        @media (max-width: 480px) {
+          .notification-dropdown {
+            position: fixed;
+            top: 75px;
+            left: 20px;
+            right: 20px;
+            width: auto;
+            margin-top: 0;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+          }
+          
+          .notification-list {
+            max-height: 50vh;
+          }
+        }
       `}</style>
     </div>
   );

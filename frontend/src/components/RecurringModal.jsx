@@ -66,7 +66,7 @@ export default function RecurringModal({ isOpen, onClose, refresh }) {
         startDate: new Date().toISOString().split('T')[0],
         endDate: ''
       });
-      toast.success("Đã tạo giao dịch định kỳ thành công!");
+      toast.success(t('Recurring transaction created'));
     } catch (error) {
       console.error("Error creating recurring transaction:", error);
       toast.error("Có lỗi xảy ra khi tạo giao dịch định kỳ.");
