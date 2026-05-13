@@ -1357,6 +1357,7 @@ select.btn-outline {
 .action-cells {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 0.75rem;
 }
 
@@ -4213,7 +4214,8 @@ select.btn-outline {
 
   /* Stat Cards */
   .stats-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.5rem !important;
   }
 
   /* Premium Cards */
@@ -4330,13 +4332,23 @@ select.btn-outline {
     top: 50% !important;
     left: 0 !important;
     transform: translateY(-50%) !important;
-    width: 90px !important; /* Reduced to match padding */
+    width: 90px !important;
     content: attr(data-label);
     font-weight: 700 !important;
     color: var(--text-muted) !important;
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
     text-align: left !important;
+  }
+
+  .action-cells {
+    justify-content: flex-end !important;
+    gap: 1rem !important;
+  }
+
+  .enterprise-type-label {
+    justify-content: flex-end !important;
+    width: 100% !important;
   }
 
   /* Target the content part of the td */
@@ -4360,7 +4372,31 @@ select.btn-outline {
   }
 
   .enterprise-bottom-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .enterprise-summary-card {
+    padding: 1rem !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .enterprise-summary-card h3 {
+    font-size: 0.65rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .enterprise-summary-card .enterprise-balance-large {
+    font-size: 0.9rem !important;
+    word-break: break-word !important;
+  }
+
+  .enterprise-summary-card svg {
+    width: 20px !important;
+    height: 20px !important;
+    margin-bottom: 0.5rem !important;
   }
 
   /* Modals */
@@ -4379,10 +4415,26 @@ select.btn-outline {
   }
 
   .settings-nav {
+    display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     overflow-x: auto !important;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem !important;
+  }
+
+  .settings-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-nav-item {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.85rem !important;
+    gap: 0.5rem !important;
   }
 
   .profile-grid {
@@ -4626,20 +4678,41 @@ select.btn-outline {
   }
   
   .stats-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1rem !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.5rem !important;
   }
 
   .stat-card {
     min-height: auto !important;
-    padding: 1rem !important;
+    padding: 0.75rem 0.5rem !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
   }
 
-  .stat-card-main {
-    flex-wrap: wrap; /* Allow wrapping if content is too long */
+  .stat-card-label {
+    font-size: 0.6rem !important;
+    margin-bottom: 0 !important;
   }
 
   .stat-card-value {
-    font-size: 1.25rem !important;
+    font-size: 0.85rem !important;
+    word-break: break-all !important;
+  }
+
+  .stat-card-sub, .stat-card span {
+    display: none !important; /* Hide subtext and badges on 4-col mobile */
+  }
+
+  .stat-card-main {
+    justify-content: center !important;
+    gap: 0.25rem !important;
+  }
+
+  .stat-card-main svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 }

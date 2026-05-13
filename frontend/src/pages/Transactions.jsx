@@ -294,7 +294,7 @@ export default function Transactions() {
                         {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
                       </td>
                       <td data-label={t('ACTION')}>
-                        <div className="action-cells" style={{ justifyContent: 'center' }}>
+                        <div className="action-cells">
                           <button className="action-icon" onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
                           <button className="action-icon danger" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
                         </div>
