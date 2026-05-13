@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
+  const { t } = useTranslation();
   const [toasts, setToasts] = useState([]);
   const [confirm, setConfirm] = useState(null);
 
@@ -63,8 +65,8 @@ export const ToastProvider = ({ children }) => {
               <p>{confirm.message}</p>
             </div>
             <div className="modal-footer" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button className="btn-outline" onClick={closeConfirm}>Hủy</button>
-              <button className="btn-primary" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={handleConfirm}>Xác nhận</button>
+              <button className="btn-outline" onClick={closeConfirm}>{t('Cancel') || 'Hủy'}</button>
+              <button className="btn-primary" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={handleConfirm}>{t('Confirm') || 'Xác nhận'}</button>
             </div>
           </div>
         </div>

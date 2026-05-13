@@ -26,7 +26,7 @@ export default function Sidebar({ onClose }) {
 
   const handleLogoutClick = () => {
     toast.confirm(
-      t("Logout confirmation") || "Xác nhận đăng xuất",
+      t("Confirm Logout") || "Xác nhận đăng xuất",
       t("Are you sure you want to logout?") || "Bạn có chắc chắn muốn đăng xuất không?",
       async () => {
         try {
