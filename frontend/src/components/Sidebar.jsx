@@ -30,7 +30,7 @@ export default function Sidebar({ onClose }) {
       t("Are you sure you want to logout?") || "Bạn có chắc chắn muốn đăng xuất không?",
       async () => {
         try {
-          await api.post('/users/logout');
+          await api.post('/auth/logout');
           localStorage.removeItem('token');
           navigate('/login');
           toast.success(t("Logged out successfully") || "Đã đăng xuất thành công!");
