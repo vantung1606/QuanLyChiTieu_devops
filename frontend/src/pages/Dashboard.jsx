@@ -402,7 +402,12 @@ function Dashboard() {
             )}
           </div>
           <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-            <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>Xem tất cả lịch sử giao dịch</button>
+            <button 
+              onClick={() => navigate('/transactions')}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}
+            >
+              Xem tất cả lịch sử giao dịch
+            </button>
           </div>
         </div>
 
@@ -516,16 +521,20 @@ function Dashboard() {
 
               <div className="projection-box">
                 <div className="projection-label">DỰ BÁO CUỐI THÁNG</div>
-                <div className="projection-value">Dự kiến chi tiêu: {formatCurrency(52400000)}</div>
+                <div className="projection-value">
+                  Dự kiến chi tiêu: {formatCurrency(
+                    budgetSummary.totalSpent > 0 
+                    ? (budgetSummary.totalSpent / new Date().getDate()) * new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
+                    : 0
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <button className="fab">
-        <Plus size={24} />
-      </button>
+
     </Layout>
   );
 }
