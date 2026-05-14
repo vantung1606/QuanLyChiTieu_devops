@@ -3,6 +3,7 @@ import axios from '../api/axios';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 const NotificationBell = () => {
