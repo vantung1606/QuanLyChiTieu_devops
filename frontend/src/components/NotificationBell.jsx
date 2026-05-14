@@ -86,7 +86,7 @@ const NotificationBell = () => {
   return (
     <div className="notification-bell-container" ref={dropdownRef}>
       <button className="notification-icon" onClick={() => setIsOpen(!isOpen)}>
-        <IoNotificationsOutline size={24} />
+        <IoNotificationsOutline size={28} />
         {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
       </button>
 
@@ -146,8 +146,8 @@ const NotificationBell = () => {
         }
         .notification-badge {
           position: absolute;
-          top: 4px;
-          right: 4px;
+          top: 2px;
+          right: 2px;
           background: #ef4444;
           color: white;
           border-radius: 50%;
