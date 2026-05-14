@@ -81,7 +81,7 @@ function Dashboard() {
         api.get('/reports/financial-performance')
       ]);
       
-      setTransactions(transRes.data.slice(0, 5));
+      setTransactions(transRes.data.content.slice(0, 5));
       setSummary(summaryRes.data);
       setCategories(catRes.data);
       setReport(reportRes.data);
@@ -149,7 +149,7 @@ function Dashboard() {
         days: filters.days
       };
       const res = await api.get('/transactions', { params });
-      setTransactions(res.data.slice(0, 10)); // Show more if searching/filtering
+      setTransactions(res.data.content.slice(0, 10)); // Show more if searching/filtering
     } catch (error) {
       console.error("Error fetching transactions:", error);
     } finally {

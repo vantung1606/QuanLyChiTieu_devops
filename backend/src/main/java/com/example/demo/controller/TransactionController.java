@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PaginatedResponse;
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,14 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<TransactionDTO>> getAllTransactions(
+    public ResponseEntity<PaginatedResponse<TransactionDTO>> getAllTransactions(
             @RequestParam(required = false) String type, 
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Integer days,
-            @RequestParam(required = false) String keyword) {
-        return ResponseEntity.ok(transactionService.getFilteredTransactions(type, category, days, keyword));
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "7") int size) {
+        return ResponseEntity.ok(transactionService.getFilteredTransactions(type, category, days, keyword, page, size));
     }
 
     @PostMapping("/transactions")

@@ -12,6 +12,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.PaginatedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +46,13 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
-        return getFilteredTransactions(null, null, null, null);
+        return getFilteredTransactionsList(null, null, null, null).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<TransactionDTO> getFilteredTransactions(String type, String category, Integer days, String keyword) {
+    private List<Transaction> getFilteredTransactionsList(String type, String category, Integer days, String keyword) {
         User user = getCurrentUser();
-        List<Transaction> transactions;
         
         LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
 
@@ -54,10 +60,36 @@ public class TransactionService {
         String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
         String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
 
-        return transactionRepository.findFilteredTransactionsWithKeyword((Long) user.getId(), (String) cleanType, (String) cleanCategory, (java.time.LocalDateTime) startDate, (String) cleanKeyword)
-                .stream()
+        return transactionRepository.findFilteredTransactionsWithKeyword(
+                user.getId(), cleanType, cleanCategory, startDate, cleanKeyword, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
+    }
+
+    public PaginatedResponse<TransactionDTO> getFilteredTransactions(String type, String category, Integer days, String keyword, int page, int size) {
+        User user = getCurrentUser();
+        
+        LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
+
+        String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
+        String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
+        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        Pageable pageable = PageRequest.of(page, size);
+        
+        Page<Transaction> transactionPage = transactionRepository.findFilteredTransactionsWithKeyword(
+                user.getId(), cleanType, cleanCategory, startDate, cleanKeyword, pageable);
+
+        List<TransactionDTO> content = transactionPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        return PaginatedResponse.<TransactionDTO>builder()
+                .content(content)
+                .pageNo(transactionPage.getNumber())
+                .pageSize(transactionPage.getSize())
+                .totalElements(transactionPage.getTotalElements())
+                .totalPages(transactionPage.getTotalPages())
+                .last(transactionPage.isLast())
+                .build();
     }
 
     public List<TransactionDTO> searchTransactions(String query) {
@@ -150,7 +182,9 @@ public class TransactionService {
     }
 
     public String exportTransactionsToCsv(String type, String category, Integer days) {
-        List<TransactionDTO> transactions = getFilteredTransactions(type, category, days, null);
+        List<TransactionDTO> transactions = getFilteredTransactionsList(type, category, days, null).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
         StringBuilder csv = new StringBuilder();
         csv.append("Date,Title,Category,Type,Amount\n");
         for (TransactionDTO t : transactions) {

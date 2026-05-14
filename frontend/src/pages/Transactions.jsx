@@ -24,12 +24,21 @@ export default function Transactions() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 7;
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchData();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
+  }, [filters, searchTerm, page]);
+
+  // Reset page when filters or search change
+  useEffect(() => {
+    setPage(0);
   }, [filters, searchTerm]);
 
   const fetchData = async () => {
@@ -42,12 +51,16 @@ export default function Transactions() {
       if (filters.days) params.days = filters.days;
       if (filters.category) params.category = filters.category;
       if (searchTerm) params.keyword = searchTerm;
+      params.page = page;
+      params.size = pageSize;
 
       const [transRes, catRes] = await Promise.all([
         api.get('/transactions', { params }),
         api.get('/categories')
       ]);
-      setTransactions(transRes.data);
+      setTransactions(transRes.data.content);
+      setTotalPages(transRes.data.totalPages);
+      setTotalElements(transRes.data.totalElements);
       setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -319,11 +332,33 @@ export default function Transactions() {
           </table>
 
           <div className="enterprise-table-footer">
-            <span>{t('Showing')} {transactions.length} {t('of')} {transactions.length} {t('transactions_count')}</span>
+            <span>{t('Showing')} {transactions.length} {t('of')} {totalElements} {t('transactions_count')}</span>
             <div className="enterprise-pagination">
-              <button className="enterprise-pagination-btn">{t('Previous')}</button>
-              <button className="enterprise-pagination-btn active">1</button>
-              <button className="enterprise-pagination-btn">{t('Next')}</button>
+              <button 
+                className="enterprise-pagination-btn" 
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+              >
+                {t('Previous')}
+              </button>
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <button 
+                  key={i} 
+                  className={`enterprise-pagination-btn ${page === i ? 'active' : ''}`}
+                  onClick={() => setPage(i)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button 
+                className="enterprise-pagination-btn"
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage(page + 1)}
+              >
+                {t('Next')}
+              </button>
             </div>
           </div>
         </div>
