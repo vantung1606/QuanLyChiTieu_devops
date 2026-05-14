@@ -246,8 +246,8 @@ export default function Settings() {
                   </label>
                 </div>
                 <div className="profile-summary">
-                  <h2>{String(profile.fullName || profile.username || 'Người dùng')}</h2>
-                  <p>{String(profile.email || 'Chưa cập nhật email')}</p>
+                  <h2>{String(profile.fullName || profile.username || t('User'))}</h2>
+                  <p>{String(profile.email || t('Email Not Updated'))}</p>
                   <div className="profile-badges">
                     <span className="badge-outline premium">Premium Member</span>
                     <span className="badge-outline">@{String(profile.username || 'username')}</span>
@@ -260,9 +260,9 @@ export default function Settings() {
                   <ShieldCheck size={20} className="text-success" />
                   <span className="security-label">Security Score: 92%</span>
                 </div>
-                <h3 className="security-title">Shield Protected</h3>
+                <h3 className="security-title">{t('Shield Protected') || 'Shield Protected'}</h3>
                 <p className="security-desc">
-                  Tài khoản của bạn được bảo mật bằng 2FA và các khóa phần cứng để có độ an toàn tối đa.
+                  {t('Security Desc')}
                 </p>
               </div>
             </div>
@@ -373,10 +373,10 @@ export default function Settings() {
                       <div className="pref-item">
                         <div className="pref-header">
                           <Moon size={16} className="text-muted" />
-                          <span className="pref-label">GIAO DIỆN</span>
+                          <span className="pref-label">{t('INTERFACE')}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Chế độ tối</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t('Dark Mode')}</span>
                           <label className="switch">
                             <input 
                               type="checkbox" 
@@ -394,14 +394,14 @@ export default function Settings() {
                 {activeTab === 'security' && (
                   <div className="settings-section-card animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                      <h3 style={{ margin: 0 }}>Bảo mật</h3>
-                      <span className="badge-outline success" style={{ fontSize: '0.7rem' }}>Tài khoản an toàn</span>
+                      <h3 style={{ margin: 0 }}>{t('Security')}</h3>
+                      <span className="badge-outline success" style={{ fontSize: '0.7rem' }}>{t('Secure Account')}</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div className="security-item" onClick={() => setIsChangingPassword(!isChangingPassword)} style={{ cursor: 'pointer' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <Lock size={16} className="text-muted" />
-                          <span className="sec-label">Đổi mật khẩu</span>
+                          <span className="sec-label">{t('Change Password')}</span>
                         </div>
                         <ChevronRight size={18} className={`text-muted transition-all ${isChangingPassword ? 'rotate-90' : ''}`} />
                       </div>
@@ -409,7 +409,7 @@ export default function Settings() {
                       {isChangingPassword && (
                         <form onSubmit={handleChangePassword} style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
                           <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>MẬT KHẨU HIỆN TẠI</label>
+                            <label style={{ fontSize: '0.7rem' }}>{t('CURRENT PASSWORD')}</label>
                             <input 
                               type="password" 
                               required
@@ -418,7 +418,7 @@ export default function Settings() {
                             />
                           </div>
                           <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>MẬT KHẨU MỚI</label>
+                            <label style={{ fontSize: '0.7rem' }}>{t('NEW PASSWORD')}</label>
                             <input 
                               type="password" 
                               required
@@ -427,7 +427,7 @@ export default function Settings() {
                             />
                           </div>
                           <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>XÁC NHẬN MẬT KHẨU MỚI</label>
+                            <label style={{ fontSize: '0.7rem' }}>{t('CONFIRM NEW PASSWORD')}</label>
                             <input 
                               type="password" 
                               required
@@ -436,7 +436,7 @@ export default function Settings() {
                             />
                           </div>
                           <button type="submit" className="btn-primary" disabled={saving} style={{ marginTop: '0.5rem' }}>
-                            {saving ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                            {saving ? t('Updating...') : t('Update Password')}
                           </button>
                         </form>
                       )}
@@ -445,12 +445,12 @@ export default function Settings() {
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <ShieldCheck size={16} className="text-muted" />
-                            <span className="sec-label">Xác thực 2 lớp (2FA)</span>
+                            <span className="sec-label">{t('2FA')}</span>
                           </div>
                           {profile.twoFactor ? (
-                            <button className="badge-outline success" onClick={handleDisable2FA} disabled={saving} style={{ cursor: 'pointer' }}>Đã bật - Tắt</button>
+                            <button className="badge-outline success" onClick={handleDisable2FA} disabled={saving} style={{ cursor: 'pointer' }}>{t('Enabled - Disable')}</button>
                           ) : (
-                            <button className="badge-outline danger" onClick={handleSetup2FA} disabled={saving} style={{ cursor: 'pointer' }}>Chưa bật - Thiết lập</button>
+                            <button className="badge-outline danger" onClick={handleSetup2FA} disabled={saving} style={{ cursor: 'pointer' }}>{t('Disabled - Setup')}</button>
                           )}
                         </div>
 
@@ -496,7 +496,7 @@ export default function Settings() {
                     <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                         <Sliders size={16} className="text-muted" />
-                        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>Thiết bị đã đăng nhập</h4>
+                        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>{t('Logged-in Devices')}</h4>
                       </div>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -508,8 +508,8 @@ export default function Settings() {
                               </div>
                               <div>
                                 <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                  {session.userAgent.includes('Windows') ? 'Windows PC' : session.userAgent.includes('Mac') ? 'MacBook' : 'Thiết bị lạ'}
-                                  {session.isCurrent && <span className="badge-outline success" style={{ fontSize: '0.65rem', padding: '0 0.4rem' }}>Hiện tại</span>}
+                                  {session.userAgent.includes('Windows') ? 'Windows PC' : session.userAgent.includes('Mac') ? 'MacBook' : t('Unknown Device')}
+                                  {session.isCurrent && <span className="badge-outline success" style={{ fontSize: '0.65rem', padding: '0 0.4rem' }}>{t('Current')}</span>}
                                 </div>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                   {session.ipAddress} • {new Date(session.lastActive).toLocaleString('vi-VN')}
@@ -522,7 +522,7 @@ export default function Settings() {
                                 onClick={() => handleRevokeSession(session.id)}
                               >
                                 <LogOut size={14} />
-                                Đăng xuất
+                                {t('Logout')}
                               </button>
                             )}
                           </div>
@@ -534,10 +534,10 @@ export default function Settings() {
 
                 {activeTab === 'notifications' && (
                   <div className="settings-section-card animate-in">
-                    <h3>Thông báo</h3>
+                    <h3>{t('Notifications')}</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div className="security-item">
-                        <span className="sec-label">Cập nhật qua Email</span>
+                        <span className="sec-label">{t('Email Updates')}</span>
                         <label className="switch">
                           <input 
                             type="checkbox" 
@@ -548,7 +548,7 @@ export default function Settings() {
                         </label>
                       </div>
                       <div className="security-item">
-                        <span className="sec-label">Thông báo Push</span>
+                        <span className="sec-label">{t('Push Notifications')}</span>
                         <label className="switch">
                           <input 
                             type="checkbox" 
@@ -574,10 +574,10 @@ export default function Settings() {
                 {activeTab === 'profile' && (
                   <div className="danger-zone animate-in">
                     <div className="danger-info">
-                      <h4>Vô hiệu hóa tài khoản</h4>
-                      <p>Xóa vĩnh viễn dữ liệu và quyền truy cập vào tất cả các bản ghi tài chính của bạn.</p>
+                      <h4>{t('Disable Account')}</h4>
+                      <p>{t('Delete Account Desc')}</p>
                     </div>
-                    <button className="btn-danger">Xóa tài khoản</button>
+                    <button className="btn-danger">{t('Delete Account')}</button>
                   </div>
                 )}
               </div>

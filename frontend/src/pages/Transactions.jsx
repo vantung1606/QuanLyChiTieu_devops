@@ -191,7 +191,7 @@ export default function Transactions() {
         <div className="enterprise-header">
           <div className="enterprise-header-left">
             <h1>{t('Transactions')}</h1>
-            <p>Xem và quản lý tất cả các hoạt động tài chính của bạn tại một nơi. Tối ưu hóa dòng tiền với công cụ quản lý chuyên nghiệp.</p>
+            <p>{t('Manage Transactions Desc')}</p>
           </div>
           <div className="enterprise-header-actions">
             <button className="btn-enterprise-outline" onClick={handleExport}>
@@ -208,7 +208,7 @@ export default function Transactions() {
             <Search className="enterprise-search-icon" size={18} />
             <input
               type="text"
-              placeholder={t('Search transactions...') || 'Tìm kiếm giao dịch...'}
+              placeholder={t('Search transactions...') || t('Search...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -219,7 +219,7 @@ export default function Transactions() {
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
           >
-            <option value="">{t('All Types') || 'Tất cả loại'}</option>
+            <option value="">{t('All Types') || t('All')}</option>
             <option value="income">{t('Income')}</option>
             <option value="expense">{t('Expense')}</option>
           </select>
@@ -309,11 +309,11 @@ export default function Transactions() {
           </table>
 
           <div className="enterprise-table-footer">
-            <span>Hiển thị {transactions.length} trong số {transactions.length} giao dịch</span>
+            <span>{t('Showing')} {transactions.length} {t('of')} {transactions.length} {t('transactions_count')}</span>
             <div className="enterprise-pagination">
-              <button className="enterprise-pagination-btn">Trước</button>
+              <button className="enterprise-pagination-btn">{t('Previous')}</button>
               <button className="enterprise-pagination-btn active">1</button>
-              <button className="enterprise-pagination-btn">Tiếp</button>
+              <button className="enterprise-pagination-btn">{t('Next')}</button>
             </div>
           </div>
         </div>
@@ -321,15 +321,15 @@ export default function Transactions() {
         <div className="enterprise-bottom-grid">
           <div className="enterprise-summary-card primary">
             <TrendingUp size={24} style={{ marginBottom: '1rem' }} />
-            <h3>Thống kê nhanh</h3>
-            <p>Tổng chi tiêu tháng này của bạn tăng 12% so với tháng trước.</p>
+            <h3>{t('Quick Stats')}</h3>
+            <p>{t('Spending Increase Msg')}</p>
             <div className="enterprise-balance-large">{formatCurrency(calculateMonthlyTotal())}</div>
           </div>
 
           <div className="enterprise-summary-card">
             <Target size={24} color="#10b981" style={{ marginBottom: '1rem' }} />
-            <h3>Thu nhập dự kiến</h3>
-            <p>Dựa trên lịch sử, bạn có khả năng nhận được 50trđ vào tuần tới.</p>
+            <h3>{t('Expected Income')}</h3>
+            <p>{t('Income Projection Msg')}</p>
             <div className="enterprise-progress-container">
               <div className="enterprise-progress-bar" style={{ width: '65%' }}></div>
             </div>
@@ -338,9 +338,9 @@ export default function Transactions() {
           <div className="enterprise-summary-card">
             <PieChart size={24} color="#3b82f6" style={{ marginBottom: '1rem' }} />
             <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <p style={{ fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>Xem báo cáo chi tiết</p>
+              <p style={{ fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>{t('View Report')}</p>
               <a href="/reports" className="enterprise-report-link">
-                Đến trang Báo cáo <ChevronRight size={14} />
+                {t('Go to Reports')} <ChevronRight size={14} />
               </a>
             </div>
             <div className="enterprise-fab" onClick={() => setIsModalOpen(true)}>

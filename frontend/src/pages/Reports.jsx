@@ -38,7 +38,7 @@ export default function Reports() {
       setData(response.data);
     } catch (error) {
       console.error('Error fetching report data:', error);
-      toast.error("Không thể tải dữ liệu báo cáo.");
+      toast.error(t('Cannot load report data'));
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function Reports() {
       toast.success(t('Download successful'));
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      toast.error("Không thể tải báo cáo. Vui lòng thử lại sau.");
+      toast.error(t('Cannot load report data'));
     }
   };
 
@@ -103,7 +103,7 @@ export default function Reports() {
                   value={selectedMonth} 
                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
                 >
-                  {months.map(m => <option key={m} value={m}>Tháng {m}</option>)}
+                  {months.map(m => <option key={m} value={m}>{t('Month')} {m}</option>)}
                 </select>
                 <select 
                   value={selectedYear} 

@@ -245,12 +245,12 @@ function Dashboard() {
 
         <div className="premium-card budget-card">
           <div className="budget-header">
-            <span className="budget-label">Ngân sách chi tiêu</span>
-            <span className="budget-month">THÁNG 10</span>
+            <span className="budget-label">{t('Spending Budget')}</span>
+            <span className="budget-month">{new Date().toLocaleString('default', { month: 'long' }).toUpperCase()}</span>
           </div>
           <div className="budget-value">{formatCurrency(budgetSummary.totalSpent)}</div>
           <div className="budget-status">
-            Đã tiêu <span>{budgetSummary.totalBudget > 0 ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100) : 0}%</span> hạn mức
+            {t('Spent')} <span>{budgetSummary.totalBudget > 0 ? Math.round((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100) : 0}%</span> {t('of limit')}
           </div>
           <div className="progress-container">
             <div className="progress-bar" style={{ width: `${budgetSummary.totalBudget > 0 ? Math.min((budgetSummary.totalSpent / budgetSummary.totalBudget) * 100, 100) : 0}%` }}></div>
@@ -259,22 +259,22 @@ function Dashboard() {
             <span>0 đ</span>
             <span>{formatCurrency(budgetSummary.totalBudget)}</span>
           </div>
-          <button className="btn-detail" onClick={() => navigate('/budgets')}>Xem chi tiết hạn mức</button>
+          <button className="btn-detail" onClick={() => navigate('/budgets')}>{t('View budget details')}</button>
         </div>
 
         {/* Row 2: Recent Transactions & Add/Cashflow */}
         <div className="premium-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.125rem' }}>Giao dịch gần đây</h3>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cập nhật 2 phút trước</p>
+              <h3 style={{ margin: 0, fontSize: '1.125rem' }}>{t('Recent Transactions')}</h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Updated 2 minutes ago')}</p>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', position: 'relative' }}>
               <div className="search-bar" style={{ maxWidth: '200px' }}>
                 <Search size={14} className="search-icon" />
                 <input 
                   type="text" 
-                  placeholder="Tìm kiếm..." 
+                  placeholder={t('Search...')} 
                   style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -307,27 +307,27 @@ function Dashboard() {
                   border: '1px solid var(--border)'
                 }}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Loại giao dịch</label>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>{t('Transaction Type')}</label>
                     <select 
                       className="form-control" 
                       style={{ width: '100%', fontSize: '0.8125rem' }}
                       value={filters.type}
                       onChange={(e) => setFilters({...filters, type: e.target.value})}
                     >
-                      <option value="">Tất cả</option>
-                      <option value="income">Thu nhập</option>
-                      <option value="expense">Chi tiêu</option>
+                      <option value="">{t('All')}</option>
+                      <option value="income">{t('Income')}</option>
+                      <option value="expense">{t('Expense')}</option>
                     </select>
                   </div>
                   <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Danh mục</label>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>{t('Category')}</label>
                     <select 
                       className="form-control" 
                       style={{ width: '100%', fontSize: '0.8125rem' }}
                       value={filters.category}
                       onChange={(e) => setFilters({...filters, category: e.target.value})}
                     >
-                      <option value="">Tất cả</option>
+                      <option value="">{t('All')}</option>
                       {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
@@ -340,14 +340,14 @@ function Dashboard() {
                         setSearchTerm('');
                       }}
                     >
-                      Xóa lọc
+                      {t('Clear filters')}
                     </button>
                     <button 
                       className="btn-primary" 
                       style={{ width: 'auto', padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
                       onClick={() => setShowFilterOptions(false)}
                     >
-                      Đóng
+                      {t('Close')}
                     </button>
                   </div>
                 </div>
@@ -413,46 +413,46 @@ function Dashboard() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="premium-card add-transaction-card" style={{ padding: '1.5rem' }}>
-            <h3 className="card-title">Thêm giao dịch</h3>
+            <h3 className="card-title">{t('Add Transaction')}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>TIÊU ĐỀ</label>
-                <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Ví dụ: Ăn trưa..." style={{ padding: '0.625rem' }} />
+                <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{t('Title').toUpperCase()}</label>
+                <input name="title" value={formData.title} onChange={handleInputChange} placeholder={t('Enter title')} style={{ padding: '0.625rem' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>SỐ TIỀN</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{t('Amount').toUpperCase()}</label>
                   <input name="amount" value={formData.amount} onChange={handleInputChange} placeholder="0 đ" style={{ padding: '0.625rem' }} />
                 </div>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>LOẠI</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{t('Type').toUpperCase()}</label>
                   <select name="type" value={formData.type} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
-                    <option value="expense">Chi tiêu</option>
-                    <option value="income">Thu nhập</option>
+                    <option value="expense">{t('Expense')}</option>
+                    <option value="income">{t('Income')}</option>
                   </select>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>DANH MỤC</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{t('Category').toUpperCase()}</label>
                   <select name="category" value={formData.category} onChange={handleInputChange} style={{ padding: '0.625rem' }}>
-                    <option value="">Chọn danh mục</option>
+                    <option value="">{t('Select category')}</option>
                     {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>NGÀY GIAO DỊCH</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{t('Date').toUpperCase()}</label>
                   <input type="date" name="date" value={formData.date} onChange={handleInputChange} style={{ padding: '0.625rem' }} />
                 </div>
               </div>
               <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', backgroundColor: '#0f172a' }}>
-                <Plus size={18} /> Lưu giao dịch
+                <Plus size={18} /> {t('Save Changes')}
               </button>
             </form>
           </div>
 
           <div className="premium-card cash-flow-card">
-            <div className="card-title">Dòng tiền 7 ngày qua</div>
+            <div className="card-title">{t('Cash flow fluctuation last 30 days')}</div>
             <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
             <div style={{ height: '180px', minHeight: '180px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -471,11 +471,11 @@ function Dashboard() {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.65rem', color: '#94a3b8' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
-                <span>Thu nhập</span>
+                <span>{t('Income')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
-                <span>Chi tiêu</span>
+                <span>{t('Expense')}</span>
               </div>
             </div>
           </div>
@@ -485,10 +485,10 @@ function Dashboard() {
         <div className="premium-card analysis-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Phân tích chi tiêu</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Phân bổ chi phí theo danh mục tháng này</p>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('Spending by Category')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t('Budget Allocation Detail')}</p>
             </div>
-            <button className="btn-detail" style={{ width: 'auto', padding: '0.5rem 1rem' }}>Chi tiết báo cáo</button>
+            <button className="btn-detail" onClick={() => navigate('/reports')} style={{ width: 'auto', padding: '0.5rem 1rem' }}>{t('View All')}</button>
           </div>
 
           <div className="spending-analysis-grid">
@@ -503,7 +503,7 @@ function Dashboard() {
                     <div className="cat-stat-bar-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
                   </div>
                 </div>
-              )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Chưa có dữ liệu chi tiêu tháng này.</div>}
+              )) : <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{t('No transactions yet')}</div>}
             </div>
 
             <div className="analysis-insights">
@@ -520,9 +520,9 @@ function Dashboard() {
               </div>
 
               <div className="projection-box">
-                <div className="projection-label">DỰ BÁO CUỐI THÁNG</div>
+                <div className="projection-label">{t('MONTHLY BUDGET')}</div>
                 <div className="projection-value">
-                  Dự kiến chi tiêu: {formatCurrency(
+                  {t('Estimated Spending')}: {formatCurrency(
                     budgetSummary.totalSpent > 0 
                     ? (budgetSummary.totalSpent / new Date().getDate()) * new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
                     : 0
