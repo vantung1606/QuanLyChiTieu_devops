@@ -31,4 +31,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> searchTransactions(
             @org.springframework.data.repository.query.Param("userId") Long userId,
             @org.springframework.data.repository.query.Param("query") String query);
+
+    void deleteByUser(User user);
 }

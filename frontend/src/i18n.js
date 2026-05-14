@@ -228,7 +228,10 @@ const resources = {
       "No transactions found": "No transactions found.",
       "Delete confirmation": "Delete Confirmation",
       "No notifications": "No notifications",
-      "Mark all as read": "Mark all as read"
+      "Mark all as read": "Mark all as read",
+      "Are you sure you want to delete your account? This action cannot be undone.": "Are you sure you want to delete your account? This action cannot be undone.",
+      "Account deleted successfully": "Account deleted successfully",
+      "Error deleting account": "Error deleting account"
     }
   },
   VI: {
@@ -457,7 +460,10 @@ const resources = {
       "No transactions found": "Không tìm thấy giao dịch nào.",
       "Delete confirmation": "Xác nhận xóa",
       "No notifications": "Không có thông báo nào",
-      "Mark all as read": "Đánh dấu tất cả đã đọc"
+      "Mark all as read": "Đánh dấu tất cả đã đọc",
+      "Are you sure you want to delete your account? This action cannot be undone.": "Bạn có chắc chắn muốn xóa tài khoản không? Hành động này không thể hoàn tác.",
+      "Account deleted successfully": "Đã xóa tài khoản thành công",
+      "Error deleting account": "Lỗi khi xóa tài khoản"
     }
   }
 };

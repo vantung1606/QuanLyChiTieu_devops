@@ -19,6 +19,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TwoFactorAuthService twoFactorAuthService;
     private final EmailService emailService;
+    private final TransactionRepository transactionRepository;
+    private final NotificationRepository notificationRepository;
+    private final UserSessionRepository userSessionRepository;
+    private final RecurringTransactionRepository recurringTransactionRepository;
+    private final CategoryRepository categoryRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -140,5 +146,21 @@ public class UserService {
         // Update to new password
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser() {
+        User user = getCurrentUser();
+        
+        // Delete all related data
+        transactionRepository.deleteByUser(user);
+        notificationRepository.deleteByUser(user);
+        userSessionRepository.deleteByUser(user);
+        recurringTransactionRepository.deleteByUser(user);
+        categoryRepository.deleteByUser(user);
+        passwordResetTokenRepository.deleteByEmail(user.getEmail());
+        
+        // Finally delete the user
+        userRepository.delete(user);
     }
 }

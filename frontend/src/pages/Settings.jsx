@@ -218,6 +218,28 @@ export default function Settings() {
       setSaving(false);
     }
   };
+  
+  const handleDeleteAccount = async () => {
+    if (!window.confirm(t('Are you sure you want to delete your account? This action cannot be undone.'))) return;
+    
+    setSaving(true);
+    try {
+      await api.delete('/users/profile');
+      toast.success(t('Account deleted successfully'));
+      
+      // Logout
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('darkMode');
+      localStorage.removeItem('language');
+      
+      window.location.href = '/login';
+    } catch (error) {
+      toast.error(t('Error deleting account'));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <Layout>
@@ -577,7 +599,13 @@ export default function Settings() {
                       <h4>{t('Disable Account')}</h4>
                       <p>{t('Delete Account Desc')}</p>
                     </div>
-                    <button className="btn-danger">{t('Delete Account')}</button>
+                    <button 
+                      className="btn-danger" 
+                      onClick={handleDeleteAccount}
+                      disabled={saving}
+                    >
+                      {saving ? t('Processing...') : t('Delete Account')}
+                    </button>
                   </div>
                 )}
               </div>

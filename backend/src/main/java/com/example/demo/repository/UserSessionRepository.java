@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
     List<UserSession> findByUserIdAndIsRevokedFalse(Long userId);
     Optional<UserSession> findByTokenId(String tokenId);
+    List<UserSession> findByUser(User user);
+    void deleteByUser(User user);
 }
