@@ -1,7 +1,22 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '/api') {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Auto-detect for local vs production
+  const { hostname, protocol } = window.location;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8081/api';
+  }
+  
+  // Production (Railway or others)
+  return `${protocol}//${hostname}/api`;
+};
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api'
+  baseURL: getBaseURL()
 });
 
 console.log('🚀 API Base URL:', instance.defaults.baseURL);
