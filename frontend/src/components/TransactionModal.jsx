@@ -11,7 +11,7 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
     <div className="modal-overlay">
       <div className="modal-card">
         <div className="modal-header">
-          <h3>{isEditing ? t('Edit transaction') || 'Chỉnh sửa giao dịch' : t('Add new transaction') || 'Thêm giao dịch mới'}</h3>
+          <h3>{isEditing ? t('Edit') : t('Add New Transaction')}</h3>
           <button className="close-btn" onClick={onClose}>
             <X size={20} />
           </button>
@@ -19,20 +19,20 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>{t('TITLE_CELL') || 'Tiêu đề'}</label>
+            <label>{t('TITLE_CELL')}</label>
             <input 
               type="text" 
               name="title" 
               value={formData.title} 
               onChange={handleInputChange} 
-              placeholder={t('Example: Monthly rent') || "Ví dụ: Tiền nhà hàng tháng"} 
+              placeholder={t('Enter title')} 
               required 
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t('AMOUNT') || 'Số tiền'}</label>
+              <label>{t('AMOUNT')}</label>
               <div className="input-prefix">
                 <span className="prefix">đ</span>
                 <input 
@@ -47,18 +47,18 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
             </div>
 
             <div className="form-group">
-              <label>{t('Type') || 'Loại'}</label>
+              <label>{t('Type')}</label>
               <select name="type" value={formData.type} onChange={handleInputChange}>
-                <option value="expense">{t('Expense') || 'Chi tiêu'}</option>
-                <option value="income">{t('Income') || 'Thu nhập'}</option>
+                <option value="expense">{t('Expense')}</option>
+                <option value="income">{t('Income')}</option>
               </select>
             </div>
           </div>
 
           <div className="form-group">
-            <label>{t('CATEGORY') || 'Danh mục'}</label>
+            <label>{t('CATEGORY')}</label>
             <select name="category" value={formData.category} onChange={handleInputChange} required>
-              <option value="">{t('Select Category') || 'Chọn danh mục'}</option>
+              <option value="">{t('Select category')}</option>
               {categories.map(cat => (
                 <option key={cat.id || cat.name} value={cat.name}>
                   {cat.name}
@@ -68,7 +68,7 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
           </div>
 
           <div className="form-group">
-            <label>{t('DATE_CELL') || 'Ngày'}</label>
+            <label>{t('DATE_CELL')}</label>
             <input 
               type="date" 
               name="date" 
@@ -79,11 +79,11 @@ export default function TransactionModal({ isOpen, onClose, formData, handleInpu
           </div>
 
           <button type="submit" className="btn-primary w-full" style={{ marginTop: '1.5rem', padding: '0.875rem' }}>
-            {isEditing ? t('Update transaction') || 'Cập nhật giao dịch' : t('Add transaction') || 'Thêm giao dịch'}
+            {isEditing ? t('Save Changes') : t('Add Transaction')}
           </button>
           
           <button type="button" className="btn-cancel" onClick={onClose}>
-            {t('Cancel') || 'Hủy'}
+            {t('Cancel')}
           </button>
         </form>
       </div>

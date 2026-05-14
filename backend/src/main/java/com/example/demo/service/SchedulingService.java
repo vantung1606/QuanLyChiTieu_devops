@@ -29,7 +29,7 @@ public class SchedulingService {
         log.info("Bắt đầu xử lý các giao dịch định kỳ: {}", LocalDateTime.now());
         
         List<RecurringTransaction> dueTransactions = recurringTransactionRepository
-                .findByIsActiveTrueAndNextExecutionDateBefore(LocalDateTime.now());
+                .findByNextExecutionDateBeforeAndIsActiveTrue(LocalDateTime.now());
 
         for (RecurringTransaction rt : dueTransactions) {
             try {

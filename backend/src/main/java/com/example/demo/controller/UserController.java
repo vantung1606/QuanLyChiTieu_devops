@@ -55,4 +55,10 @@ public class UserController {
         userService.disable2FA();
         return ResponseEntity.ok("2FA disabled successfully");
     }
+    
+    @DeleteMapping("/profile")
+    public ResponseEntity<String> deleteAccount() {
+        userService.deleteUser();
+        return ResponseEntity.ok("Account deleted successfully");
+    }
 }

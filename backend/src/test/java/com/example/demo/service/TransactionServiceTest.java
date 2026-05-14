@@ -20,6 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -95,12 +98,13 @@ public class TransactionServiceTest {
     @Test
     void getFilteredTransactions_ShouldCallRepositoryWithCorrectParams() {
         mockSecurityContext("testuser");
-        when(transactionRepository.findFilteredTransactions(anyLong(), any(), any(), any()))
-                .thenReturn(Collections.emptyList());
+        Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
+        when(transactionRepository.findFilteredTransactionsWithKeyword(anyLong(), any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(emptyPage);
 
-        transactionService.getFilteredTransactions("expense", "Food", 7);
+        transactionService.getFilteredTransactions("expense", "Food", 7, null, 0, 7);
 
-        verify(transactionRepository).findFilteredTransactions(eq(mockUser.getId()), eq("expense"), eq("Food"), any());
+        verify(transactionRepository).findFilteredTransactionsWithKeyword(eq(mockUser.getId()), eq("expense"), eq("Food"), any(), any(), any(Pageable.class));
     }
 
     @Test

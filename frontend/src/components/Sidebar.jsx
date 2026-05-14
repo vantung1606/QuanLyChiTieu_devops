@@ -26,14 +26,14 @@ export default function Sidebar({ onClose }) {
 
   const handleLogoutClick = () => {
     toast.confirm(
-      t("Confirm Logout") || "Xác nhận đăng xuất",
-      t("Are you sure you want to logout?") || "Bạn có chắc chắn muốn đăng xuất không?",
+      t("Confirm Logout"),
+      t("Are you sure you want to logout?"),
       async () => {
         try {
-          await api.post('/users/logout');
+          await api.post('/auth/logout');
           localStorage.removeItem('token');
           navigate('/login');
-          toast.success(t("Logged out successfully") || "Đã đăng xuất thành công!");
+          toast.success(t("Logged out successfully"));
         } catch (error) {
           console.error("Error logging out:", error);
           localStorage.removeItem('token');
@@ -83,9 +83,9 @@ export default function Sidebar({ onClose }) {
       
       <div className="sidebar-bottom">
         <div className="upgrade-card">
-          <h4>Upgrade plan for <span>Advanced Insights</span></h4>
-          <p>Mở khóa các tính năng dự báo AI và báo cáo chuyên sâu.</p>
-          <button className="btn-upgrade">Upgrade Now</button>
+          <h4>{t('Upgrade Plan', { feature: 'Advanced Insights' })}</h4>
+          <p>{t('Unlock Features')}</p>
+          <button className="btn-upgrade">{t('Upgrade Now')}</button>
         </div>
         <button 
           onClick={handleLogoutClick} 

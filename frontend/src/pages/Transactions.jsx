@@ -24,10 +24,22 @@ export default function Transactions() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 7;
 
   useEffect(() => {
-    fetchData();
-  }, [filters]);
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [filters, searchTerm, page]);
+
+  // Reset page when filters or search change
+  useEffect(() => {
+    setPage(0);
+  }, [filters, searchTerm]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -38,12 +50,17 @@ export default function Transactions() {
       if (filters.type) params.type = filters.type;
       if (filters.days) params.days = filters.days;
       if (filters.category) params.category = filters.category;
+      if (searchTerm) params.keyword = searchTerm;
+      params.page = page;
+      params.size = pageSize;
 
       const [transRes, catRes] = await Promise.all([
         api.get('/transactions', { params }),
         api.get('/categories')
       ]);
-      setTransactions(transRes.data);
+      setTransactions(transRes.data.content);
+      setTotalPages(transRes.data.totalPages);
+      setTotalElements(transRes.data.totalElements);
       setCategories(catRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -138,7 +155,7 @@ export default function Transactions() {
 
   const handleDelete = async (id) => {
     toast.confirm(
-      t('Delete confirmation') || "Xác nhận xóa",
+      t('Delete confirmation'),
       t('Are you sure delete transaction'),
       async () => {
         try {
@@ -168,7 +185,7 @@ export default function Transactions() {
     return 'badge-default';
   };
 
-  const calculateMonthlyTotal = () => {
+  const calculateMonthlySpending = () => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -176,9 +193,19 @@ export default function Transactions() {
     return transactions
       .filter(t => {
         const d = new Date(t.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear && t.type === 'expense';
       })
-      .reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc - curr.amount, 0);
+      .reduce((acc, curr) => acc + curr.amount, 0);
+  };
+
+  const getSpendingProjection = () => {
+    const totalSpent = calculateMonthlySpending();
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const currentDay = now.getDate();
+    
+    const estimated = (totalSpent / currentDay) * daysInMonth;
+    return estimated;
   };
 
   return (
@@ -187,14 +214,14 @@ export default function Transactions() {
         <div className="enterprise-header">
           <div className="enterprise-header-left">
             <h1>{t('Transactions')}</h1>
-            <p>Xem và quản lý tất cả các hoạt động tài chính của bạn tại một nơi. Tối ưu hóa dòng tiền với công cụ quản lý chuyên nghiệp.</p>
+            <p>{t('Manage Transactions Desc')}</p>
           </div>
           <div className="enterprise-header-actions">
             <button className="btn-enterprise-outline" onClick={handleExport}>
               <Download size={18} /> {t('Download CSV')}
             </button>
             <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
-              <Plus size={18} /> {t('Add transaction')}
+              <Plus size={18} /> {t('Add Transaction')}
             </button>
           </div>
         </div>
@@ -204,7 +231,7 @@ export default function Transactions() {
             <Search className="enterprise-search-icon" size={18} />
             <input
               type="text"
-              placeholder={t('Search transactions...') || 'Tìm kiếm giao dịch...'}
+              placeholder={t('Search transactions...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -215,7 +242,7 @@ export default function Transactions() {
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
           >
-            <option value="">{t('All Types') || 'Tất cả loại'}</option>
+            <option value="">{t('All')}</option>
             <option value="income">{t('Income')}</option>
             <option value="expense">{t('Expense')}</option>
           </select>
@@ -266,13 +293,12 @@ export default function Transactions() {
                     <div className="loading-spinner"></div>
                   </td>
                 </tr>
-              ) : transactions.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+              ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions found')}</td>
                 </tr>
               ) : (
                 transactions
-                  .filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()))
                   .map(item => (
                     <tr key={item.id}>
                       <td data-label={t('DATE_CELL')}>
@@ -306,11 +332,33 @@ export default function Transactions() {
           </table>
 
           <div className="enterprise-table-footer">
-            <span>Hiển thị {transactions.length} trong số {transactions.length} giao dịch</span>
+            <span>{t('Showing')} {transactions.length} {t('of')} {totalElements} {t('transactions_count')}</span>
             <div className="enterprise-pagination">
-              <button className="enterprise-pagination-btn">Trước</button>
-              <button className="enterprise-pagination-btn active">1</button>
-              <button className="enterprise-pagination-btn">Tiếp</button>
+              <button 
+                className="enterprise-pagination-btn" 
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+              >
+                {t('Previous')}
+              </button>
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <button 
+                  key={i} 
+                  className={`enterprise-pagination-btn ${page === i ? 'active' : ''}`}
+                  onClick={() => setPage(i)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button 
+                className="enterprise-pagination-btn"
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage(page + 1)}
+              >
+                {t('Next')}
+              </button>
             </div>
           </div>
         </div>
@@ -318,26 +366,26 @@ export default function Transactions() {
         <div className="enterprise-bottom-grid">
           <div className="enterprise-summary-card primary">
             <TrendingUp size={24} style={{ marginBottom: '1rem' }} />
-            <h3>Thống kê nhanh</h3>
-            <p>Tổng chi tiêu tháng này của bạn tăng 12% so với tháng trước.</p>
-            <div className="enterprise-balance-large">{formatCurrency(calculateMonthlyTotal())}</div>
+            <h3>{t('Quick Stats')}</h3>
+            <p>{t('Spending Increase Msg')}</p>
+            <div className="enterprise-balance-large">{formatCurrency(calculateMonthlySpending())}</div>
           </div>
 
           <div className="enterprise-summary-card">
-            <Target size={24} color="#10b981" style={{ marginBottom: '1rem' }} />
-            <h3>Thu nhập dự kiến</h3>
-            <p>Dựa trên lịch sử, bạn có khả năng nhận được 50trđ vào tuần tới.</p>
-            <div className="enterprise-progress-container">
-              <div className="enterprise-progress-bar" style={{ width: '65%' }}></div>
+            <Target size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
+            <h3>{t('Estimated Spending')}</h3>
+            <p>{t('Spending Projection Msg') || 'Dựa trên chi tiêu hiện tại, bạn dự kiến sẽ tiêu tổng cộng số tiền này trong tháng này.'}</p>
+            <div className="enterprise-balance-large" style={{ fontSize: '1.25rem', marginTop: '0.5rem', color: 'var(--text-main)' }}>
+              {formatCurrency(getSpendingProjection())}
             </div>
           </div>
 
           <div className="enterprise-summary-card">
             <PieChart size={24} color="#3b82f6" style={{ marginBottom: '1rem' }} />
             <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <p style={{ fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>Xem báo cáo chi tiết</p>
+              <p style={{ fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>{t('View Report')}</p>
               <a href="/reports" className="enterprise-report-link">
-                Đến trang Báo cáo <ChevronRight size={14} />
+                {t('Go to Reports')} <ChevronRight size={14} />
               </a>
             </div>
             <div className="enterprise-fab" onClick={() => setIsModalOpen(true)}>

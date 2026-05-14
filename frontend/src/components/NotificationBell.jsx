@@ -3,9 +3,11 @@ import axios from '../api/axios';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 const NotificationBell = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -93,15 +95,15 @@ const NotificationBell = () => {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <h3>Thông báo</h3>
+            <h3>{t('Notifications')}</h3>
             {unreadCount > 0 && (
-              <button onClick={markAllAsRead}>Đánh dấu tất cả đã đọc</button>
+              <button onClick={markAllAsRead}>{t('Mark all as read')}</button>
             )}
           </div>
           
           <div className="notification-list">
             {notifications.length === 0 ? (
-              <div className="no-notifications">Không có thông báo nào</div>
+              <div className="no-notifications">{t('No notifications')}</div>
             ) : (
               notifications.map((n) => (
                 <div 
@@ -109,8 +111,13 @@ const NotificationBell = () => {
                   className={`notification-item ${!n.isRead ? 'unread' : ''}`}
                   onClick={() => !n.isRead && markAsRead(n.id)}
                 >
-                  <div className="notification-type-icon" style={{ backgroundColor: getIconColor(n.type) }}></div>
-                  <div className="notification-content">
+                  {!n.isRead && (
+                    <div 
+                      className="notification-unread-dot" 
+                      style={{ backgroundColor: getIconColor(n.type) }}
+                    ></div>
+                  )}
+                  <div className="notification-content" style={{ opacity: n.isRead ? 0.6 : 1 }}>
                     <h4>{n.title}</h4>
                     <p>{n.message}</p>
                     <span className="notification-time">
@@ -217,12 +224,13 @@ const NotificationBell = () => {
         .notification-item.unread {
           background: rgba(59, 130, 246, 0.05);
         }
-        .notification-type-icon {
+        .notification-unread-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
           margin-top: 6px;
           flex-shrink: 0;
+          box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
         .notification-content h4 {
           font-size: 13px;

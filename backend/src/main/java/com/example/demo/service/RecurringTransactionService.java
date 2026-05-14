@@ -69,7 +69,7 @@ public class RecurringTransactionService {
     public void processRecurringTransactions() {
         log.info("Processing recurring transactions...");
         LocalDateTime now = LocalDateTime.now();
-        List<RecurringTransaction> pending = recurringTransactionRepository.findByIsActiveTrueAndNextExecutionDateBefore(now);
+        List<RecurringTransaction> pending = recurringTransactionRepository.findByNextExecutionDateBeforeAndIsActiveTrue(now);
 
         for (RecurringTransaction rt : pending) {
             try {

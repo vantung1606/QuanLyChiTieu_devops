@@ -1,7 +1,27 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '/api') {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Auto-detect for local vs production
+  const { hostname, protocol } = window.location;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8081/api';
+  }
+  
+  // Production (Railway or others)
+  // Nếu bạn có Domain riêng, hãy đảm bảo VITE_API_URL được set trong Railway Dashboard
+  if (hostname.includes('railway.app')) {
+    return 'https://quanlychitieudevops-production.up.railway.app/api';
+  }
+  
+  return `${protocol}//${hostname}/api`;
+};
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+  baseURL: getBaseURL()
 });
 
 console.log('🚀 API Base URL:', instance.defaults.baseURL);

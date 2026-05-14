@@ -3,9 +3,9 @@ services:
     build: ./backend
     container_name: expense-backend
     ports:
-      - "8888:8081"
+      - "8081:8081"
     environment:
-      - DB_URL=jdbc:mysql://yamabiko.proxy.rlwy.net:42983/railway?allowPublicKeyRetrieval=true&useSSL=true
+      - DB_URL=jdbc:mysql://yamabiko.proxy.rlwy.net:42983/railway?allowPublicKeyRetrieval=true&useSSL=true&connectTimeout=10000&socketTimeout=30000
       - DB_USERNAME=root
       - DB_PASSWORD=aEQWlyFuNDxgGItPixpctIPjIyxSTvYC
     # Đã bỏ depends_on vì dùng DB trên mây
@@ -13,8 +13,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        - VITE_API_URL=http://localhost:8888/api
     container_name: expense-frontend
     ports:
       - "8085:80"
