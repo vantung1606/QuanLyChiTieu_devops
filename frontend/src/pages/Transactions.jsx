@@ -26,8 +26,11 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchData();
-  }, [filters]);
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [filters, searchTerm]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -38,6 +41,7 @@ export default function Transactions() {
       if (filters.type) params.type = filters.type;
       if (filters.days) params.days = filters.days;
       if (filters.category) params.category = filters.category;
+      if (searchTerm) params.keyword = searchTerm;
 
       const [transRes, catRes] = await Promise.all([
         api.get('/transactions', { params }),
@@ -266,13 +270,12 @@ export default function Transactions() {
                     <div className="loading-spinner"></div>
                   </td>
                 </tr>
-              ) : transactions.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+              ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>{t('No transactions found')}</td>
                 </tr>
               ) : (
                 transactions
-                  .filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()))
                   .map(item => (
                     <tr key={item.id}>
                       <td data-label={t('DATE_CELL')}>

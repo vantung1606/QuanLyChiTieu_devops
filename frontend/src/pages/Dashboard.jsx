@@ -51,6 +51,12 @@ function Dashboard() {
   const [spendingByCat, setSpendingByCat] = useState([]);
   const [budgetSummary, setBudgetSummary] = useState({ totalBudget: 0, totalSpent: 0 });
   
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ type: '', category: '', days: null });
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
@@ -61,8 +67,15 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
+      const transParams = {
+        keyword: searchTerm,
+        type: filters.type,
+        category: filters.category,
+        days: filters.days
+      };
+
       const [transRes, summaryRes, catRes, reportRes] = await Promise.all([
-        api.get('/transactions'),
+        api.get('/transactions', { params: transParams }),
         api.get('/summary'),
         api.get('/categories'),
         api.get('/reports/financial-performance')
@@ -116,6 +129,33 @@ function Dashboard() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Effect for searching and filtering
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchTransactions();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, filters]);
+
+  const fetchTransactions = async () => {
+    setIsSearching(true);
+    try {
+      const params = {
+        keyword: searchTerm,
+        type: filters.type,
+        category: filters.category,
+        days: filters.days
+      };
+      const res = await api.get('/transactions', { params });
+      setTransactions(res.data.slice(0, 10)); // Show more if searching/filtering
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
@@ -229,39 +269,137 @@ function Dashboard() {
               <h3 style={{ margin: 0, fontSize: '1.125rem' }}>Giao dịch gần đây</h3>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cập nhật 2 phút trước</p>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', position: 'relative' }}>
               <div className="search-bar" style={{ maxWidth: '200px' }}>
                 <Search size={14} className="search-icon" />
-                <input type="text" placeholder="Tìm kiếm..." style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }} />
+                <input 
+                  type="text" 
+                  placeholder="Tìm kiếm..." 
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 0.5rem 0.5rem 2rem' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              <button className="icon-btn" style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '0.5rem' }}>
+              <button 
+                className={`icon-btn ${showFilterOptions ? 'active' : ''}`} 
+                style={{ 
+                  border: '1px solid var(--border)', 
+                  borderRadius: '8px', 
+                  padding: '0.5rem',
+                  backgroundColor: showFilterOptions ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                  color: showFilterOptions ? 'var(--primary)' : 'inherit'
+                }}
+                onClick={() => setShowFilterOptions(!showFilterOptions)}
+              >
                 <Filter size={16} />
               </button>
+
+              {showFilterOptions && (
+                <div className="filter-dropdown premium-card" style={{ 
+                  position: 'absolute', 
+                  top: '100%', 
+                  right: 0, 
+                  zIndex: 100, 
+                  marginTop: '0.5rem',
+                  padding: '1rem',
+                  minWidth: '240px',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid var(--border)'
+                }}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Loại giao dịch</label>
+                    <select 
+                      className="form-control" 
+                      style={{ width: '100%', fontSize: '0.8125rem' }}
+                      value={filters.type}
+                      onChange={(e) => setFilters({...filters, type: e.target.value})}
+                    >
+                      <option value="">Tất cả</option>
+                      <option value="income">Thu nhập</option>
+                      <option value="expense">Chi tiêu</option>
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Danh mục</label>
+                    <select 
+                      className="form-control" 
+                      style={{ width: '100%', fontSize: '0.8125rem' }}
+                      value={filters.category}
+                      onChange={(e) => setFilters({...filters, category: e.target.value})}
+                    >
+                      <option value="">Tất cả</option>
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button 
+                      className="btn-detail" 
+                      style={{ width: 'auto', padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                      onClick={() => {
+                        setFilters({ type: '', category: '', days: null });
+                        setSearchTerm('');
+                      }}
+                    >
+                      Xóa lọc
+                    </button>
+                    <button 
+                      className="btn-primary" 
+                      style={{ width: 'auto', padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                      onClick={() => setShowFilterOptions(false)}
+                    >
+                      Đóng
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
           <div className="transactions-list">
-            {transactions.map((t, idx) => (
-              <div key={t.id || idx} className="transaction-item-premium">
-                <div className="trans-info-group">
-                  <div className="trans-icon-box" style={{ backgroundColor: t.type === 'income' ? '#e6f4ea' : '#f1f5f9', color: t.type === 'income' ? '#0d652d' : '#475569' }}>
-                    {t.type === 'income' ? <TrendingUp size={20} /> : <ShoppingBag size={20} />}
-                  </div>
-                  <div className="trans-details">
-                    <h4>{t.title}</h4>
-                    <p>{t.category} • {new Date(t.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                  </div>
-                </div>
-                <div className="trans-method">
-                  <Wallet size={14} />
-                  <span>{idx % 2 === 0 ? 'Thẻ Visa' : 'Tiền mặt'}</span>
-                </div>
-                <div className="trans-status success">Thành công</div>
-                <div className={`trans-amount ${t.type === 'income' ? 'income' : 'expense'}`}>
-                  {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
-                </div>
+            {isSearching ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <div className="loading-spinner"></div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Đang tìm kiếm...</p>
               </div>
-            ))}
+            ) : transactions.length > 0 ? (
+              transactions.map((t, idx) => (
+                <div key={t.id || idx} className="transaction-item-premium">
+                  <div className="trans-info-group">
+                    <div className="trans-icon-box" style={{ backgroundColor: t.type === 'income' ? '#e6f4ea' : '#f1f5f9', color: t.type === 'income' ? '#0d652d' : '#475569' }}>
+                      {t.type === 'income' ? <TrendingUp size={20} /> : <ShoppingBag size={20} />}
+                    </div>
+                    <div className="trans-details">
+                      <h4>{t.title}</h4>
+                      <p>{t.category} • {new Date(t.date).toLocaleDateString(i18n.language === 'EN' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+                  <div className="trans-method">
+                    <Wallet size={14} />
+                    <span>{idx % 2 === 0 ? 'Thẻ Visa' : 'Tiền mặt'}</span>
+                  </div>
+                  <div className="trans-status success">Thành công</div>
+                  <div className={`trans-amount ${t.type === 'income' ? 'income' : 'expense'}`}>
+                    {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: '0.875rem' }}>Không tìm thấy giao dịch nào khớp với yêu cầu.</p>
+                {(searchTerm || filters.type || filters.category) && (
+                  <button 
+                    className="btn-detail" 
+                    style={{ marginTop: '1rem', width: 'auto' }}
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFilters({ type: '', category: '', days: null });
+                    }}
+                  >
+                    Xóa tất cả bộ lọc
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
             <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>Xem tất cả lịch sử giao dịch</button>

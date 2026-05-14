@@ -41,10 +41,10 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
-        return getFilteredTransactions(null, null, null);
+        return getFilteredTransactions(null, null, null, null);
     }
 
-    public List<TransactionDTO> getFilteredTransactions(String type, String category, Integer days) {
+    public List<TransactionDTO> getFilteredTransactions(String type, String category, Integer days, String keyword) {
         User user = getCurrentUser();
         List<Transaction> transactions;
         
@@ -52,8 +52,9 @@ public class TransactionService {
 
         String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
         String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
+        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
 
-        return transactionRepository.findFilteredTransactions(user.getId(), cleanType, cleanCategory, startDate)
+        return transactionRepository.findFilteredTransactionsWithKeyword((Long) user.getId(), (String) cleanType, (String) cleanCategory, (java.time.LocalDateTime) startDate, (String) cleanKeyword)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -88,8 +89,7 @@ public class TransactionService {
                         .with(java.time.temporal.TemporalAdjusters.firstDayOfMonth())
                         .withHour(0).withMinute(0).withSecond(0);
                 
-                double totalSpent = transactionRepository.findFilteredTransactions(
-                        user.getId(), "expense", category.getName(), startOfMonth)
+                double totalSpent = transactionRepository.findFilteredTransactionsWithKeyword((Long) user.getId(), (String) "expense", (String) category.getName(), (java.time.LocalDateTime) startOfMonth, (String) null)
                         .stream()
                         .mapToDouble(Transaction::getAmount)
                         .sum();
@@ -150,7 +150,7 @@ public class TransactionService {
     }
 
     public String exportTransactionsToCsv(String type, String category, Integer days) {
-        List<TransactionDTO> transactions = getFilteredTransactions(type, category, days);
+        List<TransactionDTO> transactions = getFilteredTransactions(type, category, days, null);
         StringBuilder csv = new StringBuilder();
         csv.append("Date,Title,Category,Type,Amount\n");
         for (TransactionDTO t : transactions) {

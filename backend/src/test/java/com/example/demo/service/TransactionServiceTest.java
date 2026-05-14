@@ -95,12 +95,12 @@ public class TransactionServiceTest {
     @Test
     void getFilteredTransactions_ShouldCallRepositoryWithCorrectParams() {
         mockSecurityContext("testuser");
-        when(transactionRepository.findFilteredTransactions(anyLong(), any(), any(), any()))
+        when(transactionRepository.findFilteredTransactionsWithKeyword(anyLong(), any(), any(), any(), any()))
                 .thenReturn(Collections.emptyList());
 
-        transactionService.getFilteredTransactions("expense", "Food", 7);
+        transactionService.getFilteredTransactions("expense", "Food", 7, null);
 
-        verify(transactionRepository).findFilteredTransactions(eq(mockUser.getId()), eq("expense"), eq("Food"), any());
+        verify(transactionRepository).findFilteredTransactionsWithKeyword(eq(mockUser.getId()), eq("expense"), eq("Food"), any(), any());
     }
 
     @Test
