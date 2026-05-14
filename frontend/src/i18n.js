@@ -6,7 +6,7 @@ const resources = {
   EN: {
     translation: {
       "Dashboard": "Dashboard",
-      "Transactions": "Transactions",
+      "Transactions": "Transaction Management",
       "Categories": "Categories",
       "Reports": "Reports",
       "Settings": "Settings",
@@ -237,7 +237,7 @@ const resources = {
   VI: {
     translation: {
       "Dashboard": "Tổng quan",
-      "Transactions": "Giao dịch",
+      "Transactions": "Quản lý giao dịch",
       "Categories": "Danh mục",
       "Reports": "Báo cáo",
       "Settings": "Cài đặt",
