@@ -3,7 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.PasswordChangeRequest;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
