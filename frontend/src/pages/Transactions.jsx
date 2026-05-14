@@ -172,7 +172,7 @@ export default function Transactions() {
     return 'badge-default';
   };
 
-  const calculateMonthlyTotal = () => {
+  const calculateMonthlySpending = () => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -180,9 +180,19 @@ export default function Transactions() {
     return transactions
       .filter(t => {
         const d = new Date(t.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear && t.type === 'expense';
       })
-      .reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc - curr.amount, 0);
+      .reduce((acc, curr) => acc + curr.amount, 0);
+  };
+
+  const getSpendingProjection = () => {
+    const totalSpent = calculateMonthlySpending();
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const currentDay = now.getDate();
+    
+    const estimated = (totalSpent / currentDay) * daysInMonth;
+    return estimated;
   };
 
   return (
@@ -323,15 +333,15 @@ export default function Transactions() {
             <TrendingUp size={24} style={{ marginBottom: '1rem' }} />
             <h3>{t('Quick Stats')}</h3>
             <p>{t('Spending Increase Msg')}</p>
-            <div className="enterprise-balance-large">{formatCurrency(calculateMonthlyTotal())}</div>
+            <div className="enterprise-balance-large">{formatCurrency(calculateMonthlySpending())}</div>
           </div>
 
           <div className="enterprise-summary-card">
-            <Target size={24} color="#10b981" style={{ marginBottom: '1rem' }} />
-            <h3>{t('Expected Income')}</h3>
-            <p>{t('Income Projection Msg')}</p>
-            <div className="enterprise-progress-container">
-              <div className="enterprise-progress-bar" style={{ width: '65%' }}></div>
+            <Target size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
+            <h3>{t('Estimated Spending')}</h3>
+            <p>{t('Spending Projection Msg') || 'Dựa trên chi tiêu hiện tại, bạn dự kiến sẽ tiêu tổng cộng số tiền này trong tháng này.'}</p>
+            <div className="enterprise-balance-large" style={{ fontSize: '1.25rem', marginTop: '0.5rem', color: 'var(--text-main)' }}>
+              {formatCurrency(getSpendingProjection())}
             </div>
           </div>
 
