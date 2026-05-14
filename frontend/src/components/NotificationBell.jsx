@@ -6,6 +6,7 @@ import { vi } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const NotificationBell = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -93,15 +94,15 @@ const NotificationBell = () => {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <h3>Thông báo</h3>
+            <h3>{t('Notifications')}</h3>
             {unreadCount > 0 && (
-              <button onClick={markAllAsRead}>Đánh dấu tất cả đã đọc</button>
+              <button onClick={markAllAsRead}>{t('Mark all as read')}</button>
             )}
           </div>
           
           <div className="notification-list">
             {notifications.length === 0 ? (
-              <div className="no-notifications">Không có thông báo nào</div>
+              <div className="no-notifications">{t('No notifications')}</div>
             ) : (
               notifications.map((n) => (
                 <div 

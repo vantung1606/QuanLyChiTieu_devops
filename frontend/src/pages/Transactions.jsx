@@ -142,7 +142,7 @@ export default function Transactions() {
 
   const handleDelete = async (id) => {
     toast.confirm(
-      t('Delete confirmation') || "Xác nhận xóa",
+      t('Delete confirmation'),
       t('Are you sure delete transaction'),
       async () => {
         try {
@@ -198,7 +198,7 @@ export default function Transactions() {
               <Download size={18} /> {t('Download CSV')}
             </button>
             <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
-              <Plus size={18} /> {t('Add transaction')}
+              <Plus size={18} /> {t('Add Transaction')}
             </button>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function Transactions() {
             <Search className="enterprise-search-icon" size={18} />
             <input
               type="text"
-              placeholder={t('Search transactions...') || t('Search...')}
+              placeholder={t('Search transactions...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -219,7 +219,7 @@ export default function Transactions() {
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
           >
-            <option value="">{t('All Types') || t('All')}</option>
+            <option value="">{t('All')}</option>
             <option value="income">{t('Income')}</option>
             <option value="expense">{t('Expense')}</option>
           </select>

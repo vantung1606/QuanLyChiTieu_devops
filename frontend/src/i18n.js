@@ -219,7 +219,15 @@ const resources = {
       "Email Updates": "Email Updates",
       "Push Notifications": "Push Notifications",
       "Disable Account": "Disable Account",
-      "Delete Account Desc": "Permanently delete your data and access to all your financial records."
+      "Delete Account Desc": "Permanently delete your data and access to all your financial records.",
+      "All Time": "All Time",
+      "Last 7 Days": "Last 7 Days",
+      "Last 90 Days": "Last 90 Days",
+      "Search transactions...": "Search transactions...",
+      "No transactions found": "No transactions found.",
+      "Delete confirmation": "Delete Confirmation",
+      "No notifications": "No notifications",
+      "Mark all as read": "Mark all as read"
     }
   },
   VI: {
@@ -439,7 +447,15 @@ const resources = {
       "Email Updates": "Cập nhật qua Email",
       "Push Notifications": "Thông báo Push",
       "Disable Account": "Vô hiệu hóa tài khoản",
-      "Delete Account Desc": "Xóa vĩnh viễn dữ liệu và quyền truy cập vào tất cả các bản ghi tài chính của bạn."
+      "Delete Account Desc": "Xóa vĩnh viễn dữ liệu và quyền truy cập vào tất cả các bản ghi tài chính của bạn.",
+      "All Time": "Tất cả thời gian",
+      "Last 7 Days": "7 ngày qua",
+      "Last 90 Days": "90 ngày qua",
+      "Search transactions...": "Tìm kiếm giao dịch...",
+      "No transactions found": "Không tìm thấy giao dịch nào.",
+      "Delete confirmation": "Xác nhận xóa",
+      "No notifications": "Không có thông báo nào",
+      "Mark all as read": "Đánh dấu tất cả đã đọc"
     }
   }
 };
