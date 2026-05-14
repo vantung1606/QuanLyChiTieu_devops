@@ -111,11 +111,13 @@ const NotificationBell = () => {
                   className={`notification-item ${!n.isRead ? 'unread' : ''}`}
                   onClick={() => !n.isRead && markAsRead(n.id)}
                 >
-                  <div 
-                    className={`notification-unread-dot ${n.isRead ? 'is-read' : ''}`} 
-                    style={{ backgroundColor: n.isRead ? 'transparent' : getIconColor(n.type) }}
-                  ></div>
-                  <div className="notification-content">
+                  {!n.isRead && (
+                    <div 
+                      className="notification-unread-dot" 
+                      style={{ backgroundColor: getIconColor(n.type) }}
+                    ></div>
+                  )}
+                  <div className="notification-content" style={{ opacity: n.isRead ? 0.6 : 1 }}>
                     <h4>{n.title}</h4>
                     <p>{n.message}</p>
                     <span className="notification-time">
@@ -228,11 +230,7 @@ const NotificationBell = () => {
           border-radius: 50%;
           margin-top: 6px;
           flex-shrink: 0;
-          transition: all 0.3s ease;
-        }
-        .notification-unread-dot.is-read {
-          border: 1px solid var(--border-color);
-          background-color: transparent !important;
+          box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
         .notification-content h4 {
           font-size: 13px;
