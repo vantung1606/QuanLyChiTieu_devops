@@ -3,7 +3,7 @@ services:
     build: ./backend
     container_name: expense-backend
     ports:
-      - "8090:8081"
+      - "8081:8081"
     environment:
       - DB_URL=jdbc:mysql://yamabiko.proxy.rlwy.net:42983/railway?allowPublicKeyRetrieval=true&useSSL=true&connectTimeout=10000&socketTimeout=30000
       - DB_USERNAME=root
