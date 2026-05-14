@@ -86,6 +86,13 @@ export default function Login() {
     localStorage.setItem('darkMode', data.darkMode);
     localStorage.setItem('currency', data.currency || 'VND');
     localStorage.setItem('language', data.language || 'VI');
+
+    // Áp dụng giao diện ngay lập tức
+    if (data.darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   };
 
   const handleError = (err) => {
