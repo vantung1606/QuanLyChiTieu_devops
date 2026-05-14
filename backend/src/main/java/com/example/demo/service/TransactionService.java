@@ -46,12 +46,16 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
-        return getFilteredTransactionsList(null, null, null, null).stream()
+        return getFilteredTransactionsAsList(null, null, null, null);
+    }
+
+    public List<TransactionDTO> getFilteredTransactionsAsList(String type, String category, Integer days, String keyword) {
+        return getFilteredTransactionsList(type, category, days, keyword).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    private List<Transaction> getFilteredTransactionsList(String type, String category, Integer days, String keyword) {
+    public List<Transaction> getFilteredTransactionsList(String type, String category, Integer days, String keyword) {
         User user = getCurrentUser();
         
         LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
@@ -121,8 +125,9 @@ public class TransactionService {
                         .with(java.time.temporal.TemporalAdjusters.firstDayOfMonth())
                         .withHour(0).withMinute(0).withSecond(0);
                 
-                double totalSpent = transactionRepository.findFilteredTransactionsWithKeyword((Long) user.getId(), (String) "expense", (String) category.getName(), (java.time.LocalDateTime) startOfMonth, (String) null)
+                double totalSpent = getFilteredTransactionsList("expense", category.getName(), 30, null)
                         .stream()
+                        .filter(t -> t.getDate().isAfter(startOfMonth) || t.getDate().isEqual(startOfMonth))
                         .mapToDouble(Transaction::getAmount)
                         .sum();
                 
@@ -182,9 +187,7 @@ public class TransactionService {
     }
 
     public String exportTransactionsToCsv(String type, String category, Integer days) {
-        List<TransactionDTO> transactions = getFilteredTransactionsList(type, category, days, null).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<TransactionDTO> transactions = getFilteredTransactionsAsList(type, category, days, null);
         StringBuilder csv = new StringBuilder();
         csv.append("Date,Title,Category,Type,Amount\n");
         for (TransactionDTO t : transactions) {
