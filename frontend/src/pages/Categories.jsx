@@ -185,10 +185,12 @@ export default function Categories() {
 
         {/* Budget Allocation Table */}
         <div className="enterprise-table-card">
-          <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--ent-border)' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--ent-text-main)' }}>{t('Budget Allocation Detail')}</h3>
+          <div style={{ padding: '0.6rem 1.25rem', borderBottom: '1px solid var(--border)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <h3 style={{ fontSize: '0.8rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {t('Budget Allocation Detail')}
+            </h3>
           </div>
-          <table className="enterprise-table">
+          <table className="enterprise-table" style={{ marginTop: 0 }}>
             <thead>
               <tr>
                 <th>{t('CATEGORY')}</th>
@@ -210,11 +212,7 @@ export default function Categories() {
                   return (
                     <tr key={cat.id}>
                       <td data-label={t('CATEGORY')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-end' }}>
-                          <div className="cat-name-info" style={{ textAlign: 'right' }}>
-                            <div className="cat-primary-name" style={{ fontWeight: 800, color: 'var(--ent-text-main)', fontSize: '1rem' }}>{cat.name}</div>
-                            <div className="cat-secondary-id" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: #{cat.id}</div>
-                          </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-start' }}>
                           <div style={{
                             width: '36px',
                             height: '36px',
@@ -228,6 +226,10 @@ export default function Categories() {
                           }}>
                             <IconComp size={18} />
                           </div>
+                          <div className="cat-name-info" style={{ textAlign: 'left' }}>
+                            <div className="cat-primary-name" style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '1rem' }}>{cat.name}</div>
+                            <div className="cat-secondary-id" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: #{cat.id}</div>
+                          </div>
                         </div>
                       </td>
                       <td data-label={t('STATUS')}>
@@ -236,10 +238,10 @@ export default function Categories() {
                         </span>
                       </td>
                       <td data-label={t('MONTHLY BUDGET')}>
-                        <strong style={{ color: 'var(--ent-text-main)', fontWeight: 700 }}>{formatCurrency(cat.budget)}</strong>
+                        <strong style={{ color: 'var(--text-main)', fontWeight: 700 }}>{formatCurrency(cat.budget)}</strong>
                       </td>
                       <td data-label={t('SPENT')}>
-                        <strong style={{ fontWeight: 900, color: isOverBudget ? 'var(--danger)' : 'var(--ent-text-main)', fontSize: '1.1rem' }}>
+                        <strong style={{ fontWeight: 900, color: isOverBudget ? 'var(--danger)' : 'var(--text-main)', fontSize: '1.1rem' }}>
                           {formatCurrency(cat.spent)}
                         </strong>
                       </td>
