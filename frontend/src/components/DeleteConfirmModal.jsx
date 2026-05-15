@@ -1,7 +1,9 @@
 import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, message, loading }) {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -9,7 +11,7 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, title, 
       <div className="modal-card" style={{ maxWidth: '400px' }}>
         <div className="modal-header">
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--danger)' }}>
-            <AlertTriangle size={20} /> Xác nhận xóa
+            <AlertTriangle size={20} /> {t('Delete confirmation')}
           </h3>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>

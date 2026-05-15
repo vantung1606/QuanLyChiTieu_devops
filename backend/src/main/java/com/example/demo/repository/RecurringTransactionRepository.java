@@ -13,4 +13,5 @@ public interface RecurringTransactionRepository extends JpaRepository<RecurringT
     List<RecurringTransaction> findByUser(User user);
     List<RecurringTransaction> findByNextExecutionDateBeforeAndIsActiveTrue(LocalDateTime date);
     void deleteByUser(User user);
+    void deleteByCategoryAndUser(String category, User user);
 }
