@@ -46,4 +46,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("query") String query);
 
     void deleteByUser(User user);
+    void deleteByCategoryAndUser(String category, User user);
 }

@@ -6,11 +6,13 @@ import com.example.demo.entity.Transaction;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.TransactionRepository;
+import com.example.demo.repository.RecurringTransactionRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,6 +25,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
+    private final RecurringTransactionRepository recurringTransactionRepository;
     private final UserRepository userRepository;
 
     private User getCurrentUser() {
@@ -82,6 +85,7 @@ public class CategoryService {
         return convertToDTO(categoryRepository.save(category), 0.0);
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         User user = getCurrentUser();
         Category category = categoryRepository.findById(id)
@@ -91,6 +95,10 @@ public class CategoryService {
         if (!category.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Access denied: You do not own this category");
         }
+        
+        // Cascade delete: Delete all transactions and recurring transactions with this category name
+        transactionRepository.deleteByCategoryAndUser(category.getName(), user);
+        recurringTransactionRepository.deleteByCategoryAndUser(category.getName(), user);
         
         categoryRepository.delete(category);
     }
