@@ -65,22 +65,22 @@ export default function Recurring() {
 
   return (
     <Layout>
-          <div className="page-header">
-            <div>
-              <h2 className="page-title">Giao dịch định kỳ</h2>
-              <p className="page-subtitle">Tự động hóa các khoản chi cố định hàng tháng</p>
+          <div className="enterprise-header">
+            <div className="enterprise-title-section">
+              <h2 className="enterprise-title">Giao dịch định kỳ</h2>
+              <p className="enterprise-subtitle">Tự động hóa các khoản chi cố định hàng tháng</p>
             </div>
-            <div className="page-actions">
-              <button className="btn-outline" onClick={handleTriggerNow}>
-                <PlayCircle size={16} /> Chạy ngay
+            <div className="enterprise-header-actions">
+              <button className="btn-enterprise-outline" onClick={handleTriggerNow}>
+                <PlayCircle size={18} /> Chạy ngay
               </button>
-              <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-                <Plus size={16} /> Thêm định kỳ
+              <button className="btn-enterprise-primary" onClick={() => setIsModalOpen(true)}>
+                <Plus size={18} /> Thêm định kỳ
               </button>
             </div>
           </div>
 
-          <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+          <div className="enterprise-table-card" style={{ padding: '0', overflow: 'hidden' }}>
             <table className="data-table">
               <thead>
                 <tr>
@@ -100,25 +100,25 @@ export default function Recurring() {
                 ) : (
                   recurring.map(item => (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label={t('TITLE')} className="td-title">
                         <div style={{ fontWeight: 600 }}>{item.title}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.category}</div>
+                        <div className="td-category-sub">{item.category}</div>
                       </td>
-                      <td style={{ color: item.type === 'expense' ? 'var(--danger)' : 'var(--success)', fontWeight: 700 }}>
+                      <td data-label={t('AMOUNT')} className="td-amount" style={{ color: item.type === 'expense' ? 'var(--danger)' : 'var(--success)', fontWeight: 700 }}>
                         {item.type === 'expense' ? '-' : '+'}{formatCurrency(item.amount)}
                       </td>
-                      <td>
+                      <td data-label={t('TẦN SUẤT')} className="td-frequency">
                         <span className="badge-outline" style={{ textTransform: 'capitalize' }}>
                           {item.frequency.toLowerCase()}
                         </span>
                       </td>
-                      <td>
+                      <td data-label={t('NGÀY TIẾP THEO')} className="td-date">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <Clock size={14} className="text-muted" />
                           {new Date(item.nextExecutionDate).toLocaleDateString('vi-VN')}
                         </div>
                       </td>
-                      <td>
+                      <td data-label={t('TRẠNG THÁI')} className="td-status">
                         {item.active ? (
                           <span className="status-badge on-track" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', width: 'fit-content' }}>
                             <CheckCircle size={12} /> Đang chạy
@@ -129,7 +129,7 @@ export default function Recurring() {
                           </span>
                         )}
                       </td>
-                      <td>
+                      <td data-label={t('ACTION')} className="td-actions">
                         <button className="action-icon danger" onClick={() => handleDelete(item.id)}>
                           <Trash2 size={16} />
                         </button>

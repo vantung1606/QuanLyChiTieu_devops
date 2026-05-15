@@ -301,25 +301,25 @@ export default function Transactions() {
                 transactions
                   .map(item => (
                     <tr key={item.id}>
-                      <td data-label={t('DATE_CELL')}>
+                      <td data-label={t('DATE_CELL')} className="td-date">
                         {new Date(item.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
-                      <td data-label={t('TITLE_CELL')} style={{ fontWeight: 600 }}>{item.title}</td>
-                      <td data-label={t('CATEGORY')}>
+                      <td data-label={t('TITLE_CELL')} className="td-title" style={{ fontWeight: 600 }}>{item.title}</td>
+                      <td data-label={t('CATEGORY')} className="td-category">
                         <span className={`enterprise-badge-category ${getCategoryBadgeClass(item.category)}`}>
                           {t(item.category) || item.category}
                         </span>
                       </td>
-                      <td data-label={t('Type')}>
+                      <td data-label={t('Type')} className="td-type">
                         <div className="enterprise-type-label" style={{ color: item.type === 'income' ? '#10b981' : '#ef4444' }}>
                           {item.type === 'income' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                           {item.type === 'income' ? t('Income') : t('Expense')}
                         </div>
                       </td>
-                      <td data-label={t('AMOUNT')} style={{ textAlign: 'right' }} className={`enterprise-amount ${item.type}`}>
+                      <td data-label={t('AMOUNT')} className="td-amount" style={{ textAlign: 'right' }} className={`enterprise-amount ${item.type}`}>
                         {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
                       </td>
-                      <td data-label={t('ACTION')}>
+                      <td data-label={t('ACTION')} className="td-actions">
                         <div className="action-cells">
                           <button className="action-icon" onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
                           <button className="action-icon danger" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
