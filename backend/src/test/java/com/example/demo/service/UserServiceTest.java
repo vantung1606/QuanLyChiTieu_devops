@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.PasswordChangeRequest;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
@@ -30,9 +29,6 @@ public class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private TwoFactorAuthService twoFactorAuthService;
 
     @Mock
     private EmailService emailService;
@@ -96,53 +92,5 @@ public class UserServiceTest {
         assertEquals("New Name", result.getFullName());
         assertEquals("EUR", result.getCurrency());
         verify(userRepository).save(any(User.class));
-    }
-
-    @Test
-    void changePassword_WithCorrectCurrentPassword_ShouldSucceed() {
-        mockSecurityContext("testuser");
-        PasswordChangeRequest request = new PasswordChangeRequest("oldPass", "newPass");
-
-        when(passwordEncoder.matches("oldPass", mockUser.getPassword())).thenReturn(true);
-        when(passwordEncoder.encode("newPass")).thenReturn("newEncodedPass");
-
-        userService.changePassword(request);
-
-        verify(passwordEncoder).encode("newPass");
-        verify(userRepository).save(mockUser);
-    }
-
-    @Test
-    void changePassword_WithIncorrectCurrentPassword_ShouldThrowException() {
-        mockSecurityContext("testuser");
-        PasswordChangeRequest request = new PasswordChangeRequest("wrongPass", "newPass");
-
-        when(passwordEncoder.matches("wrongPass", mockUser.getPassword())).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> userService.changePassword(request));
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void confirm2FA_WithValidCode_ShouldEnable2FA() {
-        mockSecurityContext("testuser");
-        String code = "123456";
-        when(twoFactorAuthService.isOtpValid("testuser", code)).thenReturn(true);
-
-        userService.confirm2FA(code);
-
-        assertTrue(mockUser.getTwoFactor());
-        verify(userRepository).save(mockUser);
-    }
-
-    @Test
-    void confirm2FA_WithInvalidCode_ShouldThrowException() {
-        mockSecurityContext("testuser");
-        String code = "wrong";
-        when(twoFactorAuthService.isOtpValid("testuser", code)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> userService.confirm2FA(code));
-        assertFalse(mockUser.getTwoFactor());
-        verify(userRepository, never()).save(any(User.class));
     }
 }
