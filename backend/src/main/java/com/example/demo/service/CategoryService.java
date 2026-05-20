@@ -6,7 +6,7 @@ import com.example.demo.entity.Transaction;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.TransactionRepository;
-import com.example.demo.repository.RecurringTransactionRepository;
+
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +25,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
-    private final RecurringTransactionRepository recurringTransactionRepository;
+
     private final UserRepository userRepository;
 
     private User getCurrentUser() {
@@ -96,9 +96,8 @@ public class CategoryService {
             throw new RuntimeException("Access denied: You do not own this category");
         }
         
-        // Cascade delete: Delete all transactions and recurring transactions with this category name
+        // Cascade delete: Delete all transactions with this category name
         transactionRepository.deleteByCategoryAndUser(category.getName(), user);
-        recurringTransactionRepository.deleteByCategoryAndUser(category.getName(), user);
         
         categoryRepository.delete(category);
     }

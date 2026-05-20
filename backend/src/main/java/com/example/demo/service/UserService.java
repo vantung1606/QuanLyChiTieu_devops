@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.PasswordChangeRequest;
+
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.*;
@@ -17,12 +17,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TwoFactorAuthService twoFactorAuthService;
+
     private final EmailService emailService;
     private final TransactionRepository transactionRepository;
     private final NotificationRepository notificationRepository;
     private final UserSessionRepository userSessionRepository;
-    private final RecurringTransactionRepository recurringTransactionRepository;
+
     private final CategoryRepository categoryRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
@@ -38,33 +38,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public com.example.demo.dto.TwoFactorSetupResponse setup2FA() {
-        User user = getCurrentUser();
-        String otp = twoFactorAuthService.generateNewSecret();
-        twoFactorAuthService.storeOtp(user.getUsername(), otp);
-        emailService.sendOtpEmail(user.getEmail(), otp);
-        
-        return com.example.demo.dto.TwoFactorSetupResponse.builder()
-                .secretKey("SENT_TO_EMAIL") // Indicator for frontend
-                .build();
-    }
 
-    public void confirm2FA(String code) {
-        User user = getCurrentUser();
-        if (twoFactorAuthService.isOtpValid(user.getUsername(), code)) {
-            user.setTwoFactor(true);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("Mã xác thực không đúng.");
-        }
-    }
-
-    public void disable2FA() {
-        User user = getCurrentUser();
-        user.setTwoFactor(false);
-        user.setSecretKey(null);
-        userRepository.save(user);
-    }
 
     public UserDTO getProfile() {
         User user = getCurrentUser();
@@ -134,19 +108,7 @@ public class UserService {
                 .build();
     }
 
-    @Transactional
-    public void changePassword(PasswordChangeRequest request) {
-        User user = getCurrentUser();
 
-        // Verify current password
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Current password is incorrect");
-        }
-
-        // Update to new password
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-    }
 
     @Transactional
     public void deleteUser() {
@@ -156,7 +118,7 @@ public class UserService {
         transactionRepository.deleteByUser(user);
         notificationRepository.deleteByUser(user);
         userSessionRepository.deleteByUser(user);
-        recurringTransactionRepository.deleteByUser(user);
+
         categoryRepository.deleteByUser(user);
         passwordResetTokenRepository.deleteByEmail(user.getEmail());
         

@@ -5,8 +5,7 @@ import {
   Tags, 
   BarChart2, 
   Settings, 
-  LogOut, 
-  Clock,
+  LogOut,
   X
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -71,10 +70,7 @@ export default function Sidebar({ onClose }) {
           <BarChart2 size={20} />
           {t('Reports')}
         </Link>
-        <Link to="/recurring" className={isActive('/recurring')} onClick={onClose}>
-          <Clock size={20} />
-          {t('Recurring') || 'Định kỳ'}
-        </Link>
+
         <Link to="/settings" className={isActive('/settings')} onClick={onClose}>
           <Settings size={20} />
           {t('Settings')}

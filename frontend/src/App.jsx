@@ -9,7 +9,7 @@ import Settings from './pages/Settings';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Reports from './pages/Reports';
-import Recurring from './pages/Recurring';
+
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
@@ -56,7 +56,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
         <Route path="/budgets" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
-        <Route path="/recurring" element={<ProtectedRoute><Recurring /></ProtectedRoute>} />
+
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       </Routes>

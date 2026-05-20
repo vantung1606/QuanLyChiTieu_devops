@@ -53,13 +53,5 @@ public class AuthController {
         return ResponseEntity.ok("Mật khẩu đã được đặt lại thành công.");
     }
 
-    @PostMapping("/verify-2fa")
-    public ResponseEntity<AuthResponse> verify2FA(
-            @RequestBody com.example.demo.dto.TwoFactorRequest request,
-            jakarta.servlet.http.HttpServletRequest httpRequest
-    ) {
-        String userAgent = httpRequest.getHeader("User-Agent");
-        String ipAddress = httpRequest.getRemoteAddr();
-        return ResponseEntity.ok(authService.verify2FA(request.getUsername(), request.getCode(), userAgent, ipAddress));
-    }
+
 }

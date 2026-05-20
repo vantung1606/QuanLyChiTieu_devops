@@ -28,7 +28,7 @@ public class AuthService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
-    private final TwoFactorAuthService twoFactorAuthService;
+
     private final CategoryService categoryService;
 
     private final UserSessionRepository sessionRepository;
@@ -88,34 +88,7 @@ public class AuthService {
 
             System.out.println("DEBUG: User authenticated. 2FA Status: " + user.getTwoFactor());
 
-            if (Boolean.TRUE.equals(user.getTwoFactor())) {
-                try {
-                    String otp = twoFactorAuthService.generateNewSecret();
-                    System.out.println("DEBUG: Generated OTP: " + otp);
-                    
-                    twoFactorAuthService.storeOtp(user.getUsername(), otp);
-                    System.out.println("DEBUG: OTP stored in memory.");
-                    
-                    if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                        System.out.println("DEBUG: Attempting to send email to: " + user.getEmail());
-                        emailService.sendOtpEmail(user.getEmail(), otp);
-                    } else {
-                        System.out.println("WARNING: User " + user.getUsername() + " has no email.");
-                        System.out.println("---------------------------------------");
-                        System.out.println("OTP CODE (NO EMAIL): " + otp);
-                        System.out.println("---------------------------------------");
-                    }
 
-                    return AuthResponse.builder()
-                            .username(user.getUsername())
-                            .requires2FA(true)
-                            .build();
-                } catch (Exception e) {
-                    System.err.println("ERROR during 2FA processing: " + e.getMessage());
-                    e.printStackTrace();
-                    throw new RuntimeException("Lỗi xử lý xác thực 2 lớp: " + e.getMessage());
-                }
-            }
 
             var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
             var jwtToken = jwtService.generateToken(userDetails);
@@ -136,27 +109,7 @@ public class AuthService {
         }
     }
 
-    public AuthResponse verify2FA(String username, String code, String userAgent, String ipAddress) {
-        var user = userRepository.findByUsernameOrEmail(username, username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        if (!twoFactorAuthService.isOtpValid(username, code)) {
-            throw new RuntimeException("Mã xác thực không đúng.");
-        }
 
-        var userDetails = userDetailsService.loadUserByUsername(username);
-        var jwtToken = jwtService.generateToken(userDetails);
-
-        recordSession(user, jwtToken, userAgent, ipAddress);
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .username(userDetails.getUsername())
-                .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
-                .currency(user.getCurrency())
-                .language(user.getLanguage())
-                .build();
-    }
 
     private void recordSession(User user, String token, String userAgent, String ipAddress) {
         var session = com.example.demo.entity.UserSession.builder()

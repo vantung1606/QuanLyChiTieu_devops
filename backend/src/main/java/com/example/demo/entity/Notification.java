@@ -29,7 +29,7 @@ public class Notification {
     private String message;
 
     @Column(nullable = false)
-    private String type; // BUDGET_EXCEEDED, RECURRING_PAID, SYSTEM
+    private String type; // BUDGET_EXCEEDED, SYSTEM
 
     @Builder.Default
     @Column(nullable = false)

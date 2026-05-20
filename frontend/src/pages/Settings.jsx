@@ -277,16 +277,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="security-score-card">
-                <div className="security-header">
-                  <ShieldCheck size={20} className="text-success" />
-                  <span className="security-label">Security Score: 92%</span>
-                </div>
-                <h3 className="security-title">{t('Shield Protected') || 'Shield Protected'}</h3>
-                <p className="security-desc">
-                  {t('Security Desc')}
-                </p>
-              </div>
+
             </div>
 
             {/* Main Settings Content */}
@@ -300,13 +291,7 @@ export default function Settings() {
                   <User size={18} />
                   {t('Profile Settings')}
                 </div>
-                <div 
-                  className={`settings-nav-item ${activeTab === 'security' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('security')}
-                >
-                  <Shield size={18} />
-                  {t('Security')}
-                </div>
+
                 <div 
                   className={`settings-nav-item ${activeTab === 'preferences' ? 'active' : ''}`}
                   onClick={() => setActiveTab('preferences')}
@@ -413,146 +398,7 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeTab === 'security' && (
-                  <div className="settings-section-card animate-in">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                      <h3 style={{ margin: 0 }}>{t('Security')}</h3>
-                      <span className="badge-outline success" style={{ fontSize: '0.7rem' }}>{t('Secure Account')}</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div className="security-item" onClick={() => setIsChangingPassword(!isChangingPassword)} style={{ cursor: 'pointer' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <Lock size={16} className="text-muted" />
-                          <span className="sec-label">{t('Change Password')}</span>
-                        </div>
-                        <ChevronRight size={18} className={`text-muted transition-all ${isChangingPassword ? 'rotate-90' : ''}`} />
-                      </div>
 
-                      {isChangingPassword && (
-                        <form onSubmit={handleChangePassword} style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>{t('CURRENT PASSWORD')}</label>
-                            <input 
-                              type="password" 
-                              required
-                              value={passwords.current}
-                              onChange={(e) => setPasswords({...passwords, current: e.target.value})}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>{t('NEW PASSWORD')}</label>
-                            <input 
-                              type="password" 
-                              required
-                              value={passwords.new}
-                              onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.7rem' }}>{t('CONFIRM NEW PASSWORD')}</label>
-                            <input 
-                              type="password" 
-                              required
-                              value={passwords.confirm}
-                              onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                            />
-                          </div>
-                          <button type="submit" className="btn-primary" disabled={saving} style={{ marginTop: '0.5rem' }}>
-                            {saving ? t('Updating...') : t('Update Password')}
-                          </button>
-                        </form>
-                      )}
-
-                      <div className="security-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
-                        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <ShieldCheck size={16} className="text-muted" />
-                            <span className="sec-label">{t('2FA')}</span>
-                          </div>
-                          {profile.twoFactor ? (
-                            <button className="badge-outline success" onClick={handleDisable2FA} disabled={saving} style={{ cursor: 'pointer' }}>{t('Enabled - Disable')}</button>
-                          ) : (
-                            <button className="badge-outline danger" onClick={handleSetup2FA} disabled={saving} style={{ cursor: 'pointer' }}>{t('Disabled - Setup')}</button>
-                          )}
-                        </div>
-
-                        {isSettingUp2FA && twoFactorData && (
-                          <div className="2fa-setup-box animate-in" style={{ width: '100%', padding: '1.25rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            <div style={{ textAlign: 'center' }}>
-                              <div style={{ marginBottom: '1rem', color: 'var(--primary)' }}>
-                                <ShieldCheck size={48} strokeWidth={1.5} />
-                              </div>
-                              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '0.5rem', fontWeight: 600 }}>
-                                {t('Email Verification')}
-                              </p>
-                              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                                {t('A 6-digit verification code has been sent to your email. Please check your inbox (or spam) and enter the code below to activate.')}
-                              </p>
-                            </div>
-
-                            <div className="form-group">
-                              <label style={{ fontSize: '0.7rem' }}>{t('VERIFICATION CODE (6 DIGITS)')}</label>
-                              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                                <input 
-                                  type="text" 
-                                  placeholder="000000" 
-                                  maxLength={6}
-                                  value={otpCode}
-                                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                                  style={{ flex: 1, textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
-                                />
-                                <button className="btn-primary" onClick={handleConfirm2FA} disabled={saving}>
-                                  {t('Confirm')}
-                                </button>
-                              </div>
-                            </div>
-
-                            <button className="btn-outline" onClick={() => { setIsSettingUp2FA(false); setTwoFactorData(null); }} style={{ width: '100%' }}>
-                              {t('Cancel Setup')}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                        <Sliders size={16} className="text-muted" />
-                        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>{t('Logged-in Devices')}</h4>
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {sessions.map(session => (
-                          <div key={session.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', backgroundColor: 'var(--bg-app)', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-card)', borderRadius: '0.375rem', color: 'var(--text-main)' }}>
-                                <Globe size={16} />
-                              </div>
-                              <div>
-                                <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                  {session.userAgent.includes('Windows') ? 'Windows PC' : session.userAgent.includes('Mac') ? 'MacBook' : t('Unknown Device')}
-                                  {session.isCurrent && <span className="badge-outline success" style={{ fontSize: '0.65rem', padding: '0 0.4rem' }}>{t('Current')}</span>}
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                  {session.ipAddress} • {new Date(session.lastActive).toLocaleString('vi-VN')}
-                                </div>
-                              </div>
-                            </div>
-                            {!session.isCurrent && (
-                              <button 
-                                className="btn-revoke" 
-                                onClick={() => handleRevokeSession(session.id)}
-                              >
-                                <LogOut size={14} />
-                                {t('Logout')}
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {activeTab === 'notifications' && (
                   <div className="settings-section-card animate-in">

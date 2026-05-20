@@ -198,15 +198,7 @@ export default function Transactions() {
       .reduce((acc, curr) => acc + curr.amount, 0);
   };
 
-  const getSpendingProjection = () => {
-    const totalSpent = calculateMonthlySpending();
-    const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const currentDay = now.getDate();
-    
-    const estimated = (totalSpent / currentDay) * daysInMonth;
-    return estimated;
-  };
+
 
   return (
     <Layout>
@@ -371,14 +363,7 @@ export default function Transactions() {
             <div className="enterprise-balance-large">{formatCurrency(calculateMonthlySpending())}</div>
           </div>
 
-          <div className="enterprise-summary-card">
-            <Target size={24} color="#f59e0b" style={{ marginBottom: '1rem' }} />
-            <h3>{t('Estimated Spending')}</h3>
-            <p>{t('Spending Projection Msg') || 'Dựa trên chi tiêu hiện tại, bạn dự kiến sẽ tiêu tổng cộng số tiền này trong tháng này.'}</p>
-            <div className="enterprise-balance-large" style={{ fontSize: '1.25rem', marginTop: '0.5rem', color: 'var(--text-main)' }}>
-              {formatCurrency(getSpendingProjection())}
-            </div>
-          </div>
+
 
           <div className="enterprise-summary-card">
             <PieChart size={24} color="#3b82f6" style={{ marginBottom: '1rem' }} />

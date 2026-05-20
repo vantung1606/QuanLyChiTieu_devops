@@ -519,16 +519,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              <div className="projection-box">
-                <div className="projection-label">{t('MONTHLY BUDGET')}</div>
-                <div className="projection-value">
-                  {t('Estimated Spending')}: {formatCurrency(
-                    budgetSummary.totalSpent > 0 
-                    ? (budgetSummary.totalSpent / new Date().getDate()) * new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
-                    : 0
-                  )}
-                </div>
-              </div>
+
             </div>
           </div>
         </div>
