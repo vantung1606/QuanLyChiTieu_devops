@@ -14,7 +14,7 @@ const getBaseURL = () => {
   // Production (Railway or others)
   // Nếu bạn có Domain riêng, hãy đảm bảo VITE_API_URL được set trong Railway Dashboard
   if (hostname.includes('railway.app')) {
-    return 'https://quanlychitieudevops-production.up.railway.app/api';
+    return '/api';
   }
   
   return `${protocol}//${hostname}/api`;
