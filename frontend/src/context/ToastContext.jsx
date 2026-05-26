@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization, react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,17 +10,17 @@ export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const [confirm, setConfirm] = useState(null);
 
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const addToast = useCallback((message, type = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       removeToast(id);
     }, 4000);
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
+  }, [removeToast]);
 
   const showConfirm = useCallback((title, message, onConfirm) => {
     setConfirm({ title, message, onConfirm });
