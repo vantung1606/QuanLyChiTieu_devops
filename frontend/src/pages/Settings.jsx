@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars, react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 

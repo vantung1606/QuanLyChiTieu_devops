@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps, react-hooks/set-state-in-effect, react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import { Plus, Download, Calendar, Search, ArrowUpRight, ArrowDownRight, Edit2, Trash2, ListFilter, TrendingUp, Target, PieChart, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

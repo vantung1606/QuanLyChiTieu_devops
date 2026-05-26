@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars, react-hooks/set-state-in-effect */
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';

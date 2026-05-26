@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';

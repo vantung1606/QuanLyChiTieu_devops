@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from '../api/axios';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,7 @@ const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const fetchNotifications = async (showToast = false) => {
+  const fetchNotifications = useCallback(async (showToast = false) => {
     try {
       const response = await axios.get('/notifications');
       const newNotifications = response.data;
@@ -39,14 +39,14 @@ const NotificationBell = () => {
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  };
+  }, [unreadCount]);
 
   useEffect(() => {
     fetchNotifications(false);
     // Polling every 15 seconds for faster updates
     const interval = setInterval(() => fetchNotifications(true), 15000);
     return () => clearInterval(interval);
-  }, [unreadCount]); // Re-run when unreadCount changes to keep ref fresh
+  }, [fetchNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

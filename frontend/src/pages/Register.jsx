@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars, react-hooks/set-state-in-effect */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HelpCircle, User, Mail, Lock, ShieldCheck } from 'lucide-react';
