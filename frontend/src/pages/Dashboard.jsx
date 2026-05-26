@@ -229,7 +229,7 @@ function Dashboard() {
             </div>
           </div>
           <div style={{ height: '100px', minHeight: '100px', width: '100%', marginTop: 'auto' }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <AreaChart data={balanceTrend}>
                 <defs>
                   <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
@@ -455,7 +455,7 @@ function Dashboard() {
             <div className="card-title">{t('Cash flow fluctuation last 30 days')}</div>
             <div className="trend-label">Net: {formatCurrency(report?.netCashFlow || 0)}</div>
             <div style={{ height: '180px', minHeight: '180px', width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <BarChart data={cashFlowData}>
                   <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />
                   <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} />

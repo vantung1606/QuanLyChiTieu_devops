@@ -149,7 +149,7 @@ export default function Reports() {
                 </div>
               </div>
               <div style={{ height: '300px', minHeight: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                   <BarChart data={data?.incomeVsExpenses || []} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
@@ -168,7 +168,7 @@ export default function Reports() {
             <div className="card">
               <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1.5rem' }}>{t('Spending by Category')}</h3>
               <div style={{ height: '220px', minHeight: '220px', position: 'relative' }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                   <PieChart>
                     <Pie
                       data={data?.categoryBreakdown || []}
