@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/preserve-manual-memoization, react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

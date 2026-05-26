@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars, react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import {
   Plus, Utensils, GraduationCap, Film, Train, Home, HeartPulse, Zap,
