@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 const getBaseURL = () => {
   const { hostname, protocol } = window.location;
@@ -9,7 +9,7 @@ const getBaseURL = () => {
   }
 
   if (hostname.includes('railway.app')) {
-    return 'https://quanlychitieudevops-production.up.railway.app/api';
+    return '/api';
   }
 
   return `${protocol}//${hostname}/api`;
