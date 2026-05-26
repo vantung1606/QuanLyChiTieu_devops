@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
 
 // Mocking some common browser APIs if needed
-global.matchMedia = global.matchMedia || function() {
+globalThis.matchMedia = globalThis.matchMedia || function() {
   return {
     matches: false,
     addListener: function() {},
