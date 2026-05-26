@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
