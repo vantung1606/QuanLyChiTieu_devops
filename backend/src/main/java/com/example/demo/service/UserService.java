@@ -16,8 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
-    private final UserSessionRepository userSessionRepository;
-
     private final CategoryRepository categoryRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
@@ -107,7 +105,6 @@ public class UserService {
         
         // Delete all related data
         transactionRepository.deleteByUser(user);
-        userSessionRepository.deleteByUser(user);
 
         categoryRepository.deleteByUser(user);
         passwordResetTokenRepository.deleteByEmail(user.getEmail());

@@ -31,11 +31,9 @@ export default function Settings() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
     fetchProfile();
-    fetchSessions();
   }, []);
 
   const fetchProfile = async () => {
@@ -46,25 +44,6 @@ export default function Settings() {
       console.error("Error fetching profile:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchSessions = async () => {
-    try {
-      const response = await api.get('/sessions');
-      setSessions(response.data);
-    } catch (error) {
-      console.error("Error fetching sessions:", error);
-    }
-  };
-
-  const handleRevokeSession = async (sessionId) => {
-    try {
-      await api.delete(`/sessions/${sessionId}`);
-      setSessions(sessions.filter(s => s.id !== sessionId));
-      toast.success(t('Logout successful'));
-    } catch (error) {
-      toast.error(t('Error updating profile'));
     }
   };
 

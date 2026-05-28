@@ -22,7 +22,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
-    private final com.example.demo.repository.UserSessionRepository sessionRepository;
 
     @Override
     protected void doFilterInternal(
@@ -39,14 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         jwt = authHeader.substring(7);
         try {
-            // Check if session is revoked
-            String tokenId = jwt.length() > 20 ? jwt.substring(jwt.length() - 20) : jwt;
-            var session = sessionRepository.findByTokenId(tokenId);
-            if (session.isPresent() && session.get().isRevoked()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             username = jwtService.extractUsername(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
