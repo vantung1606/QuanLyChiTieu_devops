@@ -13,11 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.PaginatedResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,61 +44,35 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> getAllTransactions() {
-        return getFilteredTransactionsAsList(null, null, null, null);
-    }
-
-    public List<TransactionDTO> getFilteredTransactionsAsList(String type, String category, Integer days, String keyword) {
-        return getFilteredTransactionsList(type, category, days, keyword).stream()
+        User user = getCurrentUser();
+        return transactionRepository.findByUserOrderByDateDesc(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<Transaction> getFilteredTransactionsList(String type, String category, Integer days, String keyword) {
+    public PaginatedResponse<TransactionDTO> getTransactions(int page, int size) {
         User user = getCurrentUser();
-        
-        LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
+        List<Transaction> allTransactions = transactionRepository.findByUserOrderByDateDesc(user);
+        int safePage = Math.max(page, 0);
+        int safeSize = size > 0 ? size : 7;
+        int total = allTransactions.size();
+        int fromIndex = Math.min(safePage * safeSize, total);
+        int toIndex = Math.min(fromIndex + safeSize, total);
 
-        String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
-        String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
-        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-
-        return transactionRepository.findFilteredTransactionsWithKeyword(
-                user.getId(), cleanType, cleanCategory, startDate, cleanKeyword, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
-    }
-
-    public PaginatedResponse<TransactionDTO> getFilteredTransactions(String type, String category, Integer days, String keyword, int page, int size) {
-        User user = getCurrentUser();
-        
-        LocalDateTime startDate = (days != null && days > 0) ? LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN) : null;
-
-        String cleanType = (type != null && !type.trim().isEmpty() && !type.equalsIgnoreCase("null") && !type.equalsIgnoreCase("undefined")) ? type.trim() : null;
-        String cleanCategory = (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("null") && !category.equalsIgnoreCase("undefined")) ? category.trim() : null;
-        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-
-        Pageable pageable = PageRequest.of(page, size);
-        
-        Page<Transaction> transactionPage = transactionRepository.findFilteredTransactionsWithKeyword(
-                user.getId(), cleanType, cleanCategory, startDate, cleanKeyword, pageable);
-
-        List<TransactionDTO> content = transactionPage.getContent().stream()
+        List<TransactionDTO> content = allTransactions.subList(fromIndex, toIndex).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        int totalPages = safeSize == 0 ? 0 : (int) Math.ceil((double) total / safeSize);
 
         return PaginatedResponse.<TransactionDTO>builder()
                 .content(content)
-                .pageNo(transactionPage.getNumber())
-                .pageSize(transactionPage.getSize())
-                .totalElements(transactionPage.getTotalElements())
-                .totalPages(transactionPage.getTotalPages())
-                .last(transactionPage.isLast())
+                .pageNo(safePage)
+                .pageSize(safeSize)
+                .totalElements(total)
+                .totalPages(totalPages)
+                .last(totalPages == 0 || safePage >= totalPages - 1)
                 .build();
-    }
-
-    public List<TransactionDTO> searchTransactions(String query) {
-        User user = getCurrentUser();
-        return transactionRepository.searchTransactions(user.getId(), query).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 
     public TransactionDTO createTransaction(TransactionDTO dto) {
@@ -121,12 +93,13 @@ public class TransactionService {
         User user = transaction.getUser();
         categoryRepository.findByNameAndUser(transaction.getCategory(), user).ifPresent(category -> {
             if (category.getBudget() > 0) {
-                java.time.LocalDateTime startOfMonth = java.time.LocalDateTime.now()
-                        .with(java.time.temporal.TemporalAdjusters.firstDayOfMonth())
+                LocalDateTime startOfMonth = LocalDateTime.now()
+                        .with(TemporalAdjusters.firstDayOfMonth())
                         .withHour(0).withMinute(0).withSecond(0);
-                
-                double totalSpent = getFilteredTransactionsList("expense", category.getName(), 30, null)
-                        .stream()
+
+                double totalSpent = transactionRepository.findByUserOrderByDateDesc(user).stream()
+                        .filter(t -> "expense".equalsIgnoreCase(t.getType()))
+                        .filter(t -> category.getName().equalsIgnoreCase(t.getCategory()))
                         .filter(t -> t.getDate().isAfter(startOfMonth) || t.getDate().isEqual(startOfMonth))
                         .mapToDouble(Transaction::getAmount)
                         .sum();
@@ -186,8 +159,20 @@ public class TransactionService {
         transactionRepository.delete(transaction);
     }
 
-    public String exportTransactionsToCsv(String type, String category, Integer days) {
-        List<TransactionDTO> transactions = getFilteredTransactionsAsList(type, category, days, null);
+    public List<TransactionDTO> getRecentTransactionsAsList(int days) {
+        User user = getCurrentUser();
+        if (days <= 0) {
+            return Collections.emptyList();
+        }
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN);
+        return transactionRepository.findByUserOrderByDateDesc(user).stream()
+                .filter(t -> !t.getDate().isBefore(startDate))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public String exportTransactionsToCsv() {
+        List<TransactionDTO> transactions = getAllTransactions();
         StringBuilder csv = new StringBuilder();
         csv.append("Date,Title,Category,Type,Amount\n");
         for (TransactionDTO t : transactions) {

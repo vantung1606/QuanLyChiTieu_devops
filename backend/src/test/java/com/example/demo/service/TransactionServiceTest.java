@@ -21,13 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,15 +100,15 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void getFilteredTransactions_ShouldCallRepositoryWithCorrectParams() {
+    void getTransactions_ShouldReturnPaginatedData() {
         mockSecurityContext("testuser");
-        Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
-        when(transactionRepository.findFilteredTransactionsWithKeyword(anyLong(), any(), any(), any(), any(), any(Pageable.class)))
-                .thenReturn(emptyPage);
+        when(transactionRepository.findByUserOrderByDateDesc(mockUser)).thenReturn(Collections.emptyList());
 
-        transactionService.getFilteredTransactions("expense", "Food", 7, null, 0, 7);
+        var result = transactionService.getTransactions(0, 7);
 
-        verify(transactionRepository).findFilteredTransactionsWithKeyword(eq(mockUser.getId()), eq("expense"), eq("Food"), any(), any(), any(Pageable.class));
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getContent().size());
+        verify(transactionRepository).findByUserOrderByDateDesc(mockUser);
     }
 
     @Test

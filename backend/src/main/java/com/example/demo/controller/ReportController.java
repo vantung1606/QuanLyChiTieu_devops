@@ -47,11 +47,11 @@ public class ReportController {
 
         List<TransactionDTO> transactions;
         if (month != null && year != null) {
-            transactions = transactionService.getFilteredTransactionsAsList(null, null, null, null).stream()
+            transactions = transactionService.getAllTransactions().stream()
                     .filter(t -> t.getDate().getMonthValue() == month && t.getDate().getYear() == year)
                     .collect(Collectors.toList());
         } else {
-            transactions = transactionService.getFilteredTransactionsAsList(null, null, 30, null);
+            transactions = transactionService.getRecentTransactionsAsList(30);
         }
         
         pdfExportService.export(response, transactions);
