@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.TransactionRepository;
 import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +33,6 @@ public class UserServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
-
-    @Mock
-    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @InjectMocks
     private UserService userService;
@@ -107,7 +103,6 @@ public class UserServiceTest {
 
         verify(transactionRepository).deleteByUser(mockUser);
         verify(categoryRepository).deleteByUser(mockUser);
-        verify(passwordResetTokenRepository).deleteByEmail("test@example.com");
         verify(userRepository).delete(mockUser);
     }
 }

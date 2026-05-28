@@ -1,32 +1,26 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.User;
-import com.example.demo.entity.PasswordResetToken;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
-
     private final CategoryService categoryService;
 
     public AuthResponse register(RegisterRequest request) {
@@ -37,7 +31,7 @@ public class AuthService {
             throw new IllegalArgumentException("Email đã được sử dụng.");
         }
 
-        var user = User.builder()
+        User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
@@ -50,8 +44,7 @@ public class AuthService {
                 .pushNotifs(false)
                 .build();
         userRepository.save(user);
-        
-        // Initialize default categories for new user
+
         categoryService.createDefaultCategories(user);
 
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
@@ -67,89 +60,25 @@ public class AuthService {
     }
 
     public AuthResponse login(AuthRequest request, String userAgent, String ipAddress) {
-        try {
-            System.out.println("DEBUG: Login attempt for user: " + request.getUsername());
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-            
-            var user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
 
-            var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-            var jwtToken = jwtService.generateToken(userDetails);
+        User user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            return AuthResponse.builder()
-                    .token(jwtToken)
-                    .username(userDetails.getUsername())
-                    .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
-                    .currency(user.getCurrency())
-                    .language(user.getLanguage())
-                    .build();
-        } catch (Exception e) {
-            System.err.println("CRITICAL LOGIN ERROR: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
-    }
+        var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+        var jwtToken = jwtService.generateToken(userDetails);
 
-
-
-    @Transactional
-    public void forgotPassword(ForgotPasswordRequest request) {
-        try {
-            var user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại trong hệ thống."));
-
-            // Delete old tokens for this email
-            tokenRepository.deleteByEmail(user.getEmail());
-
-            // Create new token
-            String token = UUID.randomUUID().toString();
-            var resetToken = PasswordResetToken.builder()
-                    .token(token)
-                    .email(user.getEmail())
-                    .expiryDate(LocalDateTime.now().plusMinutes(15))
-                    .used(false)
-                    .build();
-            
-            tokenRepository.save(resetToken);
-            System.out.println("---------------------------------------");
-            System.out.println("PASSWORD RESET REQUEST");
-            System.out.println("EMAIL: " + user.getEmail());
-            System.out.println("RESET TOKEN: " + token);
-            System.out.println("RESET URL: http://localhost:5173/reset-password?token=" + token);
-            System.out.println("---------------------------------------");
-        } catch (Exception e) {
-            System.err.println("ERROR in forgotPassword: " + e.getMessage());
-            e.printStackTrace();
-            throw e; // Re-throw to let the GlobalExceptionHandler handle it
-        }
-    }
-
-    @Transactional
-    public void resetPassword(ResetPasswordRequest request) {
-        var resetToken = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Mã token không hợp lệ."));
-
-        if (resetToken.isExpired()) {
-            throw new RuntimeException("Mã token đã hết hạn.");
-        }
-
-        if (resetToken.isUsed()) {
-            throw new RuntimeException("Mã token đã được sử dụng.");
-        }
-
-        var user = userRepository.findByEmail(resetToken.getEmail())
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại."));
-
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-
-        resetToken.setUsed(true);
-        tokenRepository.save(resetToken);
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .username(userDetails.getUsername())
+                .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
+                .currency(user.getCurrency())
+                .language(user.getLanguage())
+                .build();
     }
 }

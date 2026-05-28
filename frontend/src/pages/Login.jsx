@@ -130,7 +130,6 @@ export default function Login() {
                   <div className="form-group">
                     <label htmlFor="password-input">
                       {t('Password')}
-                      <Link to="/forgot-password" style={{ fontSize: '0.75rem', color: '#006d5b', textDecoration: 'none', fontWeight: 600 }}>{t('Forgot password?')}</Link>
                     </label>
                     <div className="input-with-icon">
                       <Lock size={18} className="icon" />

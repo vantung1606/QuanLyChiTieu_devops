@@ -17,7 +17,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -107,7 +106,6 @@ public class UserService {
         transactionRepository.deleteByUser(user);
 
         categoryRepository.deleteByUser(user);
-        passwordResetTokenRepository.deleteByEmail(user.getEmail());
         
         // Finally delete the user
         userRepository.delete(user);
