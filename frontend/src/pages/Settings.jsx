@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
-  User, Sliders, Bell, Camera, 
+  User, Sliders, Camera, 
   Globe, Moon, DollarSign, Trash2, 
   LogOut
 } from 'lucide-react';
@@ -21,8 +21,6 @@ export default function Settings() {
     currency: 'VND',
     language: localStorage.getItem('language') || 'VI',
     darkMode: localStorage.getItem('darkMode') === 'true',
-    emailUpdates: true,
-    pushNotifs: false,
     avatar: ''
   });
   const [passwords, setPasswords] = useState({
@@ -246,13 +244,6 @@ export default function Settings() {
                   <Sliders size={18} />
                   {t('Preferences')}
                 </div>
-                <div 
-                  className={`settings-nav-item ${activeTab === 'notifications' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('notifications')}
-                >
-                  <Bell size={18} />
-                  {t('Notifications')}
-                </div>
               </div>
 
               {/* Content Area */}
@@ -340,38 +331,6 @@ export default function Settings() {
                             <span className="slider"></span>
                           </label>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-
-
-                {activeTab === 'notifications' && (
-                  <div className="settings-section-card animate-in">
-                    <h3>{t('Notifications')}</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div className="security-item">
-                        <span className="sec-label">{t('Email Updates')}</span>
-                        <label className="switch">
-                          <input 
-                            type="checkbox" 
-                            checked={profile.emailUpdates !== false} 
-                            onChange={() => setProfile({...profile, emailUpdates: !profile.emailUpdates})} 
-                          />
-                          <span className="slider"></span>
-                        </label>
-                      </div>
-                      <div className="security-item">
-                        <span className="sec-label">{t('Push Notifications')}</span>
-                        <label className="switch">
-                          <input 
-                            type="checkbox" 
-                            checked={profile.pushNotifs || false} 
-                            onChange={() => setProfile({...profile, pushNotifs: !profile.pushNotifs})} 
-                          />
-                          <span className="slider"></span>
-                        </label>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.TransactionRepository;
 import com.example.demo.repository.UserRepository;
@@ -33,9 +32,6 @@ public class UserServiceTest {
 
     @Mock
     private TransactionRepository transactionRepository;
-
-    @Mock
-    private NotificationRepository notificationRepository;
 
     @Mock
     private UserSessionRepository userSessionRepository;
@@ -114,7 +110,6 @@ public class UserServiceTest {
         userService.deleteUser();
 
         verify(transactionRepository).deleteByUser(mockUser);
-        verify(notificationRepository).deleteByUser(mockUser);
         verify(userSessionRepository).deleteByUser(mockUser);
         verify(categoryRepository).deleteByUser(mockUser);
         verify(passwordResetTokenRepository).deleteByEmail("test@example.com");

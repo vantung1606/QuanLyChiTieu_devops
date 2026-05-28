@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, TrendingDown, Wallet, 
-  Calendar, Download, ArrowUpRight, ArrowDownRight,
+  Calendar, ArrowUpRight, ArrowDownRight,
   ShoppingBag, Car, Home, Coffee, Info, Lightbulb
 } from 'lucide-react';
 import { 
@@ -41,29 +41,6 @@ export default function Reports() {
       toast.error(t('Cannot load report data'));
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleExportPDF = async () => {
-    try {
-      const response = await api.get('/reports/export/pdf', {
-        params: {
-          month: selectedMonth,
-          year: selectedYear
-        },
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `financial_report_${selectedYear}_${selectedMonth}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      toast.success(t('Download successful'));
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast.error(t('Cannot load report data'));
     }
   };
 
@@ -112,12 +89,6 @@ export default function Reports() {
                   {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
-              <button 
-                className="btn-export" 
-                onClick={handleExportPDF}
-              >
-                <Download size={18} /> {t('Export PDF')}
-              </button>
             </div>
           </div>
 

@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.entity.Transaction;
 import com.example.demo.entity.User;
-import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.TransactionRepository;
 import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +33,6 @@ public class TransactionServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private NotificationService notificationService;
-
-    @Mock
-    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private TransactionService transactionService;
@@ -90,7 +83,6 @@ public class TransactionServiceTest {
         savedEntity.setUser(mockUser);
 
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedEntity);
-        when(categoryRepository.findByNameAndUser("Food", mockUser)).thenReturn(Optional.empty());
 
         TransactionDTO result = transactionService.createTransaction(dto);
 

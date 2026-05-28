@@ -16,7 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
-    private final NotificationRepository notificationRepository;
     private final UserSessionRepository userSessionRepository;
 
     private final CategoryRepository categoryRepository;
@@ -108,7 +107,6 @@ public class UserService {
         
         // Delete all related data
         transactionRepository.deleteByUser(user);
-        notificationRepository.deleteByUser(user);
         userSessionRepository.deleteByUser(user);
 
         categoryRepository.deleteByUser(user);

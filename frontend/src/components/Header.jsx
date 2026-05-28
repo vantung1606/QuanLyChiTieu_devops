@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bell, Calendar, Menu, Download, Settings } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
-import NotificationBell from './NotificationBell';
 
 export default function Header({ onMenuClick }) {
   const { t } = useTranslation();
@@ -38,8 +37,6 @@ export default function Header({ onMenuClick }) {
       </div>
 
       <div className="header-right">
-        <NotificationBell />
-
         <div className="header-user">
           <div className="user-text">
             <div className="user-name">{user?.fullName || "hy"}</div>
