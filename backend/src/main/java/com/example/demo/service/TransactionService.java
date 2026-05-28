@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.PaginatedResponse;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,18 +107,6 @@ public class TransactionService {
         }
 
         transactionRepository.delete(transaction);
-    }
-
-    public List<TransactionDTO> getRecentTransactionsAsList(int days) {
-        User user = getCurrentUser();
-        if (days <= 0) {
-            return Collections.emptyList();
-        }
-        LocalDateTime startDate = LocalDateTime.now().minusDays(days).with(java.time.LocalTime.MIN);
-        return transactionRepository.findByUserOrderByDateDesc(user).stream()
-                .filter(t -> !t.getDate().isBefore(startDate))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 
     public String exportTransactionsToCsv() {

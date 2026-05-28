@@ -39,7 +39,6 @@ public class AuthService {
                 .currency("VND")
                 .language("VI")
                 .darkMode(false)
-                .twoFactor(false)
                 .emailUpdates(true)
                 .pushNotifs(false)
                 .build();

@@ -39,11 +39,6 @@ public class User {
     private Boolean darkMode = false;
     
     @Builder.Default
-    private Boolean twoFactor = false;
-
-    private String secretKey;
-    
-    @Builder.Default
     private Boolean emailUpdates = true;
     
     @Builder.Default
