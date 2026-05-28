@@ -17,7 +17,6 @@ public class UserDTO {
     private String currency;
     private String language;
     private Boolean darkMode;
-    private Boolean twoFactor;
     private Boolean emailUpdates;
     private Boolean pushNotifs;
     private String avatar;

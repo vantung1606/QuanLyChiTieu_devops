@@ -15,5 +15,4 @@ public class AuthResponse {
     private boolean darkMode;
     private String currency;
     private String language;
-    private boolean requires2FA;
 }

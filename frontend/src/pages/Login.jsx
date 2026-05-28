@@ -9,8 +9,6 @@ export default function Login() {
   const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [requires2FA, setRequires2FA] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
@@ -20,9 +18,7 @@ export default function Login() {
   React.useEffect(() => {
     setUsername('');
     setPassword('');
-    setTwoFactorCode('');
     setError('');
-    setRequires2FA(false);
   }, []);
 
   const handleLogin = async () => {
@@ -39,36 +35,6 @@ export default function Login() {
       const response = await api.post('/auth/login', {
         username,
         password
-      });
-
-      if (response.data.requires2FA) {
-        setRequires2FA(true);
-        setLoading(false);
-        return;
-      }
-
-      saveAuthData(response.data);
-      navigate('/');
-    } catch (err) {
-      handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify2FA = async () => {
-    if (!twoFactorCode) {
-      setError(t('Please enter verification code'));
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await api.post('/auth/verify-2fa', {
-        username,
-        code: twoFactorCode
       });
 
       saveAuthData(response.data);
@@ -106,7 +72,7 @@ export default function Login() {
     
     setIsShaking(true);
     
-    if (passwordInputRef.current && !requires2FA) {
+    if (passwordInputRef.current) {
       passwordInputRef.current.focus();
       passwordInputRef.current.select();
     }
@@ -141,10 +107,9 @@ export default function Login() {
               className="auth-form"
               onSubmit={(e) => {
                 e.preventDefault();
-                requires2FA ? handleVerify2FA() : handleLogin();
+                handleLogin();
               }}
             >
-              {!requires2FA ? (
                 <>
                   <div className="form-group">
                     <label htmlFor="username-input">{t('Username')}</label>
@@ -195,47 +160,6 @@ export default function Login() {
                     {loading ? t('Processing...') : t('Login')}
                   </button>
                 </>
-              ) : (
-                <>
-                  <div className="form-group">
-                    <label htmlFor="2fa-input">{t('Two-Factor Authentication')}</label>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                      {t('A verification code has been sent to your email. Please enter the 6-digit code to continue.')}
-                    </p>
-                    <div className="input-with-icon">
-                      <Lock size={18} className="icon" />
-                      <input 
-                        id="2fa-input"
-                        name="twoFactorCode"
-                        type="text" 
-                        placeholder="000000" 
-                        maxLength={6}
-                        value={twoFactorCode}
-                        onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
-                        style={{ textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
-                        autoFocus
-                      />
-                    </div>
-                  </div>
-
-                  <button 
-                    type="submit" 
-                    className="auth-btn" 
-                    disabled={loading}
-                  >
-                    {loading ? t('Verifying...') : t('Verify Code')}
-                  </button>
-
-                  <button 
-                    type="button" 
-                    className="social-btn" 
-                    style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}
-                    onClick={() => setRequires2FA(false)}
-                  >
-                    {t('Back to Login')}
-                  </button>
-                </>
-              )}
             </form>
 
           <div className="auth-divider">{t('OR CONTINUE WITH')}</div>

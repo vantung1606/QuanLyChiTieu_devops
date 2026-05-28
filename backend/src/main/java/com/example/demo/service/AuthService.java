@@ -25,7 +25,6 @@ public class AuthService {
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
 
@@ -86,10 +85,6 @@ public class AuthService {
             var user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            System.out.println("DEBUG: User authenticated. 2FA Status: " + user.getTwoFactor());
-
-
-
             var userDetails = userDetailsService.loadUserByUsername(request.getUsername());
             var jwtToken = jwtService.generateToken(userDetails);
 
@@ -142,7 +137,12 @@ public class AuthService {
                     .build();
             
             tokenRepository.save(resetToken);
-            emailService.sendPasswordResetEmail(user.getEmail(), token);
+            System.out.println("---------------------------------------");
+            System.out.println("PASSWORD RESET REQUEST");
+            System.out.println("EMAIL: " + user.getEmail());
+            System.out.println("RESET TOKEN: " + token);
+            System.out.println("RESET URL: http://localhost:5173/reset-password?token=" + token);
+            System.out.println("---------------------------------------");
         } catch (Exception e) {
             System.err.println("ERROR in forgotPassword: " + e.getMessage());
             e.printStackTrace();

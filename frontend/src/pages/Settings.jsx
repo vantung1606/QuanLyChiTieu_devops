@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
-  User, Shield, Sliders, Bell, Camera, ChevronRight, 
+  User, Sliders, Bell, Camera, 
   Globe, Moon, DollarSign, Trash2, 
-  ShieldCheck, Lock, AlertCircle, CheckCircle2, LogOut
+  LogOut
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import api from '../api/axios';
-import { QRCodeSVG } from 'qrcode.react';
 
 import { useToast } from '../context/ToastContext';
 
@@ -22,7 +21,6 @@ export default function Settings() {
     currency: 'VND',
     language: localStorage.getItem('language') || 'VI',
     darkMode: localStorage.getItem('darkMode') === 'true',
-    twoFactor: false,
     emailUpdates: true,
     pushNotifs: false,
     avatar: ''
@@ -33,9 +31,6 @@ export default function Settings() {
     confirm: ''
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isSettingUp2FA, setIsSettingUp2FA] = useState(false);
-  const [twoFactorData, setTwoFactorData] = useState(null);
-  const [otpCode, setOtpCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sessions, setSessions] = useState([]);
@@ -171,54 +166,6 @@ export default function Settings() {
     }
   };
 
-  const handleSetup2FA = async () => {
-    setSaving(true);
-    try {
-      const response = await api.post('/users/2fa/setup');
-      setTwoFactorData(response.data);
-      setIsSettingUp2FA(true);
-    } catch (error) {
-      toast.error('Không thể khởi tạo 2FA.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleConfirm2FA = async () => {
-    if (!otpCode) {
-      toast.error('Vui lòng nhập mã OTP');
-      return;
-    }
-    setSaving(true);
-    try {
-      await api.post('/users/2fa/confirm', { code: parseInt(otpCode) });
-      toast.success(t('Security'));
-      setProfile({ ...profile, twoFactor: true });
-      setIsSettingUp2FA(false);
-      setTwoFactorData(null);
-      setOtpCode('');
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : 'Mã OTP không đúng');
-      toast.error(errorMsg);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDisable2FA = async () => {
-    if (!window.confirm('Bạn có chắc chắn muốn tắt xác thực 2 lớp? Bảo mật tài khoản sẽ bị giảm xuống.')) return;
-    setSaving(true);
-    try {
-      await api.post('/users/2fa/disable');
-      toast.success(t('Security'));
-      setProfile({ ...profile, twoFactor: false });
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi tắt 2FA.');
-    } finally {
-      setSaving(false);
-    }
-  };
-  
   const handleDeleteAccount = async () => {
     if (!window.confirm(t('Are you sure you want to delete your account? This action cannot be undone.'))) return;
     
@@ -460,3 +407,5 @@ export default function Settings() {
     </Layout>
   );
 }
+
+

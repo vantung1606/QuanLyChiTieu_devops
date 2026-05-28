@@ -7,7 +7,6 @@ import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    private final EmailService emailService;
     private final TransactionRepository transactionRepository;
     private final NotificationRepository notificationRepository;
     private final UserSessionRepository userSessionRepository;
@@ -50,7 +46,6 @@ public class UserService {
                 .currency(user.getCurrency())
                 .language(user.getLanguage())
                 .darkMode(Boolean.TRUE.equals(user.getDarkMode()))
-                .twoFactor(Boolean.TRUE.equals(user.getTwoFactor()))
                 .emailUpdates(Boolean.TRUE.equals(user.getEmailUpdates()))
                 .pushNotifs(Boolean.TRUE.equals(user.getPushNotifs()))
                 .avatar(user.getAvatar())
@@ -79,8 +74,6 @@ public class UserService {
         }
 
         user.setDarkMode(Boolean.TRUE.equals(dto.getDarkMode()));
-        // Do not update twoFactor directly here to ensure user confirmed setup
-        // user.setTwoFactor(dto.getTwoFactor());
         user.setEmailUpdates(Boolean.TRUE.equals(dto.getEmailUpdates()));
         user.setPushNotifs(Boolean.TRUE.equals(dto.getPushNotifs()));
         
@@ -101,7 +94,6 @@ public class UserService {
                 .currency(updatedUser.getCurrency())
                 .language(updatedUser.getLanguage())
                 .darkMode(Boolean.TRUE.equals(updatedUser.getDarkMode()))
-                .twoFactor(Boolean.TRUE.equals(updatedUser.getTwoFactor()))
                 .emailUpdates(Boolean.TRUE.equals(updatedUser.getEmailUpdates()))
                 .pushNotifs(Boolean.TRUE.equals(updatedUser.getPushNotifs()))
                 .avatar(updatedUser.getAvatar())
