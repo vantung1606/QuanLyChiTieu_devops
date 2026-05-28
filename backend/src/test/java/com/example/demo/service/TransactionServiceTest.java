@@ -92,14 +92,13 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void getTransactions_ShouldReturnPaginatedData() {
+    void getAllTransactions_ShouldReturnListData() {
         mockSecurityContext("testuser");
         when(transactionRepository.findByUserOrderByDateDesc(mockUser)).thenReturn(Collections.emptyList());
 
-        var result = transactionService.getTransactions(0, 7);
+        var result = transactionService.getAllTransactions();
 
-        assertEquals(0, result.getTotalElements());
-        assertEquals(0, result.getContent().size());
+        assertEquals(0, result.size());
         verify(transactionRepository).findByUserOrderByDateDesc(mockUser);
     }
 

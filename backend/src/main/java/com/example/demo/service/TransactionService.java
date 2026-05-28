@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.dto.PaginatedResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,31 +41,6 @@ public class TransactionService {
         return transactionRepository.findByUserOrderByDateDesc(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-    }
-
-    public PaginatedResponse<TransactionDTO> getTransactions(int page, int size) {
-        User user = getCurrentUser();
-        List<Transaction> allTransactions = transactionRepository.findByUserOrderByDateDesc(user);
-        int safePage = Math.max(page, 0);
-        int safeSize = size > 0 ? size : 7;
-        int total = allTransactions.size();
-        int fromIndex = Math.min(safePage * safeSize, total);
-        int toIndex = Math.min(fromIndex + safeSize, total);
-
-        List<TransactionDTO> content = allTransactions.subList(fromIndex, toIndex).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        int totalPages = safeSize == 0 ? 0 : (int) Math.ceil((double) total / safeSize);
-
-        return PaginatedResponse.<TransactionDTO>builder()
-                .content(content)
-                .pageNo(safePage)
-                .pageSize(safeSize)
-                .totalElements(total)
-                .totalPages(totalPages)
-                .last(totalPages == 0 || safePage >= totalPages - 1)
-                .build();
     }
 
     public TransactionDTO createTransaction(TransactionDTO dto) {

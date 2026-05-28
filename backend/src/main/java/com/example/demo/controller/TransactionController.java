@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.PaginatedResponse;
 import com.example.demo.dto.TransactionDTO;
 import com.example.demo.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,10 +24,8 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<PaginatedResponse<TransactionDTO>> getAllTransactions(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "7") int size) {
-        return ResponseEntity.ok(transactionService.getTransactions(page, size));
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
+        return ResponseEntity.ok(transactionService.getAllTransactions());
     }
 
     @PostMapping("/transactions")
